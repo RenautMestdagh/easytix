@@ -23,6 +23,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'organization_id',
     ];
 
     /**
@@ -57,5 +59,11 @@ class User extends Authenticatable
             ->explode(' ')
             ->map(fn (string $name) => Str::of($name)->substr(0, 1))
             ->implode('');
+    }
+
+    // The relationships
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class);
     }
 }

@@ -43,10 +43,10 @@ class UserFactory extends Factory
         ]);
     }
 
-    public function admin(): static
+    public function superadmin(): static
     {
         return $this->afterCreating(function ($user) {
-            $role = Role::firstOrCreate(['name' => 'admin']);
+            $role = Role::firstOrCreate(['name' => 'superadmin']);
             $user->assignRole($role);
         })->state(fn () => [
             'email_verified_at' => now(),

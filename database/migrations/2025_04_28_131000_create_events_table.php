@@ -9,12 +9,17 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('organizations', function (Blueprint $table) {
+        Schema::create('events', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('organizer_id')->constrained('organizations');
             $table->string('name');
-            $table->string('subdomain')->unique();
+            $table->text('description')->nullable();
+            $table->string('location')->nullable();
+            $table->dateTime('date');
+            $table->string('banner_image')->nullable();
+            $table->integer('max_capacity');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -25,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('organizations');
+        Schema::dropIfExists('events');
     }
 };
