@@ -54,6 +54,8 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    'domain' => env('APP_DOMAIN', 'easytix.rennet.duckdns.org'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone

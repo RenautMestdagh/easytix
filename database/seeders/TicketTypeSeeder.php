@@ -15,6 +15,6 @@ class TicketTypeSeeder extends Seeder
     {
         //
         // Create 10 ticket types
-        TicketType::factory(10)->create();
+        TicketType::factory(100)->create();
     }
 }

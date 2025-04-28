@@ -17,6 +17,15 @@
                 </flux:navlist.group>
             </flux:navlist>
 
+            <flux:navlist.item
+                icon="briefcase"
+                :href="route('organizations.index')"
+                :current="request()->routeIs('organizations.index')"
+                wire:navigate
+            >
+                {{ __('Organizations') }}
+            </flux:navlist.item>
+
             <flux:spacer />
 
             <flux:navlist variant="outline">

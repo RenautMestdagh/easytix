@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\EventOrganizationScope;
+use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+#[ScopedBy([EventOrganizationScope::class])]
 class Event extends Model
 {
     /** @use HasFactory<\Database\Factories\EventFactory> */
@@ -13,7 +16,7 @@ class Event extends Model
 
     // Fillable attributes for mass assignment
     protected $fillable = [
-        'organizer_id',
+        'organization_id',
         'name',
         'description',
         'location',
@@ -27,7 +30,7 @@ class Event extends Model
      */
     public function organization()
     {
-        return $this->belongsTo(Organization::class, 'organizer_id');
+        return $this->belongsTo(Organization::class, 'organization_id');
     }
 
     /**

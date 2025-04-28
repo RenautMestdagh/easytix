@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('qr_code')->unique(); // Unique QR code for each ticket
             $table->timestamp('scanned_at')->nullable(); // When the ticket was scanned (nullable)
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

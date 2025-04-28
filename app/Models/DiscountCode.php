@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\DiscountCodeOrganizationScope;
+use App\Models\Scopes\TicketOrganizationScope;
+use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+#[ScopedBy([DiscountCodeOrganizationScope::class])]
 class DiscountCode extends Model
 {
     /** @use HasFactory<\Database\Factories\DiscountCodeFactory> */

@@ -16,9 +16,20 @@ class OrganizationFactory extends Factory
      */
     public function definition(): array
     {
+        static $index = 1; // Counter to generate unique subdomains
+
+        // Customize subdomains for index 1 and 2
+        $subdomains = [
+            1 => 'kompass',
+            2 => 'modulair',
+        ];
+
+        // Use the predefined subdomain for index 1 and 2, otherwise use default logic
+        $subdomain = $subdomains[$index++] ?? 'subdomain' . $index++;
+
         return [
             'name' => $this->faker->company,
-            'subdomain' => $this->faker->unique()->domainWord,
+            'subdomain' => $subdomain,
         ];
     }
 }

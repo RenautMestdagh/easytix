@@ -18,7 +18,7 @@ class EventFactory extends Factory
     public function definition()
     {
         return [
-            'organizer_id' => Organization::inRandomOrder()->first()->id, // Assigning random organization
+            'organization_id' => Organization::inRandomOrder()->first()->id, // Assigning random organization
             'name' => $this->faker->word,
             'description' => $this->faker->sentence,
             'location' => $this->faker->address,

@@ -15,4 +15,14 @@ class Organization extends Model
         'name',
         'subdomain',
     ];
+
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
+
+    public function events()
+    {
+        return $this->hasMany(Event::class);
+    }
 }

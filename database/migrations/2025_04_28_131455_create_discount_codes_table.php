@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('max_uses')->nullable(); // Max uses for the discount code
             $table->integer('times_used')->default(0); // How many times the code has been used
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
