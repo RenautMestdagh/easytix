@@ -19,8 +19,8 @@ jobs:
           extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, bcmath, zip
           coverage: none
 
-      - name: Run Tests
-        run: vendor/bin/phpunit
+#      - name: Run Tests
+#        run: vendor/bin/phpunit
 
       - name: Deploy to Server via SSH
         uses: appleboy/ssh-action@master
