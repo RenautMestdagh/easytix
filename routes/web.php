@@ -8,12 +8,12 @@ use App\Models\Event;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
-Route::domain('{subdomain}.easytix.rennet.duckdns.org')
+Route::domain('{subdomain}.'.config('app.domain'))
     ->middleware(SubdomainOrganizationMiddleware::class)
     ->group(function () {
         Route::get('/', function (string $subdomain, Request $request) {
-//            return response()->json(Event::all());
-            return view('welcome');
+            return response()->json(Event::all());
+//            return view('welcome');
         });
 
         // Your other routes can access $request->organization_id directly
