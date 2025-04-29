@@ -7,6 +7,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -18,17 +19,8 @@ jobs:
           extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, bcmath, zip
           coverage: none
 
-#      - name: Copy .env
-#        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
-
-      - name: Install Dependencies
+      - name: Install PHP dependencies
         run: composer install --no-dev --optimize-autoloader
-
-#      - name: Generate key
-#        run: php artisan key:generate
-#
-#      - name: Directory Permissions
-#        run: chmod -R 777 storage bootstrap/cache
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -44,22 +36,40 @@ jobs:
       - name: Run Tests
         run: vendor/bin/phpunit
 
-      - name: Deploy to Server
+      - name: Deploy to Server via SSH
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            set -e
+
+            echo "→ Navigating to project directory..."
             cd /var/www/easytix
+
+            echo "→ Pulling latest code from master..."
             git pull origin master
+
+            echo "→ Setting permissions for ubuntu user (to avoid Composer errors)..."
+            sudo chown -R $USER:$USER .
+
+            echo "→ Installing PHP dependencies..."
             composer install --no-dev --optimize-autoloader
+
+            echo "→ Running Laravel optimizations..."
             php artisan migrate --force
-            php artisan optimize
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
+            php artisan optimize
+
+            echo "→ Installing frontend dependencies..."
             npm install
             npm run build
-            sudo chown -R www-data:www-data storage bootstrap/cache
-            sudo chmod -R 775 storage bootstrap/cache
+
+            echo "→ Setting final permissions for web server..."
+            sudo chown -R www-data:www-data storage bootstrap/cache vendor
+            sudo chmod -R 775 storage bootstrap/cache vendor
+
+            echo "✅ Deployment complete!"
