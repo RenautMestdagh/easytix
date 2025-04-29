@@ -20,7 +20,7 @@ jobs:
           coverage: none
 
       - name: Fix permissions for Ubuntu user
-        run: sudo chown -R ubuntu:ubuntu /var/www/easytix
+        run: sudo chown -R $(whoami):$(whoami) /var/www/easytix
 
       - name: Install PHP dependencies
         run: composer install --no-dev --optimize-autoloader
