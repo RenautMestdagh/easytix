@@ -19,6 +19,9 @@ jobs:
           extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, bcmath, zip
           coverage: none
 
+      - name: Fix permissions for Ubuntu user
+        run: sudo chown -R ubuntu:ubuntu /var/www/easytix
+
       - name: Install PHP dependencies
         run: composer install --no-dev --optimize-autoloader
 
