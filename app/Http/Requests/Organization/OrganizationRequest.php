@@ -29,26 +29,9 @@ class OrganizationRequest extends FormRequest
                 'string',
                 'max:50',
                 'regex:/^[a-z0-9\-]+$/',
-                $this->getUniqueSubdomainRule(),
+                Rule::unique('organizations','subdomain'),
             ],
         ];
-    }
-
-    /**
-     * Get the unique subdomain validation rule based on the request context.
-     *
-     * @return \Illuminate\Validation\Rules\Unique
-     */
-    protected function getUniqueSubdomainRule()
-    {
-        $rule = Rule::unique('organizations', 'subdomain');
-
-        // If we're updating an existing organization, ignore the current organization's ID
-        if ($this->organization && isset($this->organization['id'])) {
-            $rule->ignore($this->organization['id']);
-        }
-
-        return $rule;
     }
 
     public function messages(): array
