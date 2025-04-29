@@ -25,7 +25,7 @@
 
         <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm rounded-xl transition-all duration-300 hover:border-indigo-800">
             <div class="p-8">
-                <form wire:submit="save">
+                <form wire:submit.prevent="save">
                     @csrf
                     <!-- Organization Details Section -->
                     <div class="space-y-8">
@@ -40,7 +40,7 @@
 
                             <x-ui.forms.group label="Organization Name" for="organization.name" error="organization.name">
                                 <x-ui.forms.input
-                                    wire:model="organization.name"
+                                    wire:model.lazy="organization.name"
                                     name="organization.name"
                                     placeholder="Enter the organization's name"
                                     error="{{ $errors->has('organization.name') }}"
@@ -51,7 +51,7 @@
                             <x-ui.forms.group label="Subdomain" for="organization.subdomain" error="organization.subdomain">
                                 <div class="flex">
                                     <x-ui.forms.input
-                                        wire:model="organization.subdomain"
+                                        wire:model.lazy="organization.subdomain"
                                         name="organization.subdomain"
                                         placeholder="the-organization"
                                         error="{{ $errors->has('organization.subdomain') }}"
@@ -81,7 +81,7 @@
 
                             <x-ui.forms.group label="Full Name" for="user.name" error="user.name">
                                 <x-ui.forms.input
-                                    wire:model="user.name"
+                                    wire:model.lazy="user.name"
                                     name="user.name"
                                     placeholder="Enter admin's full name"
                                     error="{{ $errors->has('user.name') }}"
@@ -92,7 +92,7 @@
                             <x-ui.forms.group label="Email Address" for="user.email" error="user.email">
                                 <x-ui.forms.input
                                     type="email"
-                                    wire:model="user.email"
+                                    wire:model.lazy="user.email"
                                     name="user.email"
                                     placeholder="admin@example.com"
                                     error="{{ $errors->has('user.email') }}"
@@ -104,7 +104,7 @@
                                 <x-ui.forms.group label="Password" for="user.password" error="user.password">
                                     <x-ui.forms.input
                                         type="password"
-                                        wire:model="user.password"
+                                        wire:model.lazy="user.password"
                                         name="user.password"
                                         placeholder="••••••••"
                                         error="{{ $errors->has('user.password') }}"
@@ -115,9 +115,10 @@
                                 <x-ui.forms.group label="Confirm Password" for="user.password_confirmation">
                                     <x-ui.forms.input
                                         type="password"
-                                        wire:model="user.password_confirmation"
+                                        wire:model.lazy="user.password_confirmation"
                                         name="user.password_confirmation"
                                         placeholder="••••••••"
+                                        error="{{ $errors->has('user.password.confirmed') }}"
                                         class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
                                     />
                                 </x-ui.forms.group>
@@ -125,9 +126,6 @@
                         </div>
 
                         <div class="flex items-center justify-end pt-8 space-x-4">
-                            <a href="{{ route('organizations.index') }}" class="px-6 py-3 border border-gray-300 dark:border-gray-700 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300">
-                                {{ __('Cancel') }}
-                            </a>
                             <button type="submit" class="px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 hover:cursor-pointer transition-all duration-300">
                                 {{ __('Create Organization') }}
                             </button>

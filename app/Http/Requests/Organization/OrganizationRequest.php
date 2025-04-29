@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Organization;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class OrganizationRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class OrganizationRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -28,8 +29,26 @@ class OrganizationRequest extends FormRequest
                 'string',
                 'max:50',
                 'regex:/^[a-z0-9\-]+$/',
+                $this->getUniqueSubdomainRule(),
             ],
         ];
+    }
+
+    /**
+     * Get the unique subdomain validation rule based on the request context.
+     *
+     * @return \Illuminate\Validation\Rules\Unique
+     */
+    protected function getUniqueSubdomainRule()
+    {
+        $rule = Rule::unique('organizations', 'subdomain');
+
+        // If we're updating an existing organization, ignore the current organization's ID
+        if ($this->organization && isset($this->organization['id'])) {
+            $rule->ignore($this->organization['id']);
+        }
+
+        return $rule;
     }
 
     public function messages(): array
@@ -39,6 +58,7 @@ class OrganizationRequest extends FormRequest
             'organization.name.max' => 'The organization name may not be greater than 255 characters.',
             'organization.subdomain.required' => 'The subdomain is required.',
             'organization.subdomain.regex' => 'The subdomain may only contain lowercase letters, numbers, and hyphens.',
+            'organization.subdomain.unique' => 'This subdomain is already in use. Please choose another one.',
         ];
     }
 }
