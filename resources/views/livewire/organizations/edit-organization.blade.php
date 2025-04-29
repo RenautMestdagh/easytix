@@ -1,114 +1,79 @@
-<div>
-    <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
+<div class="py-16">
+    <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
         @if (session()->has('message'))
-            <x-ui.flash-message 
-                :message="session('message')"
-                :type="session('message_type', 'success')"
-            />
+            <div class="mb-8 px-6 py-4 rounded-xl shadow-md {{ session('message_type') === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700' }} transition-all duration-300">
+                {{ session('message') }}
+            </div>
         @endif
 
-        <div class="md:grid md:grid-cols-3 md:gap-6">
-            <div class="md:col-span-1">
-                <div class="px-4 sm:px-0">
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">{{ __('Rol Bewerken') }}</h3>
-                    <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                        {{ __('Bewerk de geselecteerde rol.') }}
-                    </p>
-                </div>
+        <div class="flex justify-between items-center mb-10">
+            <div>
+                <h1 class="text-3xl font-semibold text-gray-800 dark:text-gray-200 transition-all duration-300">
+                    {{ __('Edit Organization') }}
+                </h1>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    {{ __('Update organization details') }}
+                </p>
             </div>
+            <a href="{{ route('organizations.index') }}" class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center transition-all duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                {{ __('Back to organizations') }}
+            </a>
+        </div>
 
-            <div class="mt-5 md:mt-0 md:col-span-2">
-                <form wire:submit="save">
-                    <div class="px-4 py-5 bg-white dark:bg-gray-800 sm:p-6 shadow sm:rounded-tl-md sm:rounded-tr-md">
-                        <div class="grid grid-cols-6 gap-6">
-                            <div class="col-span-6 sm:col-span-4">
-                                <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Naam') }}</label>
-                                <input type="text" 
-                                    wire:model="name" 
-                                    id="name" 
-                                    class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
-                                >
-                                <x-ui.forms.error error="name" />
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm rounded-xl transition-all duration-300 hover:border-indigo-800">
+            <div class="p-8">
+                <form wire:submit.prevent="save">
+                    @csrf
+                    <div class="space-y-8">
+                        <!-- Organization Information -->
+                        <div>
+                            <div class="inline-flex items-center p-1 px-3 mb-6 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full shadow-md">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                </svg>
+                                {{ __('Organization Details') }}
                             </div>
 
-                            <div class="col-span-6 sm:col-span-4">
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ __('Icoon') }}</label>
-                                <div class="relative">
-                                    <button 
-                                        type="button"
-                                        wire:click="toggleIconPicker"
-                                        class="w-full flex items-center gap-2 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm text-left focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                    >
-                                        @if($selectedIcon)
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 {{ $this->getIconColorClass() }}">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="{{ $selectedIcon['path'] }}" />
-                                            </svg>
-                                            <span class="text-gray-900 dark:text-white">{{ Str::title(str_replace('-', ' ', $selectedIcon['name'])) }}</span>
-                                        @else
-                                            <span class="text-gray-500">{{ __('Selecteer een icoon') }}</span>
-                                        @endif
-                                        <svg class="ml-auto h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd" d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z" clip-rule="evenodd" />
-                                        </svg>
-                                    </button>
+                            <x-ui.forms.group label="Organization Name" for="organization.name" error="organization.name">
+                                <x-ui.forms.input
+                                    wire:model.lazy="organization.name"
+                                    name="organization.name"
+                                    placeholder="Enter the organization's name"
+                                    error="{{ $errors->has('organization.name') }}"
+                                    class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
+                                />
+                            </x-ui.forms.group>
 
-                                    @if($showIconPicker)
-                                        <div class="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 rounded-md shadow-lg">
-                                            <div class="p-2 border-b border-gray-200 dark:border-gray-700">
-                                                <input
-                                                    type="text"
-                                                    wire:model.live="search"
-                                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-900 dark:text-white"
-                                                    placeholder="{{ __('Zoek een icoon...') }}"
-                                                >
-                                            </div>
-                                            <div class="max-h-60 overflow-y-auto p-2">
-                                                <div class="grid grid-cols-6 gap-2">
-                                                    @foreach($this->availableIcons as $name => $icon)
-                                                        <button
-                                                            type="button"
-                                                            wire:key="icon-{{ $name }}"
-                                                            wire:click="selectIcon('{{ $name }}', '{{ $icon['path'] }}')"
-                                                            class="flex flex-col items-center justify-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 {{ $icon === $selectedIcon ? 'bg-indigo-50 dark:bg-indigo-900/20 ring-2 ring-indigo-500' : '' }}"
-                                                        >
-                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 {{ $this->getIconColorClass() }}">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" d="{{ $icon['path'] }}" />
-                                                            </svg>
-                                                            <span class="mt-1 text-xs text-gray-600 dark:text-gray-400 truncate w-full text-center">
-                                                                {{ Str::title(str_replace('-', ' ', $name)) }}
-                                                            </span>
-                                                        </button>
-                                                    @endforeach
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endif
+                            <x-ui.forms.group label="Subdomain" for="organization.subdomain" error="organization.subdomain">
+                                <div class="flex">
+                                    <x-ui.forms.input
+                                        wire:model.lazy="organization.subdomain"
+                                        name="organization.subdomain"
+                                        placeholder="the-organization"
+                                        error="{{ $errors->has('organization.subdomain') }}"
+                                        class="rounded-l-xl shadow-md focus:ring-2 focus:ring-indigo-500"
+                                    />
+                                    <span class="inline-flex items-center px-3 bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 border border-l-0 border-gray-300 dark:border-gray-700 rounded-r-xl">
+                                        .{{ config('app.domain', 'example.com') }}
+                                    </span>
                                 </div>
-                                <x-ui.forms.error error="icon" />
-                            </div>
-
-                            <div class="col-span-6 sm:col-span-4">
-                                <label for="guard_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Guard') }}</label>
-                                <select 
-                                    wire:model="guard_name" 
-                                    id="guard_name" 
-                                    class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
-                                >
-                                    <option value="web">Web</option>
-                                    <option value="api">API</option>
-                                </select>
-                                <x-ui.forms.error error="guard_name" />
-                            </div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                                    {{ __('Only lowercase letters, numbers, and hyphens are allowed.') }}
+                                </p>
+                            </x-ui.forms.group>
                         </div>
-                    </div>
 
-                    <div class="flex items-center justify-end px-4 py-3 bg-gray-50 dark:bg-gray-800 text-right sm:px-6 shadow sm:rounded-bl-md sm:rounded-br-md">
-                        <x-ui.button type="submit">
-                            {{ __('Opslaan') }}
-                        </x-ui.button>
+                        <div class="flex items-center justify-end pt-8 space-x-4">
+                            <button type="submit" class="px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 hover:cursor-pointer transition-all duration-300">
+                                {{ __('Update Organization') }}
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-</div> 
+</div>

@@ -19,11 +19,14 @@ class ShowOrganization extends Component
 
     public function render()
     {
-        // Eager load the count of users for each organization and paginate
+        // Eager load the count of users and events for each organization and paginate
         $organizations = Organization::withCount('users')
             ->withCount('events')
             ->when($this->search, function ($query) {
-                $query->where('name', 'like', '%' . $this->search . '%');
+                $query->where(function ($q) {
+                    $q->where('name', 'like', '%' . $this->search . '%')
+                        ->orWhere('subdomain', 'like', '%' . $this->search . '%');
+                });
             })
             ->when($this->includeDeleted, function ($query) {
                 $query->withTrashed(); // Include soft-deleted organizations
