@@ -19,12 +19,6 @@ jobs:
           extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, bcmath, zip
           coverage: none
 
-      - name: Fix permissions for Ubuntu user
-        run: sudo chown -R $(whoami):$(whoami) /var/www/easytix
-
-      - name: Install PHP dependencies
-        run: composer install --no-dev --optimize-autoloader
-
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
