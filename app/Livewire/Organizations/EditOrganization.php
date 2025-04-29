@@ -44,6 +44,10 @@ class EditOrganization extends Component
         // Convert 'organization.name' to ['organization' => ['name' => 'value']]
         $data = Arr::undot([$property => $value]);
 
+        if($this->organizationModel->subdomain === $value) {
+            return;
+        }
+
         Validator::make(
             $data,
             [$property => $rules[$property]],
@@ -57,10 +61,16 @@ class EditOrganization extends Component
 //            abort(403);
 //        }
 
-        $validated = $this->validate(
-            (new UpdateOrganizationRequest())->rules(),
-            (new UpdateOrganizationRequest())->messages()
-        );
+        // Skip validation for subdomain if it's unchanged
+        $rules = (new UpdateOrganizationRequest())->rules();
+        $messages = (new UpdateOrganizationRequest())->messages();
+
+        // If the subdomain is not changed, remove its validation rule
+        if ($this->organizationModel->subdomain === $this->organization['subdomain']) {
+            unset($rules['organization.subdomain']);
+        }
+
+        $validated = $this->validate($rules, $messages);
 
         try {
             $this->organizationModel->update($validated['organization']);
