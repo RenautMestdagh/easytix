@@ -12,15 +12,37 @@ use App\Models\Event;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
+// Subdomain Routes
 Route::domain('{subdomain}.'.config('app.domain'))
     ->middleware(SubdomainOrganizationMiddleware::class)
     ->group(function () {
+        // Public routes for subdomain
         Route::get('/', function (string $subdomain, Request $request) {
             return response()->json(Event::all());
-//            return view('welcome');
         });
 
-        // Your other routes can access $request->organization_id directly
+        // Auth routes for subdomain
+        Route::middleware('guest')->group(function () {
+            Volt::route('login', 'auth.login')
+                ->name('subdomain.login');
+
+            Volt::route('register', 'auth.register')
+                ->name('subdomain.register');
+
+            Volt::route('forgot-password', 'auth.forgot-password')
+                ->name('subdomain.password.request');
+
+            Volt::route('reset-password/{token}', 'auth.reset-password')
+                ->name('subdomain.password.reset');
+        });
+
+        // Authenticated routes for subdomain
+        Route::middleware(['auth'])->group(function () {
+            Route::get('dashboard', [DashboardController::class, 'index'])
+                ->name('subdomain.dashboard');
+
+            // Other authenticated routes for subdomain...
+        });
     });
 
 Route::get('/', function () {

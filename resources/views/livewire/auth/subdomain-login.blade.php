@@ -22,24 +22,19 @@ new #[Layout('components.layouts.auth')] class extends Component {
     public bool $remember = false;
 
     public $organization = null;
-    public $subdomain = null;
-    public $isSubdomainLogin = false;
 
-    /**
-     * Mount the component.
-     */
+    // Add this property to store the subdomain
+    public $subdomain = null;
+
     public function mount()
     {
-        // Check if we're in a subdomain
+        // Get the subdomain from the route
         $this->subdomain = request()->route('subdomain');
-        $this->isSubdomainLogin = !empty($this->subdomain);
 
-        // Get organization data if we're in a subdomain
-        if ($this->isSubdomainLogin) {
-            $organizationId = session('organization_id');
-            if ($organizationId) {
-                $this->organization = Organization::find($organizationId);
-            }
+        // Get organization from session (set by SubdomainOrganizationMiddleware)
+        $organizationId = session('organization_id');
+        if ($organizationId) {
+            $this->organization = Organization::find($organizationId);
         }
     }
 
@@ -63,18 +58,8 @@ new #[Layout('components.layouts.auth')] class extends Component {
         RateLimiter::clear($this->throttleKey());
         Session::regenerate();
 
-        // Redirect based on whether we're in a subdomain or not
-        if ($this->isSubdomainLogin) {
-            $this->redirectIntended(
-                default: route('subdomain.dashboard', ['subdomain' => $this->subdomain], absolute: false),
-                navigate: true
-            );
-        } else {
-            $this->redirectIntended(
-                default: route('dashboard', absolute: false),
-                navigate: true
-            );
-        }
+        // Redirect to subdomain dashboard using the stored subdomain property
+        $this->redirectIntended(default: route('subdomain.dashboard', ['subdomain' => $this->subdomain], absolute: false), navigate: true);
     }
 
     /**
@@ -148,12 +133,8 @@ new #[Layout('components.layouts.auth')] class extends Component {
                 :placeholder="__('Password')"
             />
 
-            @if($isSubdomainLogin && Route::has('subdomain.password.request'))
+            @if (Route::has('subdomain.password.request'))
                 <flux:link class="absolute end-0 top-0 text-sm" :href="route('subdomain.password.request', ['subdomain' => $subdomain])" wire:navigate>
-                    {{ __('Forgot your password?') }}
-                </flux:link>
-            @elseif(Route::has('password.request'))
-                <flux:link class="absolute end-0 top-0 text-sm" :href="route('password.request')" wire:navigate>
                     {{ __('Forgot your password?') }}
                 </flux:link>
             @endif
@@ -167,15 +148,10 @@ new #[Layout('components.layouts.auth')] class extends Component {
         </div>
     </form>
 
-    @if($isSubdomainLogin && Route::has('subdomain.register'))
+    @if (Route::has('subdomain.register'))
         <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-zinc-600 dark:text-zinc-400">
             {{ __('Don\'t have an account?') }}
             <flux:link :href="route('subdomain.register', ['subdomain' => $subdomain])" wire:navigate>{{ __('Sign up') }}</flux:link>
-        </div>
-    @elseif(Route::has('register'))
-        <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-zinc-600 dark:text-zinc-400">
-            {{ __('Don\'t have an account?') }}
-            <flux:link :href="route('register')" wire:navigate>{{ __('Sign up') }}</flux:link>
         </div>
     @endif
 </div>

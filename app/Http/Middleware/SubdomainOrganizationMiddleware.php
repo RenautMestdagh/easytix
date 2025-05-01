@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Models\Organization;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\View;
 use Symfony\Component\HttpFoundation\Response;
 
 class SubdomainOrganizationMiddleware
@@ -27,6 +28,12 @@ class SubdomainOrganizationMiddleware
 
         // Share the organization id with the request
         session(['organization_id' => $organization->id]);
+
+        // Share organization with all views
+        View::share('organization', $organization);
+
+        // Add organization to request for controller access
+        $request->merge(['organization' => $organization]);
 
         return $next($request);
     }
