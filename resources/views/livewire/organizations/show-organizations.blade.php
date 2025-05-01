@@ -37,13 +37,13 @@
                 <!-- Input field -->
                 <input type="text"
                        wire:model.live.debounce.250ms="search"
-                       placeholder="{{ __('Search by name...') }}"
+                       placeholder="{{ __('Search by name or subdomain...') }}"
                        class="pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 p-2 text-sm w-full"
                 />
             </div>
 
             <!-- Include Deleted Checkbox -->
-            <label class="ml-4 flex items-center">
+            <label class="flex items-center ml-auto">
                 <input type="checkbox" wire:model.live="includeDeleted" class="form-checkbox text-indigo-600">
                 <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ __('Include deleted') }}</span>
             </label>

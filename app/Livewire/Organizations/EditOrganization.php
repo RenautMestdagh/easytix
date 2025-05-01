@@ -8,6 +8,7 @@ use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -21,16 +22,16 @@ class EditOrganization extends Component
         'name' => '',
         'subdomain' => ''
     ];
+    public $adminCount;
     public $saveButtonVisible = false;
 
     // For users table
     public $includeDeletedUsers = false;
     public $userSearch = '';
+    public $userRole = '';
     public $userSortField = 'name';
     public $userSortDirection = 'asc';
-    public $userPerPage = 10;
-
-    public $adminCount;
+    public $perPage = 10;
 
     public function mount(Organization $organization)
     {
@@ -39,7 +40,7 @@ class EditOrganization extends Component
             'name' => $organization->name,
             'subdomain' => $organization->subdomain
         ];
-        $this->adminCount = $organization->users()->where('role', 'admin')->count();
+        $this->adminCount = $this->organizationModel->admins()->count();
     }
 
     public function updated($property): void
@@ -122,33 +123,61 @@ class EditOrganization extends Component
     public function getUsersProperty()
     {
         return $this->organizationModel->users()
+            ->with('roles')
             ->when($this->userSearch, function ($query) {
                 $query->where(function ($q) {
                     $q->where('name', 'like', '%' . $this->userSearch . '%')
                         ->orWhere('email', 'like', '%' . $this->userSearch . '%');
                 });
             })
+            ->when($this->userRole && $this->userRole !== 'all', function ($query) {
+                $query->whereHas('roles', function ($q) {
+                    $q->where('name', $this->userRole);
+                });
+            })
             ->when($this->includeDeletedUsers, function ($query) {
                 $query->withTrashed();
             })
             ->orderBy($this->userSortField, $this->userSortDirection)
-            ->paginate($this->userPerPage);
+            ->paginate($this->perPage);
     }
+
 
     public function render()
     {
         return view('livewire.organizations.edit-organization', [
-            'users' => $this->users
+            'users' => $this->users,
+            'adminCount' => $this->adminCount,
         ]);
     }
 
     public function removeUser($id)
     {
-        $user = User::findOrFail($id);
-        $this->organizationModel->removeUser($user);
+        DB::transaction(function () use ($id) {
+            $user = User::findOrFail($id);
+            $organization = Organization::findOrFail($user->organization_id);
 
-        session()->flash('message', __('User soft deleted successfully.'));
-        $this->dispatch('flash-message');
+            // Lock all admin user rows for update to prevent race conditions
+            $adminIds = $organization->admins()->lockForUpdate()->pluck('id');
+
+            if (now()->format('H:i') === '16:08') {
+                sleep(10);
+            }
+
+            if ($adminIds->count() === 1 && $adminIds->first() === $user->id) {
+                session()->flash('message_type', 'error');
+                session()->flash('message', __('Cannot delete the last admin in the organization.'));
+                $this->dispatch('flash-message');
+                return;
+            }
+
+            $user->delete();
+
+            $this->adminCount = $this->organizationModel->admins()->count();
+
+            session()->flash('message', __('User deleted successfully.'));
+            $this->dispatch('flash-message');
+        });
     }
 
     public function forceDeleteUser($id)
@@ -165,6 +194,8 @@ class EditOrganization extends Component
 
         $user = User::withTrashed()->findOrFail($id);
         $user->restore();
+
+        $this->adminCount = $this->organizationModel->admins()->count();
 
         session()->flash('message', 'User restored successfully.');
         $this->dispatch('flash-message');

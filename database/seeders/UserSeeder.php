@@ -33,7 +33,6 @@ class UserSeeder extends Seeder
             // Create 1 admin user for each organization
             $adminUser = User::factory()->create([
                 'organization_id' => $organization->id,
-                'role' => 'admin',
             ]);
             $adminUser->assignRole($adminRole); // Assign admin role
 
@@ -41,7 +40,6 @@ class UserSeeder extends Seeder
             for ($i = 0; $i < 2; $i++) {
                 $organizerUser = User::factory()->create([
                     'organization_id' => $organization->id,
-                    'role' => 'organizer',
                 ]);
                 $organizerUser->assignRole($organizerRole); // Assign organizer role
             }
