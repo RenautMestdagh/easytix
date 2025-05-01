@@ -34,6 +34,10 @@ jobs:
             echo "→ Navigating to project directory..."
             cd /var/www/easytix
 
+            echo "→ Cleaning working directory..."
+            git clean -df
+            git reset --hard
+
             echo "→ Pulling latest code from master..."
             git pull origin master
 
