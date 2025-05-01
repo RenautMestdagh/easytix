@@ -154,9 +154,6 @@
                                             </th>
                                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">
                                                 {{ __('Role') }}
-                                                <span class="text-xs ml-1" style="visibility: {{ $userSortField == 'role' ? 'visible' : 'hidden' }};">
-                                                    {{ $userSortDirection == 'asc' ? '↑' : '↓' }}
-                                                </span>
                                             </th>
                                             <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
                                                 <span class="sr-only">{{ __('Actions') }}</span>
@@ -208,7 +205,8 @@
                                                             </button>
                                                         @else
                                                             <!-- Edit Button -->
-                                                            <a href=""
+                                                            <a href="{{ route('users.edit', $user) }}"
+                                                               wire:navigate
                                                                class="p-1 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
                                                                title="{{ __('Edit') }}"
                                                             >

@@ -4,6 +4,9 @@ use App\Http\Middleware\SubdomainOrganizationMiddleware;
 use App\Livewire\Organizations\CreateOrganization;
 use App\Livewire\Organizations\EditOrganization;
 use App\Livewire\Organizations\ShowOrganizations;
+use App\Livewire\Users\CreateUser;
+use App\Livewire\Users\EditUser;
+use App\Livewire\Users\ShowUsers;
 use App\Models\Event;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
@@ -37,6 +40,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/organizations', ShowOrganizations::class)->name('organizations.index');
     Route::get('/organizations/create', CreateOrganization::class)->name('organizations.create');
     Route::get('/organizations/{organization}/edit', EditOrganization::class)->name('organizations.edit');
+
+    Route::get('/users', ShowUsers::class)->name('users.index');
+    Route::get('/users/create', CreateUser::class)->name('users.create');
+    Route::get('/users/{user}/edit', EditUser::class)->name('users.edit');
 });
 
 require __DIR__ . '/auth.php';

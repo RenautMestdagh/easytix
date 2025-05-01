@@ -191,18 +191,6 @@
             {{ $organizations->links() }}
         </div>
 
-{{--        <div class="mt-4 ml-auto w-fit">--}}
-{{--            <div class="flex items-center gap-2">--}}
-{{--                <span class="text-sm text-gray-700 dark:text-gray-300">{{ __('Items per page:') }}</span>--}}
-{{--                <select wire:model.live="perPage" class="border rounded-lg p-2 text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300">--}}
-{{--                    <option value="5">5</option>--}}
-{{--                    <option value="10">10</option>--}}
-{{--                    <option value="25">25</option>--}}
-{{--                    <option value="50">50</option>--}}
-{{--                </select>--}}
-{{--            </div>--}}
-{{--        </div>--}}
-
     </div>
 
     <script>

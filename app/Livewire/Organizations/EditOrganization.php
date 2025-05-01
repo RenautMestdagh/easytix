@@ -160,10 +160,6 @@ class EditOrganization extends Component
             // Lock all admin user rows for update to prevent race conditions
             $adminIds = $organization->admins()->lockForUpdate()->pluck('id');
 
-            if (now()->format('H:i') === '16:08') {
-                sleep(10);
-            }
-
             if ($adminIds->count() === 1 && $adminIds->first() === $user->id) {
                 session()->flash('message_type', 'error');
                 session()->flash('message', __('Cannot delete the last admin in the organization.'));
