@@ -23,8 +23,7 @@ class Organization extends Model
 
     public function admins()
     {
-        return $this->users()
-            ->whereHas('roles', fn ($query) => $query->where('name', 'admin'));
+        return $this->hasMany(User::class)->role('admin');
     }
 
     public function events()
