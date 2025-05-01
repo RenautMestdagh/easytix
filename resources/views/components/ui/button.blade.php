@@ -1,16 +1,19 @@
 @props([
-    'type' => 'button',
-    'variant' => 'primary', // 'primary', 'secondary', 'danger'
-    'disabled' => false
+    'type' => 'button', // 'button', 'submit', 'reset'
+    'variant' => 'primary', // 'primary', 'secondary', 'danger', 'purple', 'indigo'
+    'disabled' => false,
+    'href' => null // Optional href for link-style buttons
 ])
 
 @php
-    $base = 'inline-flex items-center justify-center px-4 py-2 rounded-md font-semibold text-sm transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2';
+    $base = 'inline-flex items-center justify-center px-6 py-3 rounded-xl text-white transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 hover:cursor-pointer';
 
     $variants = [
-        'primary' => 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
+        'primary' => 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500',
         'secondary' => 'bg-gray-200 text-gray-700 hover:bg-gray-300 focus:ring-gray-400',
-        'danger' => 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
+        'danger' => 'bg-red-600 hover:bg-red-700 focus:ring-red-500',
+        'purple' => 'bg-purple-600 hover:bg-purple-700 focus:ring-purple-500',
+        'indigo' => 'bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500',
     ];
 
     $classes = $base . ' ' . ($variants[$variant] ?? $variants['primary']);
@@ -20,11 +23,19 @@
     }
 @endphp
 
-<button
-    type="{{ $type }}"
-    {{ $attributes->merge(['class' => $classes]) }}
-    @if ($disabled) disabled @endif
->
-    {{ $slot }}
-</button>
-
+@if($href)
+    <a
+        href="{{ $href }}"
+        {{ $attributes->merge(['class' => $classes]) }}
+    >
+        {{ $slot }}
+    </a>
+@else
+    <button
+        type="{{ $type }}"
+        {{ $attributes->merge(['class' => $classes]) }}
+        @if ($disabled) disabled @endif
+    >
+        {{ $slot }}
+    </button>
+@endif

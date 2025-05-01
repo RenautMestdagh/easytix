@@ -126,9 +126,9 @@
                         </div>
 
                         <div class="flex items-center justify-end pt-8 space-x-4">
-                            <button type="submit" class="px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 hover:cursor-pointer transition-all duration-300">
+                            <x-ui.button type="submit" variant="indigo">
                                 {{ __('Create Organization') }}
-                            </button>
+                            </x-ui.button>
                         </div>
                     </div>
                 </form>

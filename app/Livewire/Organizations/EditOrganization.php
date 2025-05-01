@@ -5,18 +5,32 @@ namespace App\Livewire\Organizations;
 use App\Http\Requests\Organization\StoreOrganizationRequest;
 use App\Http\Requests\Organization\UpdateOrganizationRequest;
 use App\Models\Organization;
+use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class EditOrganization extends Component
 {
+    use WithPagination;
+
     public Organization $organizationModel;
     public $organization = [
         'name' => '',
         'subdomain' => ''
     ];
+    public $saveButtonVisible = false;
+
+    // For users table
+    public $includeDeletedUsers = false;
+    public $userSearch = '';
+    public $userSortField = 'name';
+    public $userSortDirection = 'asc';
+    public $userPerPage = 10;
+
+    public $adminCount;
 
     public function mount(Organization $organization)
     {
@@ -25,6 +39,7 @@ class EditOrganization extends Component
             'name' => $organization->name,
             'subdomain' => $organization->subdomain
         ];
+        $this->adminCount = $organization->users()->where('role', 'admin')->count();
     }
 
     public function updated($property): void
@@ -43,6 +58,12 @@ class EditOrganization extends Component
 
         // Convert 'organization.name' to ['organization' => ['name' => 'value']]
         $data = Arr::undot([$property => $value]);
+
+        if ($this->organizationModel->name !== $this->organization['name'] || $this->organizationModel->subdomain !== $this->organization['subdomain']) {
+            $this->saveButtonVisible = true;
+        } else {
+            $this->saveButtonVisible = false;
+        }
 
         if($this->organizationModel->subdomain === $value) {
             return;
@@ -76,17 +97,76 @@ class EditOrganization extends Component
             $this->organizationModel->update($validated['organization']);
 
             session()->flash('message', __('Organization successfully updated.'));
-            session()->flash('message_type', 'success');
+            $this->dispatch('flash-message');
+
+            $this->saveButtonVisible = false;
 
             return redirect()->route('organizations.index');
         } catch (\Exception $e) {
             session()->flash('message', __('An error occurred while updating the organization.'));
             session()->flash('message_type', 'error');
+            $this->dispatch('flash-message');
         }
+    }
+
+    public function sortUsersBy($field)
+    {
+        if ($this->userSortField === $field) {
+            $this->userSortDirection = $this->userSortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->userSortField = $field;
+            $this->userSortDirection = 'asc';
+        }
+    }
+
+    public function getUsersProperty()
+    {
+        return $this->organizationModel->users()
+            ->when($this->userSearch, function ($query) {
+                $query->where(function ($q) {
+                    $q->where('name', 'like', '%' . $this->userSearch . '%')
+                        ->orWhere('email', 'like', '%' . $this->userSearch . '%');
+                });
+            })
+            ->when($this->includeDeletedUsers, function ($query) {
+                $query->withTrashed();
+            })
+            ->orderBy($this->userSortField, $this->userSortDirection)
+            ->paginate($this->userPerPage);
     }
 
     public function render()
     {
-        return view('livewire.organizations.edit-organization');
+        return view('livewire.organizations.edit-organization', [
+            'users' => $this->users
+        ]);
+    }
+
+    public function removeUser($id)
+    {
+        $user = User::findOrFail($id);
+        $this->organizationModel->removeUser($user);
+
+        session()->flash('message', __('User soft deleted successfully.'));
+        $this->dispatch('flash-message');
+    }
+
+    public function forceDeleteUser($id)
+    {
+        $user = User::withTrashed()->findOrFail($id);
+        $user->forceDelete();
+
+        session()->flash('message', __('User permanently deleted.'));
+        $this->dispatch('flash-message');
+    }
+
+    public function restoreUser($id)
+    {
+
+        $user = User::withTrashed()->findOrFail($id);
+        $user->restore();
+
+        session()->flash('message', 'User restored successfully.');
+        $this->dispatch('flash-message');
     }
 }

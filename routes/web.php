@@ -3,7 +3,7 @@
 use App\Http\Middleware\SubdomainOrganizationMiddleware;
 use App\Livewire\Organizations\CreateOrganization;
 use App\Livewire\Organizations\EditOrganization;
-use App\Livewire\Organizations\ShowOrganization;
+use App\Livewire\Organizations\ShowOrganizations;
 use App\Models\Event;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
@@ -34,7 +34,7 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('settings/password', 'settings.password')->name('settings.password');
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
 
-    Route::get('/organizations', ShowOrganization::class)->name('organizations.index');
+    Route::get('/organizations', ShowOrganizations::class)->name('organizations.index');
     Route::get('/organizations/create', CreateOrganization::class)->name('organizations.create');
     Route::get('/organizations/{organization}/edit', EditOrganization::class)->name('organizations.edit');
 });
