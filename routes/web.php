@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Middleware\SubdomainOrganizationMiddleware;
 use App\Livewire\Organizations\CreateOrganization;
 use App\Livewire\Organizations\EditOrganization;
@@ -26,7 +27,7 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-Route::view('dashboard', 'dashboard')
+Route::get('dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
