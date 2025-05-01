@@ -16,6 +16,7 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
+        // Create superadmin
         User::factory()->superadmin()->create([
             'name' => 'Renaut Mestdagh',
             'email' => 'renaut.mestdagh@hotmail.com',
@@ -30,18 +31,22 @@ class UserSeeder extends Seeder
         $organizations = Organization::all(); // Retrieve all organizations
 
         foreach ($organizations as $organization) {
-            // Create 1 admin user for each organization
-            $adminUser = User::factory()->create([
-                'organization_id' => $organization->id,
-            ]);
-            $adminUser->assignRole($adminRole); // Assign admin role
+            // Create 1-3 admin users for each organization
+            $adminCount = rand(1, 3);
+            for ($i = 0; $i < $adminCount; $i++) {
+                $adminUser = User::factory()->create([
+                    'organization_id' => $organization->id,
+                ]);
+                $adminUser->assignRole($adminRole);
+            }
 
-            // Create 2 organizer users for each organization
-            for ($i = 0; $i < 2; $i++) {
+            // Create 0-3 organizer users for each organization
+            $organizerCount = rand(0, 3);
+            for ($i = 0; $i < $organizerCount; $i++) {
                 $organizerUser = User::factory()->create([
                     'organization_id' => $organization->id,
                 ]);
-                $organizerUser->assignRole($organizerRole); // Assign organizer role
+                $organizerUser->assignRole($organizerRole);
             }
         }
     }

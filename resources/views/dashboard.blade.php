@@ -1,6 +1,6 @@
 <x-layouts.app :title="__('Dashboard')">
     <div class="flex h-full w-full flex-1 flex-col gap-4 rounded-xl">
-        <div class="grid auto-rows-min gap-4 md:grid-cols-4">
+        <div class="grid auto-rows-min gap-4 md:grid-cols-5">
             <!-- Organizations Card -->
             <div class="relative overflow-hidden rounded-xl border border-neutral-200 bg-white p-6 dark:border-neutral-700 dark:bg-gray-800">
                 <div class="flex items-center gap-3">
@@ -11,7 +11,7 @@
                     </div>
                     <div>
                         <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('Organizations') }}</p>
-                        <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ $organizationsCount }}</p>
+                        <p class="text-2xl font-semibold text-gray-900 dark:text-white countup" data-target="{{ $organizationsCount }}">0</p>
                     </div>
                 </div>
             </div>
@@ -23,11 +23,10 @@
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
                         </svg>
-
                     </div>
                     <div>
                         <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('Superadmins') }}</p>
-                        <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ $superadminsCount }}</p>
+                        <p class="text-2xl font-semibold text-gray-900 dark:text-white countup" data-target="{{ $superadminsCount }}">0</p>
                     </div>
                 </div>
             </div>
@@ -42,7 +41,7 @@
                     </div>
                     <div>
                         <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('Admins') }}</p>
-                        <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ $adminsCount }}</p>
+                        <p class="text-2xl font-semibold text-gray-900 dark:text-white countup" data-target="{{ $adminsCount }}">0</p>
                     </div>
                 </div>
             </div>
@@ -57,7 +56,22 @@
                     </div>
                     <div>
                         <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('Organizers') }}</p>
-                        <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ $organizersCount }}</p>
+                        <p class="text-2xl font-semibold text-gray-900 dark:text-white countup" data-target="{{ $organizersCount }}">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Events Card -->
+            <div class="relative overflow-hidden rounded-xl border border-neutral-200 bg-white p-6 dark:border-neutral-700 dark:bg-gray-800">
+                <div class="flex items-center gap-3">
+                    <div class="rounded-lg bg-red-100 p-3 dark:bg-red-900/50">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('Events') }}</p>
+                        <p class="text-2xl font-semibold text-gray-900 dark:text-white countup" data-target="{{ $eventsCount }}">0</p>
                     </div>
                 </div>
             </div>
@@ -68,4 +82,45 @@
             <x-placeholder-pattern class="absolute inset-0 size-full stroke-gray-900/20 dark:stroke-neutral-100/20" />
         </div>
     </div>
+
+    @push('scripts')
+        <script>
+            function animateCounters() {
+                const counters = document.querySelectorAll('.countup');
+                const animationDuration = 750;
+                const frameDuration = 1000 / 60;
+                const frames = Math.floor(animationDuration / frameDuration);
+
+                counters.forEach(counter => {
+                    const target = parseInt(counter.getAttribute('data-target'), 10);
+                    if (isNaN(target)) return;
+
+                    let current = 0;
+                    const increment = target / frames;
+
+                    const animate = () => {
+                        current += increment;
+                        if (current < target) {
+                            counter.textContent = Math.floor(current).toLocaleString();
+                            requestAnimationFrame(animate);
+                        } else {
+                            counter.textContent = target.toLocaleString();
+                        }
+                    };
+
+                    animate();
+                });
+            }
+
+            document.addEventListener('livewire:navigated', () => {
+                animateCounters();
+            });
+
+            // Optional: run it once if this script runs after the initial route load
+            document.addEventListener('DOMContentLoaded', () => {
+                animateCounters();
+            });
+        </script>
+    @endpush
+
 </x-layouts.app>
