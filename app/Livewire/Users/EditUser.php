@@ -36,7 +36,19 @@ class EditUser extends Component
         $this->role = $user->roles->first()->name ?? '';
         $this->organization_id = $user->organization_id;
 
-        $this->roles = Role::all()->pluck('name', 'name')->toArray();
+        // Get all roles initially
+        $allRoles = Role::all()->pluck('name', 'name');
+
+        // Filter roles based on current user's role
+        if ($this->role === 'superadmin') {
+            $this->roles = ['superadmin' => 'superadmin'];
+        } else {
+            // Remove superadmin role for non-superadmin users
+            $this->roles = $allRoles->reject(function ($value, $key) {
+                return $value === 'superadmin';
+            })->toArray();
+        }
+
         $this->organizations = Organization::all()->pluck('name', 'id')->toArray();
     }
 
@@ -93,10 +105,11 @@ class EditUser extends Component
                 // Find the user with lock for update to prevent race conditions
                 $user = User::lockForUpdate()->findOrFail($this->user['id']);
                 $originalOrganizationId = $user->organization_id;
-                $isAdmin = $user->hasRole('admin');
-                $isSuperadmin = $user->hasRole('superadmin');
+                $currentRole = $user->roles->first()->name ?? '';
+                $isSuperadmin = $currentRole === 'superadmin';
+                $isAdmin = $currentRole === 'admin';
 
-                // Prevent role changes for superadmin
+                // 1. Prevent superadmin from becoming anything else
                 if ($isSuperadmin && $validatedData['role'] !== 'superadmin') {
                     session()->flash('message', __('Superadmin role cannot be changed.'));
                     session()->flash('message_type', 'error');
@@ -104,7 +117,15 @@ class EditUser extends Component
                     return;
                 }
 
-                // Prevent organization assignment for superadmin
+                // 2. Prevent non-superadmins from becoming superadmin
+                if (!$isSuperadmin && $validatedData['role'] === 'superadmin') {
+                    session()->flash('message', __('Only existing superadmins can assign superadmin role.'));
+                    session()->flash('message_type', 'error');
+                    $this->role = $currentRole;
+                    return;
+                }
+
+                // 3. Prevent organization assignment for superadmin
                 if ($isSuperadmin && $validatedData['organization_id'] !== null) {
                     session()->flash('message', __('Superadmin cannot be assigned to an organization.'));
                     session()->flash('message_type', 'error');
@@ -116,8 +137,7 @@ class EditUser extends Component
                 $isChangingOrganization = $validatedData['organization_id'] != $originalOrganizationId;
 
                 // Check if we're changing from admin role to non-admin
-                $currentRole = $user->roles->first()->name ?? '';
-                $isChangingFromAdmin = $currentRole === 'admin' && $validatedData['role'] !== 'admin';
+                $isChangingFromAdmin = $isAdmin && $validatedData['role'] !== 'admin';
 
                 // If user is admin and changing organization, check if old org will have at least one admin left
                 if ($isAdmin && $isChangingOrganization && $originalOrganizationId) {
@@ -131,6 +151,7 @@ class EditUser extends Component
                         session()->flash('message', __('Cannot change organization. The current organization must have at least one admin.'));
                         session()->flash('message_type', 'error');
                         $this->organization_id = $originalOrganizationId;
+                        $this->role = 'admin';
                         return;
                     }
                 }
@@ -166,9 +187,8 @@ class EditUser extends Component
 
                 $user->update($updateData);
 
-                // For superadmin, ensure role stays as superadmin
-                $roleToSync = $isSuperadmin ? 'superadmin' : $validatedData['role'];
-                $user->syncRoles([$roleToSync]);
+                // Sync roles (superadmin remains superadmin, others get validated role)
+                $user->syncRoles([$validatedData['role']]);
 
                 session()->flash('message', __('User successfully updated.'));
                 session()->flash('message_type', 'success');

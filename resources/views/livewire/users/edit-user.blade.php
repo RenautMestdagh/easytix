@@ -104,13 +104,17 @@
                                         <div class="mb-2 text-sm text-yellow-600 dark:text-yellow-400">
                                             {{ __('Cannot change role: This is the last admin in the organization.') }}
                                         </div>
+                                    @elseif($role === 'superadmin')
+                                        <div class="mb-2 text-sm text-blue-600 dark:text-blue-400">
+                                            {{ __('Superadmin role cannot be changed.') }}
+                                        </div>
                                     @endif
                                     <x-ui.forms.select
                                         wire:model.lazy="role"
                                         name="role"
                                         error="{{ $errors->has('role') }}"
                                         class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500 px-5"
-                                        :disabled="$adminCount <= 1"
+                                        :disabled="$adminCount <= 1 && $userModel->hasRole('admin') || $role === 'superadmin'"
                                     >
                                         <option value="">{{ __('Select a role') }}</option>
                                         @foreach($roles as $key => $value)
