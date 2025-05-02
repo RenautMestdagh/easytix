@@ -39,7 +39,29 @@
                 </flux:navlist.item>
             @endhasanyrole
 
+            @role('admin')
+            <flux:navlist.item
+                icon="paint-brush"
+{{--                :href="route('organization.personalize', $organization->id)"--}}
+                :current="request()->routeIs('organization.personalize')"
+                wire:navigate
+            >
+                {{ __('Personalization') }}
+            </flux:navlist.item>
+            @endrole
+
             <flux:spacer />
+
+            @role('admin')
+            <flux:navlist.item
+                icon="cog-6-tooth"
+                :href="route('organizations.edit', $organization->id)"
+                :current="request()->routeIs('organizations.edit')"
+                wire:navigate
+            >
+                {{ __('Organization Settings') }}
+            </flux:navlist.item>
+            @endrole
 
 {{--            <flux:navlist variant="outline">--}}
 {{--                <flux:navlist.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">--}}

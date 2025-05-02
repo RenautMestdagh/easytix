@@ -86,6 +86,9 @@ class EditOrganization extends Component
         $rules = (new UpdateOrganizationRequest())->rules();
         $messages = (new UpdateOrganizationRequest())->messages();
 
+        $oldSubdomain = $this->organizationModel->subdomain;
+        $newSubdomain = $this->organization['subdomain'];
+
         // If the subdomain is not changed, remove its validation rule
         if ($this->organizationModel->subdomain === $this->organization['subdomain']) {
             unset($rules['organization.subdomain']);
@@ -101,7 +104,27 @@ class EditOrganization extends Component
 
             $this->saveButtonVisible = false;
 
-            return redirect()->route('organizations.index');
+            // If the subdomain has changed, redirect to the new subdomain's edit page
+            if ($oldSubdomain !== $newSubdomain && session('organization_id')) {
+                $baseUrl = config('app.url'); // http://localeasytix.org:8000
+                $hostParts = parse_url($baseUrl);
+
+                $scheme = $hostParts['scheme'] ?? 'http';
+                $domain = $hostParts['host'] ?? 'localhost';
+                $port = isset($hostParts['port']) ? ':' . $hostParts['port'] : '';
+
+                // Construct new host: newsub.localeasytix.org
+                $newHost = $newSubdomain . '.' . $domain;
+
+                // Build relative path to edit page
+                $path = route('organizations.edit', $this->organizationModel->id, false);
+
+                // Full new URL with port if present
+                $newUrl = $scheme . '://' . $newHost . $port . $path;
+
+                return redirect()->away($newUrl);
+            }
+
         } catch (\Exception $e) {
             session()->flash('message', __('An error occurred while updating the organization.'));
             session()->flash('message_type', 'error');

@@ -27,7 +27,17 @@ class CreateUser extends Component
     public function mount()
     {
         $this->authorize('users.create');
-        $this->roles = Role::all()->pluck('name', 'name')->toArray();
+
+        // Get all roles
+        $roles = Role::all()->pluck('name', 'name')->toArray();
+
+        // Remove 'superadmin' if the user doesn't have it
+        if (!auth()->user()->hasRole('superadmin')) {
+            unset($roles['superadmin']);
+        }
+
+        $this->roles = $roles;
+
         $this->organizations = Organization::all()->pluck('name', 'id')->toArray();
     }
 
@@ -69,8 +79,8 @@ class CreateUser extends Component
             (new StoreUserRequest())->messages()
         )
             ->validate();
-        $validatedData['organization_id'] = $validatedData['organization_id'] !== '' ? $validatedData['organization_id'] : null;
 
+        $validatedData['organization_id'] = $validatedData['organization_id'] !== null ? $validatedData['organization_id'] : session('organization_id');
 
         try {
             // Create the user

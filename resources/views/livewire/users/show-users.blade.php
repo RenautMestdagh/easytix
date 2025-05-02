@@ -96,12 +96,14 @@
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">
                                         {{ __('Role') }}
                                     </th>
-                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700" wire:click="sortBy('organization_id')">
-                                        {{ __('Organization') }}
-                                        <span class="text-xs ml-1" style="visibility: {{ $sortField == 'organization_id' ? 'visible' : 'hidden' }};">
-                                            {{ $sortDirection == 'asc' ? '↑' : '↓' }}
-                                        </span>
-                                    </th>
+                                    @role('superadmin')
+                                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700" wire:click="sortBy('organization_id')">
+                                            {{ __('Organization') }}
+                                            <span class="text-xs ml-1" style="visibility: {{ $sortField == 'organization_id' ? 'visible' : 'hidden' }};">
+                                                {{ $sortDirection == 'asc' ? '↑' : '↓' }}
+                                            </span>
+                                        </th>
+                                    @endrole
                                     @if(auth()->user()->can('users.update') || auth()->user()->can('users.delete'))
                                         <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
                                             <span class="sr-only">{{ __('Actions') }}</span>
@@ -128,9 +130,11 @@
                                         <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-300">
                                             {{ ucfirst($user->getRoleNames()->first()) }}
                                         </td>
-                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-300">
-                                            {{ $user->organization->name ?? '' }}
-                                        </td>
+                                        @role('superadmin')
+                                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-300">
+                                                {{ $user->organization->name ?? '' }}
+                                            </td>
+                                        @endrole
                                         @if(auth()->user()->can('users.update') || auth()->user()->can('users.delete'))
                                             <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                                                 <div class="flex justify-end gap-2">

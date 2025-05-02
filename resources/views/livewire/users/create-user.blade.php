@@ -103,7 +103,7 @@
                                     >
                                         <option value="">{{ __('Select a role') }}</option>
                                         @foreach($roles as $key => $value)
-                                            <option value="{{ $key }}">{{ $value }}</option>
+                                            <option value="{{ $key }}">{{ ucfirst($value) }}</option>
                                         @endforeach
                                     </x-ui.forms.select>
                                 </x-ui.forms.group>
