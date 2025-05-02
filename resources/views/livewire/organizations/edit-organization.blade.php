@@ -155,9 +155,11 @@
                                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">
                                                 {{ __('Role') }}
                                             </th>
-                                            <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
-                                                <span class="sr-only">{{ __('Actions') }}</span>
-                                            </th>
+                                            @if(auth()->user()->can('users.update') || auth()->user()->can('users.delete'))
+                                                <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                                                    <span class="sr-only">{{ __('Actions') }}</span>
+                                                </th>
+                                            @endif
                                         </tr>
                                         </thead>
                                         <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -179,65 +181,73 @@
                                                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-300">
                                                     {{ ucfirst($user->getRoleNames()->first()) }}
                                                 </td>
-                                                <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                                                    <div class="flex justify-end gap-2">
-                                                        @if ($user->trashed())
-                                                            <!-- Restore Button -->
-                                                            <button type="button"
-                                                                    wire:click="restoreUser({{ $user->id }})"
-                                                                    class="p-1 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
-                                                                    title="{{ __('Restore') }}"
-                                                            >
-                                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/>
-                                                                </svg>
-                                                            </button>
+                                                @if(auth()->user()->can('users.update') || auth()->user()->can('users.delete'))
+                                                    <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                                                        <div class="flex justify-end gap-2">
+                                                            @if ($user->trashed())
+                                                                @can('users.delete')
+                                                                    <!-- Restore Button -->
+                                                                    <button type="button"
+                                                                            wire:click="restoreUser({{ $user->id }})"
+                                                                            class="p-1 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                                                                            title="{{ __('Restore') }}"
+                                                                    >
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/>
+                                                                        </svg>
+                                                                    </button>
 
-                                                            <!-- Force Delete Button -->
-                                                            <button type="button"
-                                                                    onclick="confirmUserForceDelete({{ $user->id }}, '{{ addslashes($user->name) }}')"
-                                                                    class="p-1 bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 text-white rounded transition-colors"
-                                                                    title="{{ __('Delete permanently') }}"
-                                                            >
-                                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/>
-                                                                </svg>
-                                                            </button>
-                                                        @else
-                                                            <!-- Edit Button -->
-                                                            <a href="{{ route('users.edit', $user) }}"
-                                                               wire:navigate
-                                                               class="p-1 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
-                                                               title="{{ __('Edit') }}"
-                                                            >
-                                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"/>
-                                                                </svg>
-                                                            </a>
+                                                                    <!-- Force Delete Button -->
+                                                                    <button type="button"
+                                                                            onclick="confirmUserForceDelete({{ $user->id }}, '{{ addslashes($user->name) }}')"
+                                                                            class="p-1 bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 text-white rounded transition-colors"
+                                                                            title="{{ __('Delete permanently') }}"
+                                                                    >
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/>
+                                                                        </svg>
+                                                                    </button>
+                                                                @endcan
+                                                            @else
+                                                                @can('users.update')
+                                                                    <!-- Edit Button -->
+                                                                    <a href="{{ route('users.edit', $user) }}"
+                                                                       wire:navigate
+                                                                       class="p-1 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                                                                       title="{{ __('Edit') }}"
+                                                                    >
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"/>
+                                                                        </svg>
+                                                                    </a>
+                                                                @endcan
 
-                                                            <!-- Soft Delete Button -->
-                                                            @php
-                                                                $isLastAdmin = $user->getRoleNames()->first() === 'admin' && $adminCount <= 1;
-                                                            @endphp
-                                                            <button type="button"
-                                                                    @if($isLastAdmin) disabled @endif
-                                                                    onclick="@unless($isLastAdmin) confirmUserSoftDelete({{ $user->id }}, '{{ addslashes($user->name) }}') @endunless"
-                                                                    class="p-1 rounded-full transition-colors
-                                                                    @if($isLastAdmin)
-                                                                        text-gray-400 dark:text-gray-500 cursor-not-allowed
-                                                                    @else
-                                                                        text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 hover:bg-gray-100 dark:hover:bg-gray-700
-                                                                    @endif"
-                                                                    title="{{ $isLastAdmin ? __('Cannot delete the last admin') : __('Delete') }}">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                                     stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                                          d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/>
-                                                                </svg>
-                                                            </button>
-                                                        @endif
-                                                    </div>
-                                                </td>
+                                                                @can('users.delete')
+                                                                    <!-- Soft Delete Button -->
+                                                                    @php
+                                                                        $isLastAdmin = $user->getRoleNames()->first() === 'admin' && $adminCount <= 1;
+                                                                    @endphp
+                                                                    <button type="button"
+                                                                            @if($isLastAdmin) disabled @endif
+                                                                            onclick="@unless($isLastAdmin) confirmUserSoftDelete({{ $user->id }}, '{{ addslashes($user->name) }}') @endunless"
+                                                                            class="p-1 rounded-full transition-colors
+                                                                            @if($isLastAdmin)
+                                                                                text-gray-400 dark:text-gray-500 cursor-not-allowed
+                                                                            @else
+                                                                                text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 hover:bg-gray-100 dark:hover:bg-gray-700
+                                                                            @endif"
+                                                                            title="{{ $isLastAdmin ? __('Cannot delete the last admin') : __('Delete') }}">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                                             stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                                  d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/>
+                                                                        </svg>
+                                                                    </button>
+                                                                @endcan
+                                                            @endif
+                                                        </div>
+                                                    </td>
+                                                @endif
                                             </tr>
                                         @empty
                                             <tr>

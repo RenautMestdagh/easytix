@@ -17,35 +17,39 @@
                 </flux:navlist.group>
             </flux:navlist>
 
-            <flux:navlist.item
-                icon="briefcase"
-                :href="route('organizations.index')"
-                :current="request()->routeIs('organizations.index')"
-                wire:navigate
-            >
-                {{ __('Organizations') }}
-            </flux:navlist.item>
+            @role('superadmin')
+                <flux:navlist.item
+                    icon="briefcase"
+                    :href="route('organizations.index')"
+                    :current="request()->routeIs('organizations.index')"
+                    wire:navigate
+                >
+                    {{ __('Organizations') }}
+                </flux:navlist.item>
+            @endrole
 
-            <flux:navlist.item
-                icon="users"
-                :href="route('users.index')"
-                :current="request()->routeIs('users.index')"
-                wire:navigate
-            >
-                {{ __('Users') }}
-            </flux:navlist.item>
+            @hasanyrole('superadmin|admin')
+                <flux:navlist.item
+                    icon="users"
+                    :href="route('users.index')"
+                    :current="request()->routeIs('users.index')"
+                    wire:navigate
+                >
+                    {{ __('Users') }}
+                </flux:navlist.item>
+            @endhasanyrole
 
             <flux:spacer />
 
-            <flux:navlist variant="outline">
-                <flux:navlist.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
-                {{ __('Repository') }}
-                </flux:navlist.item>
+{{--            <flux:navlist variant="outline">--}}
+{{--                <flux:navlist.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">--}}
+{{--                {{ __('Repository') }}--}}
+{{--                </flux:navlist.item>--}}
 
-                <flux:navlist.item icon="book-open-text" href="https://laravel.com/docs/starter-kits" target="_blank">
-                {{ __('Documentation') }}
-                </flux:navlist.item>
-            </flux:navlist>
+{{--                <flux:navlist.item icon="book-open-text" href="https://laravel.com/docs/starter-kits" target="_blank">--}}
+{{--                {{ __('Documentation') }}--}}
+{{--                </flux:navlist.item>--}}
+{{--            </flux:navlist>--}}
 
             <!-- Desktop User Menu -->
             <flux:dropdown position="bottom" align="start">

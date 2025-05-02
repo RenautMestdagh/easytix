@@ -26,8 +26,8 @@ Route::domain('{subdomain}.'.config('app.domain'))
             Volt::route('login', 'auth.login')
                 ->name('subdomain.login');
 
-            Volt::route('register', 'auth.register')
-                ->name('subdomain.register');
+//            Volt::route('register', 'auth.register')
+//                ->name('subdomain.register');
 
             Volt::route('forgot-password', 'auth.forgot-password')
                 ->name('subdomain.password.request');
