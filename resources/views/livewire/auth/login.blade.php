@@ -60,21 +60,21 @@ new #[Layout('components.layouts.auth')] class extends Component {
             ]);
         }
 
+        // only allow superadmins to login into root domain
+        if (!$this->organization && !Auth::user()->hasRole('superadmin')) {
+            Auth::logout();
+            throw ValidationException::withMessages([
+                'email' => __('auth.failed'),
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
         Session::regenerate();
 
-        // Redirect based on whether we're in a subdomain or not
-        if ($this->isSubdomainLogin) {
-            $this->redirectIntended(
-                default: route('subdomain.dashboard', ['subdomain' => $this->subdomain], absolute: false),
-                navigate: true
-            );
-        } else {
-            $this->redirectIntended(
-                default: route('dashboard', absolute: false),
-                navigate: true
-            );
-        }
+        $this->redirectIntended(
+            default: route('dashboard', absolute: false),
+            navigate: true
+        );
     }
 
     /**

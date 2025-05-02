@@ -100,22 +100,40 @@ class ShowUsers extends Component
 
         DB::transaction(function () use ($id) {
             $user = User::findOrFail($id);
-            $organization = Organization::findOrFail($user->organization_id);
 
-            // Lock all admin user rows for update to prevent race conditions
-            $adminIds = $organization->admins()->lockForUpdate()->pluck('id');
+            if ($user->organization_id) {
+                $organization = Organization::findOrFail($user->organization_id);
 
-            if ($adminIds->count() === 1 && $adminIds->first() === $user->id) {
-                session()->flash('message_type', 'error');
-                session()->flash('message', __('Cannot delete the last admin in the organization.'));
+                // Lock all admin user rows for update to prevent race conditions
+                $adminIds = $organization->admins()->lockForUpdate()->pluck('id');
+
+                if ($adminIds->count() === 1 && $adminIds->first() === $user->id) {
+                    session()->flash('message_type', 'error');
+                    session()->flash('message', __('Cannot delete the last admin in the organization.'));
+                    $this->dispatch('flash-message');
+                    return;
+                }
+
+                $user->delete();
+
+                session()->flash('message', __('User deleted successfully.'));
                 $this->dispatch('flash-message');
                 return;
             }
 
-            $user->delete();
+            // Handle the case where organization_id is null
+            $usersWithNoOrganization = User::whereNull('organization_id')->lockForUpdate()->get();
 
-            session()->flash('message', __('User deleted successfully.'));
-            $this->dispatch('flash-message');
+            if ($usersWithNoOrganization->count() > 1) {
+                $user->delete();
+
+                session()->flash('message', __('User deleted successfully.'));
+                $this->dispatch('flash-message');
+            } else {
+                session()->flash('message_type', 'error');
+                session()->flash('message', __('Cannot delete the last superadmin.'));
+                $this->dispatch('flash-message');
+            }
         });
     }
 
