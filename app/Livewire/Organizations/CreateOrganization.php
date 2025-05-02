@@ -26,6 +26,11 @@ class CreateOrganization extends Component
         'password_confirmation' => '',
     ];
 
+    public function mount()
+    {
+        $this->authorize('organizations.create');
+    }
+
     /**
      * Lifecycle hook: Called automatically when any property changes.
      * This allows us to validate fields individually as they're updated.
@@ -67,6 +72,8 @@ class CreateOrganization extends Component
      */
     public function save()
     {
+        $this->authorize('organizations.create');
+
         // Validate all fields using the FormRequest rules
         $this->validate(
             (new StoreOrganizationRequest())->rules(),

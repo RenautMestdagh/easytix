@@ -108,6 +108,7 @@
                                     </x-ui.forms.select>
                                 </x-ui.forms.group>
 
+                                @role('superadmin')
                                 <x-ui.forms.group label="Organization" for="organization_id" error="organization_id">
                                     <x-ui.forms.select
                                         wire:model.lazy="organization_id"
@@ -122,6 +123,7 @@
                                         @endforeach
                                     </x-ui.forms.select>
                                 </x-ui.forms.group>
+                                @endrole
                             </div>
 
                         </div>

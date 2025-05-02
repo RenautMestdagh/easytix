@@ -35,6 +35,7 @@ class EditOrganization extends Component
 
     public function mount(Organization $organization)
     {
+        $this->authorize('organizations.update', $organization);
         $this->organizationModel = $organization;
         $this->organization = [
             'name' => $organization->name,
@@ -79,9 +80,7 @@ class EditOrganization extends Component
 
     public function save()
     {
-//        if (!Auth::user()->can('edit organizations')) {
-//            abort(403);
-//        }
+        $this->authorize('organizations.update', $this->organizationModel);
 
         // Skip validation for subdomain if it's unchanged
         $rules = (new UpdateOrganizationRequest())->rules();
@@ -153,6 +152,7 @@ class EditOrganization extends Component
 
     public function removeUser($id)
     {
+        $this->authorize('users.delete', $this->organizationModel);
         DB::transaction(function () use ($id) {
             $user = User::findOrFail($id);
             $organization = Organization::findOrFail($user->organization_id);
@@ -178,6 +178,7 @@ class EditOrganization extends Component
 
     public function forceDeleteUser($id)
     {
+        $this->authorize('users.delete', $this->organizationModel);
         $user = User::withTrashed()->findOrFail($id);
         $user->forceDelete();
 
@@ -187,7 +188,7 @@ class EditOrganization extends Component
 
     public function restoreUser($id)
     {
-
+        $this->authorize('users.delete', $this->organizationModel);
         $user = User::withTrashed()->findOrFail($id);
         $user->restore();
 

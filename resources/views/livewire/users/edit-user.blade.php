@@ -123,6 +123,7 @@
                                     </x-ui.forms.select>
                                 </x-ui.forms.group>
 
+                                @role('superadmin')
                                 <x-ui.forms.group label="Organization" for="organization_id" error="organization_id">
                                     @if($role === 'superadmin')
                                         <div class="mb-2 text-sm text-blue-600 dark:text-blue-400">
@@ -146,6 +147,7 @@
                                         @endforeach
                                     </x-ui.forms.select>
                                 </x-ui.forms.group>
+                                @endrole
                             </div>
                         </div>
 

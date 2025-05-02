@@ -20,6 +20,10 @@ class ShowUsers extends Component
     public $selectedRole;
     public $perPage = 10; // Add a property for pagination limit
 
+    public function mount()
+    {
+        $this->authorize('users.read');
+    }
 
     public function getUsersProperty()
     {
@@ -86,6 +90,7 @@ class ShowUsers extends Component
 
     public function deleteUser($id)
     {
+        $this->authorize('users.delete');
         if (auth()->id() === (int) $id) {
             session()->flash('message_type', 'error');
             session()->flash('message', __('You cannot delete your own account.'));
@@ -116,6 +121,7 @@ class ShowUsers extends Component
 
     public function forceDeleteUser($id)
     {
+        $this->authorize('users.delete');
         $user = User::withTrashed()->findOrFail($id);
         $user->forceDelete();
 
@@ -125,7 +131,7 @@ class ShowUsers extends Component
 
     public function restoreUser($id)
     {
-
+        $this->authorize('users.delete');
         $user = User::withTrashed()->findOrFail($id);
         $user->restore();
 

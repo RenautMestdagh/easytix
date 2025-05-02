@@ -1,6 +1,7 @@
 <x-layouts.app :title="__('Dashboard')">
     <div class="flex h-full w-full flex-1 flex-col gap-4 rounded-xl">
-        <div class="grid auto-rows-min gap-4 md:grid-cols-5">
+        <div class="grid auto-rows-min gap-4 {{ auth()->user()->hasRole('superadmin') ? 'md:grid-cols-5' : 'md:grid-cols-3' }}">
+            @role('superadmin')
             <!-- Organizations Card -->
             <div class="relative overflow-hidden rounded-xl border border-neutral-200 bg-white p-6 dark:border-neutral-700 dark:bg-gray-800">
                 <div class="flex items-center gap-3">
@@ -30,6 +31,7 @@
                     </div>
                 </div>
             </div>
+            @endrole
 
             <!-- Admins Card -->
             <div class="relative overflow-hidden rounded-xl border border-neutral-200 bg-white p-6 dark:border-neutral-700 dark:bg-gray-800">

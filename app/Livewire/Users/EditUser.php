@@ -24,6 +24,7 @@ class EditUser extends Component
     public function mount(User $user)
     {
         $this->userModel = $user;
+        $this->authorize('users.update', $this->userModel);
         $this->user = [
             'id' => $user->id,
             'name' => $user->name,
@@ -84,6 +85,7 @@ class EditUser extends Component
 
     public function update()
     {
+        $this->authorize('users.update', $this->userModel);
         $requestData = $this->prepareRequestData();
 
         // Get the base rules from UpdateUserRequest

@@ -49,12 +49,14 @@
                 <option value="organizer">Organizers</option>
             </x-ui.forms.select>
 
+            @role('superadmin')
             <x-ui.forms.select wire:model.live="selectedOrganization">
                 <option value="">No organization selected</option>
                 @foreach($organizations as $organization)
                     <option value="{{ $organization->id }}">{{ Str::limit($organization->name, 30) }}</option>
                 @endforeach
             </x-ui.forms.select>
+            @endrole
 
             <!-- Include Deleted Checkbox -->
             <label class="flex items-center ml-auto">

@@ -17,6 +17,11 @@ class ShowOrganizations extends Component
     public $perPage = 10; // Add a property for pagination limit
 
 
+    public function mount()
+    {
+        $this->authorize('organizations.read');
+    }
+
     public function render()
     {
         // Eager load the count of users and events for each organization and paginate
@@ -67,6 +72,7 @@ class ShowOrganizations extends Component
 
     public function deleteOrganization($id)
     {
+        $this->authorize('organizations.delete');
         $organization = Organization::findOrFail($id);
 
         // Delete the organization
@@ -79,6 +85,7 @@ class ShowOrganizations extends Component
 
     public function restoreOrganization($id)
     {
+        $this->authorize('organizations.delete');
         $organization = Organization::withTrashed()->findOrFail($id);
         $organization->restore(); // Restore the soft-deleted organization
 
@@ -88,6 +95,7 @@ class ShowOrganizations extends Component
 
     public function forceDeleteOrganization($id)
     {
+        $this->authorize('organizations.delete');
         $organization = Organization::withTrashed()->findOrFail($id);
         $organization->forceDelete();
 
