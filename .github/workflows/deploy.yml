@@ -34,15 +34,15 @@ jobs:
             echo "→ Navigating to project directory..."
             cd /var/www/easytix
 
+            echo "→ Setting permissions for ubuntu user (to avoid Composer errors)..."
+            sudo chown -R $USER:$USER .
+
             echo "→ Cleaning working directory..."
             git clean -df
             git reset --hard
 
             echo "→ Pulling latest code from master..."
             git pull origin master
-
-            echo "→ Setting permissions for ubuntu user (to avoid Composer errors)..."
-            sudo chown -R $USER:$USER .
 
             echo "→ Installing PHP dependencies..."
             composer install --no-dev --optimize-autoloader
