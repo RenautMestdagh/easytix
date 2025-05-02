@@ -70,6 +70,12 @@
                                         {{ $sortDirection == 'asc' ? '↑' : '↓' }}
                                     </span>
                                 </th>
+                                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-white sm:pl-6 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700" wire:click="sortBy('subdomain')">
+                                    {{ __('Subdomain') }}
+                                    <span class="text-xs ml-1" style="visibility: {{ $sortField == 'subdomain' ? 'visible' : 'hidden' }};">
+                                        {{ $sortDirection == 'asc' ? '↑' : '↓' }}
+                                    </span>
+                                </th>
                                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700" wire:click="sortBy('users_count')">
                                     <div class="flex items-center gap-2">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -113,6 +119,11 @@
                                                 {{ __('Deleted') }}
                                             </span>
                                             @endif
+                                        </div>
+                                    </td>
+                                    <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-gray-900 dark:text-white sm:pl-6">
+                                        <div class="flex items-center gap-2">
+                                            {{ $organization->subdomain }}
                                         </div>
                                     </td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-300">

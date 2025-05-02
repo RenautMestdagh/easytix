@@ -117,14 +117,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
     <x-auth-session-status class="text-center" :status="session('status')" />
 
     <form wire:submit="login" class="flex flex-col gap-6">
-        @if($organization)
-            <!-- Organization Logo (if available) -->
-            <div class="flex justify-center">
-                @if($organization->logo_url)
-                    <img src="{{ $organization->logo_url }}" alt="{{ $organization->name }} Logo" class="h-16">
-                @endif
-            </div>
-        @endif
 
         <!-- Email Address -->
         <flux:input

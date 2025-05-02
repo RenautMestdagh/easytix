@@ -42,8 +42,8 @@
             @role('admin')
             <flux:navlist.item
                 icon="paint-brush"
-{{--                :href="route('organization.personalize', $organization->id)"--}}
-                :current="request()->routeIs('organization.personalize')"
+                :href="route('organizations.media', $organization)"
+                :current="request()->routeIs('organizations.media')"
                 wire:navigate
             >
                 {{ __('Personalization') }}
