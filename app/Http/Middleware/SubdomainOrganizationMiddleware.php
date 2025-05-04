@@ -17,23 +17,26 @@ class SubdomainOrganizationMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        $subdomain = $request->route('subdomain');
+        $host = $request->getHost();
+        $mainDomain = config('app.domain');
+        $subdomain = str_replace('.' . $mainDomain, '', $host);
 
-        // Find the organization by subdomain
-        $organization = Organization::where('subdomain', $subdomain)->first();
-
-        if (!$organization) {
-            abort(404, 'Organization not found');
+        if ($subdomain !== $host) {
+            // Find the organization by subdomain
+            $organization = Organization::where('subdomain', $subdomain)->first();
+            if (!$organization) {
+                abort(404, 'Organization not found');
+            }
         }
 
         // Share the organization id with the request
-        session(['organization_id' => $organization->id]);
+        session(['organization_id' => $organization->id ?? null]);
 
         // Share organization with all views
-        View::share('organization', $organization);
+        View::share('organization', $organization ?? null);
 
         // Add organization to request for controller access
-        $request->merge(['organization' => $organization]);
+        $request->merge(['organization' => $organization ?? null]);
 
         return $next($request);
     }
