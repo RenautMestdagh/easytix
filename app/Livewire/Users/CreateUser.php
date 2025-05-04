@@ -50,8 +50,10 @@ class CreateUser extends Component
         $fieldRules = (new StoreUserRequest())->rules();
         $fieldMessages = (new StoreUserRequest())->messages();
 
-        if ($propertyName === 'role' && $this->role === 'superadmin') {
-            $this->organization_id = '';
+        if ($propertyName === 'role') {
+            $this->resetErrorBag('organization_id');
+            if($this->role === 'superadmin')
+                $this->organization_id = '';
         }
 
         // Handle password confirmation case
@@ -80,7 +82,22 @@ class CreateUser extends Component
         )
             ->validate();
 
-        $validatedData['organization_id'] = $validatedData['organization_id'] !== null ? $validatedData['organization_id'] : session('organization_id');
+        $validatedData['organization_id'] = session('organization_id') !== null ? session('organization_id') : $validatedData['organization_id'];
+
+        // 1. Ensure non-superadmin users have an organization
+        if ($validatedData['role'] !== 'superadmin' && empty($validatedData['organization_id'])) {
+            session()->flash('message', __('Non-superadmin users must belong to an organization.'));
+            session()->flash('message_type', 'error');
+            return;
+        }
+
+        // 2. Prevent organization assignment for superadmin
+        if ($validatedData['role'] === 'superadmin' && $validatedData['organization_id'] !== null) {
+            session()->flash('message', __('Superadmin cannot be assigned to an organization.'));
+            session()->flash('message_type', 'error');
+            $this->organization_id = null;
+            return;
+        }
 
         try {
             // Create the user

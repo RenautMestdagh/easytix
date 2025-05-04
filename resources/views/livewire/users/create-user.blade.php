@@ -1,9 +1,10 @@
 <div class="py-16">
     <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
         @if (session()->has('message'))
-            <div class="mb-8 px-6 py-4 rounded-xl shadow-md {{ session('message_type') === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700' }} transition-all duration-300">
-                {{ session('message') }}
-            </div>
+            <x-ui.flash-message
+                :message="session('message')"
+                :type="session('message_type', 'success')"
+            />
         @endif
 
         <div class="flex justify-between items-center mb-10">
@@ -115,7 +116,7 @@
                                         name="organization_id"
                                         error="{{ $errors->has('organization_id') }}"
                                         class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500 {{ $role === 'superadmin' ? 'opacity-50 cursor-not-allowed' : '' }}"
-                                        :disabled="$role === 'superadmin'"
+{{--                                        :disabled="$role === 'superadmin'"--}}
                                     >
                                     <option value="">{{ __('No organization') }}</option>
                                         @foreach($organizations as $id => $name)

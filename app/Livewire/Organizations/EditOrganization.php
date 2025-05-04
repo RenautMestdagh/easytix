@@ -90,9 +90,9 @@ class EditOrganization extends Component
         $newSubdomain = $this->organization['subdomain'];
 
         // If the subdomain is not changed, remove its validation rule
-        if ($this->organizationModel->subdomain === $this->organization['subdomain']) {
-            unset($rules['organization.subdomain']);
-        }
+//        if ($this->organizationModel->subdomain === $this->organization['subdomain']) {
+//            unset($rules['organization.subdomain']);
+//        }
 
         $validated = $this->validate($rules, $messages);
 
@@ -134,6 +134,7 @@ class EditOrganization extends Component
 
     public function sortUsersBy($field)
     {
+        $this->resetPage();
         if ($this->userSortField === $field) {
             $this->userSortDirection = $this->userSortDirection === 'asc' ? 'desc' : 'asc';
         } else {
@@ -162,6 +163,16 @@ class EditOrganization extends Component
             })
             ->orderBy($this->userSortField, $this->userSortDirection)
             ->paginate($this->perPage);
+    }
+
+    public function updatedUserSearch()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedUserRole()
+    {
+        $this->resetPage();
     }
 
 

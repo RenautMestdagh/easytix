@@ -114,7 +114,7 @@
                                         name="role"
                                         error="{{ $errors->has('role') }}"
                                         class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500 px-5"
-                                        :disabled="$adminCount <= 1 && $userModel->hasRole('admin') || $role === 'superadmin'"
+{{--                                        :disabled="$adminCount <= 1 && $userModel->hasRole('admin') || $role === 'superadmin'"--}}
                                     >
                                         <option value="">{{ __('Select a role') }}</option>
                                         @foreach($roles as $key => $value)
@@ -139,7 +139,7 @@
                                         name="organization_id"
                                         error="{{ $errors->has('organization_id') }}"
                                         class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
-                                        :disabled="$role === 'superadmin' || ($adminCount <= 1 && $userModel->hasRole('admin'))"
+{{--                                        :disabled="$role === 'superadmin' || ($adminCount <= 1 && $userModel->hasRole('admin'))"--}}
                                     >
                                         <option value="">{{ __('No organization') }}</option>
                                         @foreach($organizations as $id => $name)

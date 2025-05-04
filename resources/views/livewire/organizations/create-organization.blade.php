@@ -1,9 +1,10 @@
 <div class="py-16">
     <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
         @if (session()->has('message'))
-            <div class="mb-8 px-6 py-4 rounded-xl shadow-md {{ session('message_type') === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700' }} transition-all duration-300">
-                {{ session('message') }}
-            </div>
+            <x-ui.flash-message
+                :message="session('message')"
+                :type="session('message_type', 'success')"
+            />
         @endif
 
         <div class="flex justify-between items-center mb-10">

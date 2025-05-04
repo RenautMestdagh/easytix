@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Spatie\Permission\Models\Role;
 
 class ShowUsers extends Component
 {
@@ -17,12 +18,23 @@ class ShowUsers extends Component
     public $sortField = 'name'; // Default sort field
     public $sortDirection = 'asc'; // Default sort direction
     public $selectedOrganization;
+    public $roles = []; // Define roles property
     public $selectedRole;
     public $perPage = 10; // Add a property for pagination limit
 
     public function mount()
     {
         $this->authorize('users.read');
+
+        // Get all roles
+        $roles = Role::all()->pluck('name', 'name')->toArray();
+
+        // Remove 'superadmin' if the user doesn't have it
+        if (!auth()->user()->hasRole('superadmin')) {
+            unset($roles['superadmin']);
+        }
+
+        $this->roles = $roles;
     }
 
     public function getUsersProperty()
@@ -65,6 +77,34 @@ class ShowUsers extends Component
         }
     }
 
+    public function updatedSearch()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedSelectedOrganization()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedIncludeDeleted()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedPerPage()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedSelectedRole($value)
+    {
+        $this->resetPage();
+        if ($value === 'superadmin') {
+            $this->selectedOrganization = '';
+        }
+    }
+
     public function getOrganizationsWithSingleAdmin(): array
     {
         return User::select('organization_id')
@@ -83,6 +123,7 @@ class ShowUsers extends Component
     {
         return view('livewire.users.show-users', [
             'users' => $this->users,
+            'roles' => $this->roles,
             'organizations' => Organization::all(),
             'singleAdminOrgIds' => $this->getOrganizationsWithSingleAdmin(),
         ]);

@@ -29,7 +29,8 @@ class UserRequest extends FormRequest
                 'string',
                 'email',
                 'max:255',
-                Rule::unique('users', 'email')->ignore($this->user),
+                'unique:users,email'.$this->userModel->email,
+//                Rule::unique('users', 'email')->ignore($this->user->email),
             ],
             'role' => ['required', 'string', 'exists:roles,name'],
             'organization_id' => ['nullable', 'exists:organizations,id'],
@@ -47,6 +48,7 @@ class UserRequest extends FormRequest
             'user.email.unique' => 'This email is already in use.',
             'role.required' => 'The role field is required.',
             'role.exists' => 'The selected role is invalid.',
+            'organization_id.required' => 'Non-superadmin users must belong to an organization.',
             'organization_id.exists' => 'The selected organization is invalid.',
         ];
     }

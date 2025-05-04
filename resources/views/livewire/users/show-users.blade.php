@@ -44,18 +44,22 @@
 
             <x-ui.forms.select wire:model.live="selectedRole">
                 <option value="all">All Roles</option>
-                <option value="superadmin">Super Admins</option>
-                <option value="admin">Admins</option>
-                <option value="organizer">Organizers</option>
+                @foreach($roles as $key => $value)
+                    <option value="{{ $key }}">{{ ucfirst($value) }}</option>
+                @endforeach
             </x-ui.forms.select>
 
             @role('superadmin')
-                <x-ui.forms.select wire:model.live="selectedOrganization">
-                    <option value="">No organization selected</option>
-                    @foreach($organizations as $organization)
-                        <option value="{{ $organization->id }}">{{ Str::limit($organization->name, 30) }}</option>
-                    @endforeach
-                </x-ui.forms.select>
+            <x-ui.forms.select
+                wire:model.live="selectedOrganization"
+                class="{{ $selectedRole === 'superadmin' ? 'opacity-50 cursor-not-allowed' : '' }}"
+                :disabled="$selectedRole === 'superadmin'"
+            >
+                <option value="">No organization selected</option>
+                @foreach($organizations as $organization)
+                    <option value="{{ $organization->id }}">{{ Str::limit($organization->name, 30) }}</option>
+                @endforeach
+            </x-ui.forms.select>
             @endrole
 
             <!-- Include Deleted Checkbox -->

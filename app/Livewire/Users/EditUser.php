@@ -12,7 +12,7 @@ use Spatie\Permission\Models\Role;
 
 class EditUser extends Component
 {
-    public $userModel;
+    public User $userModel;
     public $user;
     public $role = '';
     public $organization_id = null;
@@ -127,8 +127,16 @@ class EditUser extends Component
                     return;
                 }
 
-                // 3. Prevent organization assignment for superadmin
-                if ($isSuperadmin && $validatedData['organization_id'] !== null) {
+                // 3. Ensure non-superadmin users have an organization
+                if ($validatedData['role'] !== 'superadmin' && empty($validatedData['organization_id'])) {
+                    session()->flash('message', __('Non-superadmin users must belong to an organization.'));
+                    session()->flash('message_type', 'error');
+                    $this->organization_id = $originalOrganizationId;
+                    return;
+                }
+
+                // 4. Prevent organization assignment for superadmin
+                if ($validatedData['role'] === 'superadmin' && $validatedData['organization_id'] !== null) {
                     session()->flash('message', __('Superadmin cannot be assigned to an organization.'));
                     session()->flash('message_type', 'error');
                     $this->organization_id = null;

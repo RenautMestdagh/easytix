@@ -46,6 +46,7 @@ class ShowOrganizations extends Component
 
     public function sortBy($field)
     {
+        $this->resetPage();
         // If it's the same field, toggle the direction
         if ($this->sortField === $field) {
             $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
@@ -61,6 +62,11 @@ class ShowOrganizations extends Component
                 $this->sortDirection = 'asc';
             }
         }
+    }
+
+    public function updatedSearch()
+    {
+        $this->resetPage();
     }
 
 

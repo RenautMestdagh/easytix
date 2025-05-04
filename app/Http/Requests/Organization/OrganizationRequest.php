@@ -22,6 +22,7 @@ class OrganizationRequest extends FormRequest
      */
     public function rules(): array
     {
+        dd($this->organization);
         return [
             'organization.name' => ['required', 'string', 'max:255'],
             'organization.subdomain' => [
@@ -29,7 +30,7 @@ class OrganizationRequest extends FormRequest
                 'string',
                 'max:50',
                 'regex:/^[a-z0-9\-]+$/',
-                Rule::unique('organizations','subdomain'),
+                Rule::unique('organizations','subdomain')->ignore($this->organization->subdomain),
             ],
         ];
     }

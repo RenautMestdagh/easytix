@@ -41,12 +41,8 @@ class UploadMedia extends Component
         }
 
         if ($this->logo || $this->background || $this->favicon) {
-            $this->organization->refresh();
-            $this->render();
-            $this->dispatch('notify',
-                type: 'success',
-                content: 'Media updated successfully'
-            );
+            session()->flash('message', __('Media updated successfully.'));
+            $this->dispatch('flash-message');
         }
         $this->reset(['logo', 'background', 'favicon']);
     }
@@ -134,28 +130,22 @@ class UploadMedia extends Component
     public function removeFavicon()
     {
         $this->deleteExistingFavicon();
-        $this->dispatch('notify',
-            type: 'success',
-            content: 'Favicon removed successfully'
-        );
+        session()->flash('message', __('Favicon removed successfully.'));
+        $this->dispatch('flash-message');
     }
 
     public function removeLogo()
     {
         $this->deleteExistingLogo();
-        $this->dispatch('notify',
-            type: 'success',
-            content: 'Logo removed successfully'
-        );
+        session()->flash('message', __('Logo removed successfully.'));
+        $this->dispatch('flash-message');
     }
 
     public function removeBackground()
     {
         $this->deleteExistingBackground();
-        $this->dispatch('notify',
-            type: 'success',
-            content: 'Background removed successfully'
-        );
+        session()->flash('message', __('Background removed successfully.'));
+        $this->dispatch('flash-message');
     }
 
     protected function deleteExistingFavicon()

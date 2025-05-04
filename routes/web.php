@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Middleware\SubdomainOrganizationMiddleware;
+use App\Livewire\Events\ShowEvents;
 use App\Livewire\Organizations\CreateOrganization;
 use App\Livewire\Organizations\EditOrganization;
 use App\Livewire\Organizations\ShowOrganizations;
@@ -57,6 +58,8 @@ Route::middleware(['auth', 'verified', SubdomainOrganizationMiddleware::class])-
     Route::get('/users', ShowUsers::class)->name('users.index');
     Route::get('/users/create', CreateUser::class)->name('users.create');
     Route::get('/users/{user}/edit', EditUser::class)->name('users.edit');
+
+    Route::get('/events', ShowEvents::class)->name('events.index');
 });
 
 require __DIR__ . '/auth.php';
