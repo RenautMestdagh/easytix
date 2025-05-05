@@ -22,6 +22,23 @@ class TicketType extends Model
         'available_quantity',
     ];
 
+    public function scopePublished($query)
+    {
+        return $query->where('is_published', true);
+    }
+
+    public function scopeScheduledForPublishing($query)
+    {
+        return $query->where('is_published', false)
+            ->whereNotNull('publish_at')
+            ->where('publish_at', '<=', now());
+    }
+
+    public function scopeShouldPublishWithEvent($query)
+    {
+        return $query->where('publish_with_event', true);
+    }
+
     /**
      * Get the event that owns the ticket type.
      */

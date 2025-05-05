@@ -15,13 +15,17 @@ class TicketTypeFactory extends Factory
      *
      * @return array<string, mixed>
      */
+    // TicketTypeFactory.php
     public function definition(): array
     {
         return [
-            'event_id' => Event::inRandomOrder()->first()->id, // Random event
-            'name' => $this->faker->word(), // Name of the ticket type (e.g., VIP, General Admission)
-            'price_cents' => $this->faker->numberBetween(1000, 50000), // Random price in cents
-            'available_quantity' => $this->faker->numberBetween(10, 500), // Random available quantity
+            'event_id' => Event::inRandomOrder()->first()->id,
+            'name' => $this->faker->word(),
+            'price_cents' => $this->faker->numberBetween(1000, 50000),
+            'available_quantity' => $this->faker->numberBetween(10, 500),
+            'is_published' => $this->faker->boolean,
+            'publish_at' => $this->faker->boolean(30) ? $this->faker->dateTimeBetween('-1 week', '+1 month') : null,
+            'publish_with_event' => $this->faker->boolean(20),
         ];
     }
 }

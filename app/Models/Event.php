@@ -23,7 +23,21 @@ class Event extends Model
         'date',
         'banner_image',
         'max_capacity',
+        'is_published',
+        'publish_at',
     ];
+
+    public function scopePublished($query)
+    {
+        return $query->where('is_published', true);
+    }
+
+    public function scopeScheduledForPublishing($query)
+    {
+        return $query->where('is_published', false)
+            ->whereNotNull('publish_at')
+            ->where('publish_at', '<=', now());
+    }
 
     /**
      * Get the organization that owns the event.

@@ -9,16 +9,24 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+    // 2025_04_28_131945_create_ticket_types_table.php
     public function up(): void
     {
         Schema::create('ticket_types', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('event_id')->constrained('events'); // Link to event
-            $table->string('name'); // Name of the ticket type (e.g., General Admission)
-            $table->integer('price_cents'); // Price in cents
-            $table->integer('available_quantity'); // Available quantity for this ticket type
+            $table->foreignId('event_id')->constrained('events');
+            $table->string('name');
+            $table->integer('price_cents');
+            $table->integer('available_quantity');
+            $table->boolean('is_published')->default(false);
+            $table->timestamp('publish_at')->nullable();
+            $table->boolean('publish_with_event')->default(false);
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index(['event_id']);
+            $table->index(['is_published']);
+            $table->index(['publish_at']);
         });
     }
 

@@ -15,16 +15,19 @@ class EventFactory extends Factory
      *
      * @return array<string, mixed>
      */
+    // EventFactory.php
     public function definition()
     {
         return [
-            'organization_id' => Organization::inRandomOrder()->first()->id, // Assigning random organization
+            'organization_id' => Organization::inRandomOrder()->first()->id,
             'name' => $this->faker->word,
             'description' => $this->faker->sentence,
             'location' => $this->faker->address,
             'date' => $this->faker->dateTimeThisYear(),
             'banner_image' => $this->faker->imageUrl(),
             'max_capacity' => $this->faker->numberBetween(50, 500),
+            'is_published' => $this->faker->boolean,
+            'publish_at' => $this->faker->boolean(30) ? $this->faker->dateTimeBetween('-1 week', '+1 month') : null,
         ];
     }
 }
