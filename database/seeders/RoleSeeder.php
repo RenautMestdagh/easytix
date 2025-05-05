@@ -11,14 +11,14 @@ class RoleSeeder extends Seeder
 {
     // Define the permission matrix
     private array $permissionMatrix = [
-        'organizations' => [
-            'superadmin' => ['create', 'read', 'update', 'delete'],
-            'admin' => ['read', 'update'],
-            'organizer' => ['read'],
-        ],
         'users' => [
             'superadmin' => ['create', 'read', 'update', 'delete'],
             'admin' => ['create', 'read', 'update', 'delete'],
+            'organizer' => ['read'],
+        ],
+        'organizations' => [
+            'superadmin' => ['create', 'read', 'update', 'delete'],
+            'admin' => ['read', 'update'],
             'organizer' => ['read'],
         ],
         'events' => [

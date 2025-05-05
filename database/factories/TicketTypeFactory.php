@@ -16,16 +16,31 @@ class TicketTypeFactory extends Factory
      * @return array<string, mixed>
      */
     // TicketTypeFactory.php
-    public function definition(): array
+    public function definition()
     {
+        $event = Event::inRandomOrder()->first();
+        $date = $event->date;
+
+        $publishAt = $this->faker->boolean(30)
+            ? $this->faker->dateTimeBetween('-1 week', $date)
+            : null;
+
+        $isPublished = $publishAt && $publishAt <= new \DateTime();
+        $publishWithEvent = $this->faker->boolean(20);
+
+        // If publishing with event, inherit event's published status
+        if ($publishWithEvent && $event->is_published) {
+            $isPublished = true;
+        }
+
         return [
-            'event_id' => Event::inRandomOrder()->first()->id,
+            'event_id' => $event->id,
             'name' => $this->faker->word(),
             'price_cents' => $this->faker->numberBetween(1000, 50000),
             'available_quantity' => $this->faker->numberBetween(10, 500),
-            'is_published' => $this->faker->boolean,
-            'publish_at' => $this->faker->boolean(30) ? $this->faker->dateTimeBetween('-1 week', '+1 month') : null,
-            'publish_with_event' => $this->faker->boolean(20),
+            'is_published' => $isPublished,
+            'publish_at' => $publishAt,
+            'publish_with_event' => $publishWithEvent,
         ];
     }
 }

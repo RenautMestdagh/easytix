@@ -19,8 +19,8 @@ class EventSeeder extends Seeder
         $organizations = Organization::all();
 
         foreach ($organizations as $organization) {
-            // Create between 0 and 10 events for each organizer
-            $eventCount = rand(0, 10);
+            // Create between 2 and 20 events for each organizer
+            $eventCount = rand(2, 20);
             Event::factory($eventCount)->create([
                 'organization_id' => $organization->id,
             ]);

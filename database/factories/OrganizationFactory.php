@@ -16,20 +16,9 @@ class OrganizationFactory extends Factory
      */
     public function definition(): array
     {
-        static $index = 1;
-
-        $customOrganizations = [
-            1 => ['name' => "Kompass Klub", 'subdomain' => "kompass"],
-            2 => ['name' => "Modul'air", 'subdomain' => "modulair"],
+        return [
+            'name' => $this->faker->unique()->company,
+            'subdomain' => $this->faker->unique()->slug(2),
         ];
-
-        $organization = $customOrganizations[$index] ?? [
-            'name' => $this->faker->company,
-            'subdomain' => 'subdomain' . $index,
-        ];
-
-        $index++;
-
-        return $organization;
     }
 }

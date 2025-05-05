@@ -2,29 +2,22 @@
 
 namespace Database\Factories;
 
-use App\Models\Customer;
-use App\Models\Payment;
+use App\Models\Order;
+use App\Models\TemporaryOrder;
 use App\Models\TicketType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Ticket>
- */
 class TicketFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition()
     {
+
         return [
-            'payment_id' => Payment::inRandomOrder()->first()->id, // Random payment
-            'ticket_type_id' => TicketType::inRandomOrder()->first()->id, // Random ticket type
-            'customer_id' => Customer::inRandomOrder()->first()->id, // Random customer
-            'qr_code' => $this->faker->unique()->uuid(), // Unique QR code (UUID)
-            'scanned_at' => $this->faker->boolean() ? $this->faker->dateTimeThisYear() : null, // Random scanned time (nullable)
+            'order_id' => rand(0, 1) ? Order::inRandomOrder()->first()->id : null,
+            'temporary_order_id' => rand(0, 1) ? TemporaryOrder::inRandomOrder()->first()->id : null,
+            'ticket_type_id' => TicketType::inRandomOrder()->first(),
+            'qr_code' => $this->faker->unique()->uuid(),
+            'scanned_at' => $this->faker->boolean(20) ? $this->faker->dateTimeThisYear() : null,
         ];
     }
 }

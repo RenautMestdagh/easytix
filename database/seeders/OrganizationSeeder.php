@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Organization;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class OrganizationSeeder extends Seeder
@@ -13,7 +12,20 @@ class OrganizationSeeder extends Seeder
      */
     public function run(): void
     {
-        //
-        Organization::factory(7)->create();
+        // Create predefined organizations
+        Organization::create([
+            'name' => "Kompass Klub",
+            'subdomain' => "kompass"
+        ]);
+
+        Organization::create([
+            'name' => "Modul'air",
+            'subdomain' => "modulair"
+        ]);
+
+        // Create additional random organizations
+        Organization::factory()
+            ->count(5)
+            ->create();
     }
 }

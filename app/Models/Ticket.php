@@ -16,34 +16,25 @@ class Ticket extends Model
 
     // Fillable attributes for mass assignment
     protected $fillable = [
-        'payment_id',
+        'order_id',
+        'temporary_order_id',
         'ticket_type_id',
-        'customer_id',
         'qr_code',
         'scanned_at',
     ];
 
-    /**
-     * Get the payment that owns the ticket.
-     */
-    public function payment()
+    public function order()
     {
-        return $this->belongsTo(Payment::class);
+        return $this->belongsTo(Order::class);
     }
 
-    /**
-     * Get the ticket type that owns the ticket.
-     */
+    public function temporaryOrder()
+    {
+        return $this->belongsTo(TemporaryOrder::class);
+    }
+
     public function ticketType()
     {
         return $this->belongsTo(TicketType::class);
-    }
-
-    /**
-     * Get the customer that owns the ticket.
-     */
-    public function customer()
-    {
-        return $this->belongsTo(Customer::class);
     }
 }

@@ -13,13 +13,15 @@ return new class extends Migration
     {
         Schema::create('tickets', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('payment_id')->constrained('payments'); // Link to payment
-            $table->foreignId('ticket_type_id')->constrained('ticket_types'); // Link to ticket type
-            $table->foreignId('customer_id')->constrained('customers'); // Link to customer
-            $table->string('qr_code')->unique(); // Unique QR code for each ticket
-            $table->timestamp('scanned_at')->nullable(); // When the ticket was scanned (nullable)
+            $table->foreignId('order_id')->nullable()->constrained('orders');
+            $table->foreignId('temporary_order_id')->nullable()->constrained('temporary_orders');
+            $table->foreignId('ticket_type_id')->constrained('ticket_types');
+            $table->string('qr_code')->unique();
+            $table->timestamp('scanned_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index(['order_id', 'temporary_order_id', 'ticket_type_id', 'qr_code']);
         });
     }
 

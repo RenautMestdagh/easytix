@@ -13,14 +13,19 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(RoleSeeder::class);
-        $this->call(OrganizationSeeder::class);
-        $this->call(UserSeeder::class);
-        $this->call(EventSeeder::class);
-        $this->call(DiscountCodeSeeder::class);
-        $this->call(TicketTypeSeeder::class);
-        $this->call(CustomerSeeder::class);
-        $this->call(PaymentSeeder::class);
-        $this->call(TicketSeeder::class);
+        $this->call([
+            RoleSeeder::class,
+            OrganizationSeeder::class,
+            UserSeeder::class,
+            EventSeeder::class,
+            DiscountCodeSeeder::class,
+            TicketTypeSeeder::class,
+            CustomerSeeder::class,
+            PaymentSeeder::class,
+            OrderSeeder::class,
+            TemporaryOrderSeeder::class,
+            TicketSeeder::class,
+        ]);
+
     }
 }

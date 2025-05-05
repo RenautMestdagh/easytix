@@ -21,7 +21,7 @@ Route::domain('{subdomain}.'.config('app.domain'))
     ->group(function () {
         // Public routes for subdomain
          Route::get('/', function (string $subdomain, Request $request) {
-             return response()->json(User::all());
+             return response()->json(Event::all());
          });
     });
 

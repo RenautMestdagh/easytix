@@ -17,16 +17,14 @@
                 </flux:navlist.group>
             </flux:navlist>
 
-            @role('superadmin')
-                <flux:navlist.item
-                    icon="briefcase"
-                    :href="route('organizations.index')"
-                    :current="request()->routeIs('organizations.index')"
-                    wire:navigate
-                >
-                    {{ __('Organizations') }}
-                </flux:navlist.item>
-            @endrole
+            <flux:navlist.item
+                icon="calendar"
+                :href="route('events.index')"
+                :current="request()->routeIs('events.index')"
+                wire:navigate
+            >
+                {{ __('Events') }}
+            </flux:navlist.item>
 
             @hasanyrole('superadmin|admin')
                 <flux:navlist.item
@@ -39,6 +37,19 @@
                 </flux:navlist.item>
             @endhasanyrole
 
+            @role('superadmin')
+            <flux:navlist.item
+                icon="briefcase"
+                :href="route('organizations.index')"
+                :current="request()->routeIs('organizations.index')"
+                wire:navigate
+            >
+                {{ __('Organizations') }}
+            </flux:navlist.item>
+            @endrole
+
+            <flux:spacer />
+
             @role('admin')
             <flux:navlist.item
                 icon="paint-brush"
@@ -48,11 +59,7 @@
             >
                 {{ __('Personalization') }}
             </flux:navlist.item>
-            @endrole
 
-            <flux:spacer />
-
-            @role('admin')
             <flux:navlist.item
                 icon="cog-6-tooth"
                 :href="route('organizations.edit', $organization->id)"

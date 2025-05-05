@@ -4,26 +4,36 @@ namespace Database\Seeders;
 
 use App\Models\Ticket;
 use App\Models\TicketType;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class TicketSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        // Get all ticket types
-        $ticketTypes = TicketType::all();
+        $ticketTypes = TicketType::withCount('tickets')->get();
 
         foreach ($ticketTypes as $ticketType) {
-            // Create between 0 and 50 tickets for each ticket type
-            $ticketCount = rand(0, 50);
+            $remainingCapacity = $ticketType->available_quantity - $ticketType->tickets_count;
 
-            Ticket::factory($ticketCount)->create([
-                'ticket_type_id' => $ticketType->id,
-            ]);
+            if ($remainingCapacity > 0) {
+                // Create tickets in batches to avoid capacity issues
+                $batchSize = min(10, $remainingCapacity);
+                $batches = ceil($remainingCapacity / $batchSize);
+
+                for ($i = 0; $i < $batches; $i++) {
+                    $currentBatchSize = min($batchSize, $remainingCapacity - ($i * $batchSize));
+
+                    try {
+                        Ticket::factory($currentBatchSize)->create([
+                            'ticket_type_id' => $ticketType->id,
+                        ]);
+                    } catch (\Exception $e) {
+                        // Log capacity reached and continue
+                        $this->command->info($e->getMessage());
+                        break;
+                    }
+                }
+            }
         }
     }
 }
