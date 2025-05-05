@@ -7,8 +7,7 @@ use Livewire\WithFileUploads;
 use App\Models\Organization;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\OrganizationMediaRequest;
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class UploadMedia extends Component
 {
@@ -28,51 +27,29 @@ class UploadMedia extends Component
     {
         $this->validateRequest();
 
+        $updated = false;
+
         if ($this->logo) {
             $this->uploadLogo();
+            $updated = true;
         }
 
         if ($this->background) {
             $this->uploadBackground();
+            $updated = true;
         }
 
-        if ($this->favicon) { // Added favicon upload
+        if ($this->favicon) {
             $this->uploadFavicon();
+            $updated = true;
         }
 
-        if ($this->logo || $this->background || $this->favicon) {
+        if ($updated) {
+            $this->favicon = $this->logo = $this->background = null;
             session()->flash('message', __('Media updated successfully.'));
             $this->dispatch('flash-message');
         }
-        $this->reset(['logo', 'background', 'favicon']);
-    }
 
-    public function saveLogo()
-    {
-        $this->validateRequest('logo');
-
-        if ($this->logo) {
-            $this->uploadLogo();
-            $this->dispatch('notify',
-                type: 'success',
-                content: 'Logo updated successfully'
-            );
-            $this->reset('logo');
-        }
-    }
-
-    public function saveBackground()
-    {
-        $this->validateRequest('background');
-
-        if ($this->background) {
-            $this->uploadBackground();
-            $this->dispatch('notify',
-                type: 'success',
-                content: 'Background updated successfully'
-            );
-            $this->reset('background');
-        }
     }
 
     protected function validateRequest($field = null)
@@ -80,120 +57,132 @@ class UploadMedia extends Component
         $request = new OrganizationMediaRequest();
 
         if ($field) {
-            $rules = [$field => $request->rules()[$field]];
-            $data = [$field => $this->{$field}];
+            $this->validate(
+                [$field => $request->rules()[$field]],
+                $request->messages(),
+                $request->attributes()
+            );
         } else {
-            $rules = $request->rules();
-            $data = [
-                'logo' => $this->logo,
-                'background' => $this->background,
-                'favicon' => $this->favicon // Added favicon
-            ];
+            $this->validate(
+                $request->rules(),
+                $request->messages(),
+                $request->attributes()
+            );
         }
-
-        Validator::make($data, $rules, $request->messages(), $request->attributes())->validate();
     }
 
     protected function uploadFavicon()
     {
         $this->deleteExistingFavicon();
 
+        $filename = $this->generateUniqueFilename('favicon', $this->favicon->extension());
+
         $this->favicon->storeAs(
             "organizations/{$this->organization->id}",
-            'favicon.'.$this->favicon->extension(),
+            $filename,
             'public'
         );
+
+        $this->organization->update(['favicon' => $filename]);
     }
 
     protected function uploadLogo()
     {
         $this->deleteExistingLogo();
 
+        $filename = $this->generateUniqueFilename('logo', $this->logo->extension());
+
         $this->logo->storeAs(
             "organizations/{$this->organization->id}",
-            'logo.'.$this->logo->extension(),
+            $filename,
             'public'
         );
+
+        $this->organization->update(['logo' => $filename]);
     }
 
     protected function uploadBackground()
     {
         $this->deleteExistingBackground();
 
+        $filename = $this->generateUniqueFilename('background', $this->background->extension());
+
         $this->background->storeAs(
             "organizations/{$this->organization->id}",
-            'background.'.$this->background->extension(),
+            $filename,
             'public'
         );
+
+        $this->organization->update(['background_image' => $filename]);
+    }
+
+    protected function generateUniqueFilename($prefix, $extension)
+    {
+        $filename = "{$prefix}.{$extension}";
+
+        // If file exists, append a random string
+        if (Storage::disk('public')->exists("organizations/{$this->organization->id}/{$filename}")) {
+            $random = Str::random(8);
+            $filename = "{$prefix}_{$random}.{$extension}";
+        }
+
+        return $filename;
     }
 
     public function removeFavicon()
     {
         $this->deleteExistingFavicon();
-        session()->flash('message', __('Favicon removed successfully.'));
-        $this->dispatch('flash-message');
+        $this->organization->update(['favicon' => null]);
+        $this->dispatch('notify',
+            type: 'success',
+            content: 'Favicon removed successfully'
+        );
     }
 
     public function removeLogo()
     {
         $this->deleteExistingLogo();
-        session()->flash('message', __('Logo removed successfully.'));
-        $this->dispatch('flash-message');
+        $this->organization->update(['logo' => null]);
+        $this->dispatch('notify',
+            type: 'success',
+            content: 'Logo removed successfully'
+        );
     }
 
     public function removeBackground()
     {
         $this->deleteExistingBackground();
-        session()->flash('message', __('Background removed successfully.'));
-        $this->dispatch('flash-message');
+        $this->organization->update(['background_image' => null]);
+        $this->dispatch('notify',
+            type: 'success',
+            content: 'Background removed successfully'
+        );
     }
 
     protected function deleteExistingFavicon()
     {
-        $directory = "organizations/{$this->organization->id}";
-
-        if (Storage::disk('public')->exists($directory)) {
-            $files = Storage::disk('public')->files($directory);
-
-            foreach ($files as $file) {
-                if (preg_match('/^favicon\.(png|ico)$/i', basename($file))) {
-                    Storage::disk('public')->delete($file);
-                }
-            }
+        if ($this->organization->favicon) {
+            Storage::disk('public')->delete(
+                "organizations/{$this->organization->id}/{$this->organization->favicon}"
+            );
         }
     }
 
     protected function deleteExistingLogo()
     {
-        // Use the 'public' disk explicitly
-        $directory = "organizations/{$this->organization->id}";
-
-        if (Storage::disk('public')->exists($directory)) {
-            $files = Storage::disk('public')->files($directory);
-
-            foreach ($files as $file) {
-                // More robust filename matching
-                if (preg_match('/^logo\.(jpg|jpeg|png|webp)$/i', basename($file))) {
-                    Storage::disk('public')->delete($file);
-                }
-            }
+        if ($this->organization->logo) {
+            Storage::disk('public')->delete(
+                "organizations/{$this->organization->id}/{$this->organization->logo}"
+            );
         }
     }
 
     protected function deleteExistingBackground()
     {
-        // Use the 'public' disk explicitly
-        $directory = "organizations/{$this->organization->id}";
-
-        if (Storage::disk('public')->exists($directory)) {
-            $files = Storage::disk('public')->files($directory);
-
-            foreach ($files as $file) {
-                // More robust filename matching
-                if (preg_match('/^background\.(jpg|jpeg|png|webp)$/i', basename($file))) {
-                    Storage::disk('public')->delete($file);
-                }
-            }
+        if ($this->organization->background_image) {
+            Storage::disk('public')->delete(
+                "organizations/{$this->organization->id}/{$this->organization->background_image}"
+            );
         }
     }
 

@@ -18,6 +18,9 @@ class Organization extends Model
     protected $fillable = [
         'name',
         'subdomain',
+        'logo', // stores filename with extension (e.g. "logo.png")
+        'favicon', // stores filename with extension
+        'background_image', // stores filename with extension
     ];
 
     public function users()
@@ -35,51 +38,30 @@ class Organization extends Model
         return $this->hasMany(Event::class);
     }
 
-    // In your Organization model
+    /**
+     * Get the favicon URL.
+     */
     public function getFaviconUrlAttribute()
     {
-        $faviconPath = "organizations/{$this->id}/favicon.png";
-        $icoPath = "organizations/{$this->id}/favicon.ico";
-
-        if (Storage::disk('public')->exists($faviconPath)) {
-            return Storage::disk('public')->url($faviconPath);
-        }
-
-        if (Storage::disk('public')->exists($icoPath)) {
-            return Storage::disk('public')->url($icoPath);
-        }
-
-        return null;
+        if (!$this->favicon) return null;
+        return Storage::disk('public')->url("organizations/{$this->id}/{$this->favicon}");
     }
 
+    /**
+     * Get the logo URL.
+     */
     public function getLogoUrlAttribute()
     {
-        $extensions = ['png', 'jpg', 'jpeg', 'gif', 'webp'];
-        foreach ($extensions as $extension) {
-            $storagePath = "organizations/{$this->id}/logo.{$extension}";
-            if (Storage::disk('public')->exists($storagePath)) {
-                return Storage::disk('public')->url($storagePath);
-            }
-        }
-        return null;
+        if (!$this->logo) return null;
+        return Storage::disk('public')->url("organizations/{$this->id}/{$this->logo}");
     }
 
+    /**
+     * Get the background image URL.
+     */
     public function getBackgroundUrlAttribute()
     {
-        $extensions = ['png', 'jpg', 'jpeg', 'gif', 'webp'];
-        foreach ($extensions as $extension) {
-            $storagePath = "organizations/{$this->id}/background.{$extension}";
-            if (Storage::disk('public')->exists($storagePath)) {
-                return Storage::disk('public')->url($storagePath);
-            }
-        }
-        return null;
-    }
-
-    protected static function booted()
-    {
-        static::deleting(function ($organization) {
-            Storage::disk('public')->deleteDirectory("organizations/{$organization->id}");
-        });
+        if (!$this->background_image) return null;
+        return Storage::disk('public')->url("organizations/{$this->id}/{$this->background_image}");
     }
 }

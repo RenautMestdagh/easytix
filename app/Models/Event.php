@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 #[ScopedBy([EventOrganizationScope::class])]
 class Event extends Model
@@ -21,7 +22,9 @@ class Event extends Model
         'description',
         'location',
         'date',
-        'banner_image',
+        'event_image',
+        'header_image',
+        'background_image',
         'max_capacity',
         'is_published',
         'publish_at',
@@ -77,5 +80,32 @@ class Event extends Model
     public function tickets()
     {
         return $this->hasManyThrough(Ticket::class, TicketType::class);
+    }
+
+    /**
+     * Get the event image URL.
+     */
+    public function getEventImageUrlAttribute()
+    {
+        if (!$this->event_image) return null;
+        return Storage::disk('public')->url("organizations/{$this->organization_id}/{$this->event_image}");
+    }
+
+    /**
+     * Get the header image URL.
+     */
+    public function getHeaderImageUrlAttribute()
+    {
+        if (!$this->header_image) return null;
+        return Storage::disk('public')->url("organizations/{$this->organization_id}/{$this->header_image}");
+    }
+
+    /**
+     * Get the background image URL.
+     */
+    public function getBackgroundImageUrlAttribute()
+    {
+        if (!$this->background_image) return null;
+        return Storage::disk('public')->url("organizations/{$this->organization_id}/{$this->background_image}");
     }
 }

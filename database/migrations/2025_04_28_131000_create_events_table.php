@@ -10,6 +10,7 @@ return new class extends Migration
      * Run the migrations.
      */
     // 2025_04_28_131000_create_events_table.php
+    // 2025_04_28_131000_create_events_table.php
     public function up(): void
     {
         Schema::create('events', function (Blueprint $table) {
@@ -19,7 +20,9 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('location')->nullable();
             $table->dateTime('date');
-            $table->string('banner_image')->nullable();
+            $table->string('event_image')->nullable(); // For line-up, date, location display
+            $table->string('header_image')->nullable(); // For purchasing page header
+            $table->string('background_image')->nullable(); // Event background image
             $table->integer('max_capacity');
             $table->boolean('is_published')->default(false);
             $table->timestamp('publish_at')->nullable();
