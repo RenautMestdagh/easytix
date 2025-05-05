@@ -2,13 +2,24 @@
 
 namespace App\Observers;
 
-use App\Mail\NewUserWelcome;
 use App\Models\User;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Facades\Auth;
 
 class UserObserver
 {
+    /**
+     * Handle the User "creating" event.
+     */
+    public function creating(User $user): void
+    {
+        //
+        if (session('organization_id') && $user->organization_id != session('organization_id')) {
+            throw new AuthorizationException('Invalid organization assignment');
+        }
+    }
+
+
     /**
      * Handle the User "created" event.
      */
@@ -16,6 +27,17 @@ class UserObserver
     {
         //
         $this->sendVerificationEmail($user);
+    }
+
+    /**
+     * Handle the User "updating" event.
+     */
+    public function updating(User $user): void
+    {
+        //
+        if (session('organization_id') && $user->organization_id != session('organization_id')) {
+            throw new AuthorizationException('Invalid organization assignment');
+        }
     }
 
     /**
@@ -50,7 +72,6 @@ class UserObserver
     public function restored(User $user): void
     {
         //
-        $this->sendVerificationEmail($user);
     }
 
     /**

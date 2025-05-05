@@ -39,35 +39,35 @@
                                 {{ __('User Details') }}
                             </div>
 
-                            <x-ui.forms.group label="Full Name" for="user.name" error="user.name">
+                            <x-ui.forms.group label="Full Name" for="userName" error="userName">
                                 <x-ui.forms.input
-                                    wire:model.lazy="user.name"
-                                    name="user.name"
+                                    wire:model.lazy="userName"
+                                    name="userName"
                                     placeholder="Enter user's full name"
-                                    error="{{ $errors->has('user.name') }}"
+                                    error="{{ $errors->has('userName') }}"
                                     class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
                                 />
                             </x-ui.forms.group>
 
-                            <x-ui.forms.group label="Email Address" for="user.email" error="user.email">
+                            <x-ui.forms.group label="Email Address" for="userEmail" error="userEmail">
                                 <x-ui.forms.input
                                     type="email"
-                                    wire:model.lazy="user.email"
-                                    name="user.email"
+                                    wire:model.lazy="userEmail"
+                                    name="userEmail"
                                     placeholder="user@example.com"
-                                    error="{{ $errors->has('user.email') }}"
+                                    error="{{ $errors->has('userEmail') }}"
                                     class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
                                 />
                             </x-ui.forms.group>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <x-ui.forms.group label="Password" for="user.password" error="user.password">
+                                <x-ui.forms.group label="Password" for="userPassword" error="userPassword">
                                     <x-ui.forms.input
                                         type="password"
-                                        wire:model.lazy="user.password"
-                                        name="user.password"
+                                        wire:model.lazy="userPassword"
+                                        name="userPassword"
                                         placeholder="••••••••"
-                                        error="{{ $errors->has('user.password') }}"
+                                        error="{{ $errors->has('userPassword') }}"
                                         class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
                                     />
                                     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -75,13 +75,12 @@
                                     </p>
                                 </x-ui.forms.group>
 
-                                <x-ui.forms.group label="Confirm Password" for="user.password_confirmation">
+                                <x-ui.forms.group label="Confirm Password" for="userPassword_confirmation">
                                     <x-ui.forms.input
                                         type="password"
-                                        wire:model.lazy="user.password_confirmation"
-                                        name="user.password_confirmation"
+                                        wire:model.lazy="userPassword_confirmation"
+                                        name="userPassword_confirmation"
                                         placeholder="••••••••"
-                                        error="{{ $errors->has('user.password.confirmed') }}"
                                         class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
                                     />
                                 </x-ui.forms.group>
@@ -100,7 +99,7 @@
 
                             <div class="flex flex-col">
                                 <x-ui.forms.group label="Role" for="role" error="role">
-                                    @if($adminCount <= 1 && $userModel->hasRole('admin'))
+                                    @if($adminCount <= 1 && $user->hasRole('admin'))
                                         <div class="mb-2 text-sm text-yellow-600 dark:text-yellow-400">
                                             {{ __('Cannot change role: This is the last admin in the organization.') }}
                                         </div>
@@ -114,7 +113,7 @@
                                         name="role"
                                         error="{{ $errors->has('role') }}"
                                         class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500 px-5"
-{{--                                        :disabled="$adminCount <= 1 && $userModel->hasRole('admin') || $role === 'superadmin'"--}}
+{{--                                        :disabled="$adminCount <= 1 && $user->hasRole('admin') || $role === 'superadmin'"--}}
                                     >
                                         <option value="">{{ __('Select a role') }}</option>
                                         @foreach($roles as $key => $value)
@@ -129,7 +128,7 @@
                                         <div class="mb-2 text-sm text-blue-600 dark:text-blue-400">
                                             {{ __('Superadmins are not assigned to organizations.') }}
                                         </div>
-                                    @elseif($adminCount <= 1 && $userModel->hasRole('admin'))
+                                    @elseif($adminCount <= 1 && $user->hasRole('admin'))
                                         <div class="mb-2 text-sm text-yellow-600 dark:text-yellow-400">
                                             {{ __('Cannot change organization: This is the last admin in the current organization.') }}
                                         </div>
@@ -139,7 +138,7 @@
                                         name="organization_id"
                                         error="{{ $errors->has('organization_id') }}"
                                         class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
-{{--                                        :disabled="$role === 'superadmin' || ($adminCount <= 1 && $userModel->hasRole('admin'))"--}}
+{{--                                        :disabled="$role === 'superadmin' || ($adminCount <= 1 && $user->hasRole('admin'))"--}}
                                     >
                                         <option value="">{{ __('No organization') }}</option>
                                         @foreach($organizations as $id => $name)

@@ -30,12 +30,15 @@ class SubdomainOrganizationMiddleware
         }
 
         // Share the organization id with the request
+        // retrieve with session('organization_id')
         session(['organization_id' => $organization->id ?? null]);
 
         // Share organization with all views
+        // makes $organization available to all views
         View::share('organization', $organization ?? null);
 
         // Add organization to request for controller access
+        // retrieve with request()->get('organization');
         $request->merge(['organization' => $organization ?? null]);
 
         return $next($request);

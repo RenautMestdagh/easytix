@@ -12,10 +12,16 @@ use Spatie\Permission\Models\Role;
 
 class EditUser extends Component
 {
-    public User $userModel;
-    public $user;
+    public User $user;
+
+    public $userName = '';
+    public $userEmail = '';
+    public $userPassword = '';
+    public $userPassword_confirmation = '';
+
     public $role = '';
     public $organization_id = null;
+
     public $adminCount;
 
     public $roles = [];
@@ -23,34 +29,23 @@ class EditUser extends Component
 
     public function mount(User $user)
     {
-        $this->userModel = $user;
-        $this->authorize('users.update', $this->userModel);
-        $this->user = [
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'password' => '',
-            'password_confirmation' => '',
-        ];
-        $this->adminCount = $this->userModel->organization?->admins()->count() ?? -1;
+        $this->user = $user;
+        $this->authorize('users.update', $this->user);
+
+        $this->userName = $user->name;
+        $this->userEmail = $user->email;
 
         $this->role = $user->roles->first()->name ?? '';
         $this->organization_id = $user->organization_id;
 
-        // Get all roles initially
-        $allRoles = Role::all()->pluck('name', 'name');
+        $this->adminCount = $this->user->organization?->admins()->count() ?? -1;
 
-        // Filter roles based on current user's role
-        if ($this->role === 'superadmin') {
-            $this->roles = ['superadmin' => 'superadmin'];
-        } else {
-            // Remove superadmin role for non-superadmin users
-            $this->roles = $allRoles->reject(function ($value, $key) {
-                return $value === 'superadmin';
-            })->toArray();
-        }
+        $roles = Role::pluck('name', 'name');
+        $this->roles = $this->role === 'superadmin'
+            ? ['superadmin' => 'superadmin']
+            : $roles->except('superadmin')->toArray();
 
-        $this->organizations = Organization::all()->pluck('name', 'id')->toArray();
+        $this->organizations = Organization::pluck('name', 'id');
     }
 
     public function updated($propertyName)
@@ -58,21 +53,12 @@ class EditUser extends Component
         $this->resetErrorBag($propertyName);
 
         // Validate individual field using UpdateUserRequest
-        $fieldRules = (new UpdateUserRequest())->rules();
+        $fieldRules = (new UpdateUserRequest($this->user->id))->rules();
         $fieldMessages = (new UpdateUserRequest())->messages();
 
-        if ($propertyName === 'role' && $this->role === 'superadmin') {
-            $this->organization_id = '';
-        }
-
         // Handle password confirmation case
-        if ($propertyName === 'user.password_confirmation' || $propertyName === 'user.password') {
-            $this->validateOnly('user.password', $fieldRules, $fieldMessages);
-            return;
-        }
-
-        $value = data_get($this, $propertyName);
-        if($this->userModel->email === $value) {
+        if ($propertyName === 'userPassword' || $propertyName === 'userPassword_confirmation') {
+            $this->validateOnly('userPassword', $fieldRules, $fieldMessages);
             return;
         }
 
@@ -85,21 +71,14 @@ class EditUser extends Component
 
     public function update()
     {
-        $this->authorize('users.update', $this->userModel);
-        $requestData = $this->prepareRequestData();
+        $this->authorize('users.update', $this->user);
 
-        // Get the base rules from UpdateUserRequest
-        $rules = (new UpdateUserRequest())->rules();
-        $messages = (new UpdateUserRequest())->messages();
+        $validatedData = $this->validate(
+            (new UpdateUserRequest($this->user->id))->rules(),
+            (new UpdateUserRequest())->messages()
+        );
 
-        // If email hasn't changed, remove the unique validation
-        if ($this->userModel->email === $this->user['email']) {
-            unset($rules['user.email']);
-        }
-
-        // Validate all fields
-        $validatedData = validator($requestData, $rules, $messages)->validate();
-        $validatedData['organization_id'] = $validatedData['organization_id'] !== '' ? $validatedData['organization_id'] : null;
+        $validatedData['organization_id'] = session('organization_id') !== null ? session('organization_id') : $validatedData['organization_id'];
 
         try {
             // Start a database transaction
@@ -136,7 +115,7 @@ class EditUser extends Component
                 }
 
                 // 4. Prevent organization assignment for superadmin
-                if ($validatedData['role'] === 'superadmin' && $validatedData['organization_id'] !== null) {
+                if ($validatedData['role'] === 'superadmin' && !empty($validatedData['organization_id'])) {
                     session()->flash('message', __('Superadmin cannot be assigned to an organization.'));
                     session()->flash('message_type', 'error');
                     $this->organization_id = null;
@@ -150,15 +129,14 @@ class EditUser extends Component
                 $isChangingFromAdmin = $isAdmin && $validatedData['role'] !== 'admin';
 
                 // If user is admin and changing organization, check if old org will have at least one admin left
-                if ($isAdmin && $isChangingOrganization && $originalOrganizationId) {
-                    $remainingAdminsInOldOrg = User::role('admin')
-                        ->where('organization_id', $originalOrganizationId)
-                        ->where('id', '!=', $user->id)
-                        ->lockForUpdate()
-                        ->count();
+                if ($isAdmin && $isChangingOrganization || $isChangingFromAdmin) {
+                    $remainingAdminsInOldOrg = $this->user->organization?->admins()->count();
 
-                    if ($remainingAdminsInOldOrg < 1) {
-                        session()->flash('message', __('Cannot change organization. The current organization must have at least one admin.'));
+                    if ($remainingAdminsInOldOrg <= 1) {
+                        if($isChangingOrganization)
+                            session()->flash('message', __('Cannot change organization. The current organization must have at least one admin.'));
+                        else
+                            session()->flash('message', __('Cannot change role. There must be at least one admin in the organization.'));
                         session()->flash('message_type', 'error');
                         $this->organization_id = $originalOrganizationId;
                         $this->role = 'admin';
@@ -166,36 +144,13 @@ class EditUser extends Component
                     }
                 }
 
-                // If changing from admin role to non-admin, check if org will have at least one admin left
-                if ($isChangingFromAdmin && $validatedData['organization_id']) {
-                    $remainingAdmins = User::role('admin')
-                        ->where('organization_id', $validatedData['organization_id'])
-                        ->where('id', '!=', $user->id)
-                        ->lockForUpdate()
-                        ->count();
-
-                    if ($remainingAdmins < 1) {
-                        session()->flash('message', __('Cannot change role. There must be at least one admin in the organization.'));
-                        session()->flash('message_type', 'error');
-                        $this->role = 'admin';
-                        $this->organization_id = $validatedData['organization_id'];
-                        return;
-                    }
-                }
-
                 // Update the user
-                $updateData = [
-                    'name' => $validatedData['user']['name'],
-                    'email' => $validatedData['user']['email'] ?? $this->user['email'],
+                $user->update(array_filter([
+                    'name' => $validatedData['userName'],
+                    'email' => $validatedData['userEmail'] ?? $this->user['email'],
                     'organization_id' => $isSuperadmin ? null : $validatedData['organization_id'],
-                ];
-
-                // Only update password if it was provided
-                if (!empty($validatedData['user']['password'])) {
-                    $updateData['password'] = Hash::make($validatedData['user']['password']);
-                }
-
-                $user->update($updateData);
+                    'password' => !empty($validatedData['userPassword']) ? Hash::make($validatedData['userPassword']) : null
+                ]));
 
                 // Sync roles (superadmin remains superadmin, others get validated role)
                 $user->syncRoles([$validatedData['role']]);
@@ -214,15 +169,6 @@ class EditUser extends Component
     public function cancel()
     {
         return redirect()->route('users.index');
-    }
-
-    protected function prepareRequestData(): array
-    {
-        return [
-            'user' => $this->user,
-            'role' => $this->role,
-            'organization_id' => $this->organization_id,
-        ];
     }
 
     public function render()

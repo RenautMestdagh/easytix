@@ -18,6 +18,11 @@ class CreateUser extends Component
         'password_confirmation' => '',
     ];
 
+    public $userName = '';
+    public $userEmail = '';
+    public $userPassword = '';
+    public $userPassword_confirmation = '';
+
     public $role = '';
     public $organization_id = null;
 
@@ -37,15 +42,11 @@ class CreateUser extends Component
         }
 
         $this->roles = $roles;
-
         $this->organizations = Organization::all()->pluck('name', 'id')->toArray();
     }
 
     public function updated($propertyName)
     {
-        // Convert Livewire property format to request format
-        $requestData = $this->prepareRequestData();
-
         // Validate individual field using StoreUserRequest
         $fieldRules = (new StoreUserRequest())->rules();
         $fieldMessages = (new StoreUserRequest())->messages();
@@ -57,8 +58,8 @@ class CreateUser extends Component
         }
 
         // Handle password confirmation case
-        if ($propertyName === 'user.password_confirmation' || $propertyName === 'user.password') {
-            $this->validateOnly('user.password', $fieldRules, $fieldMessages);
+        if ($propertyName === 'userPassword' || $propertyName === 'userPassword_confirmation') {
+            $this->validateOnly('userPassword', $fieldRules, $fieldMessages);
             return;
         }
 
@@ -72,17 +73,11 @@ class CreateUser extends Component
     public function save()
     {
         $this->authorize('users.create');
-        $requestData = $this->prepareRequestData();
 
-        // Validate all fields using StoreUserRequest
-        $validatedData = validator(
-            $requestData,
-            (new StoreUserRequest())->rules(),
-            (new StoreUserRequest())->messages()
-        )
-            ->validate();
-
-        $validatedData['organization_id'] = session('organization_id') !== null ? session('organization_id') : $validatedData['organization_id'];
+        $validatedData = $this->validate(
+            (new StoreUserRequest)->rules(),
+            (new StoreUserRequest)->messages()
+        );
 
         // 1. Ensure non-superadmin users have an organization
         if ($validatedData['role'] !== 'superadmin' && empty($validatedData['organization_id'])) {
@@ -92,7 +87,7 @@ class CreateUser extends Component
         }
 
         // 2. Prevent organization assignment for superadmin
-        if ($validatedData['role'] === 'superadmin' && $validatedData['organization_id'] !== null) {
+        if ($validatedData['role'] === 'superadmin' && !empty($validatedData['organization_id'])) {
             session()->flash('message', __('Superadmin cannot be assigned to an organization.'));
             session()->flash('message_type', 'error');
             $this->organization_id = null;
@@ -102,9 +97,9 @@ class CreateUser extends Component
         try {
             // Create the user
             $user = User::create([
-                'name' => $validatedData['user']['name'],
-                'email' => $validatedData['user']['email'],
-                'password' => Hash::make($validatedData['user']['password']),
+                'name' => $validatedData['userName'],
+                'email' => $validatedData['userEmail'],
+                'password' => Hash::make($validatedData['userPassword']),
                 'organization_id' => $validatedData['organization_id'],
             ]);
 
@@ -120,15 +115,6 @@ class CreateUser extends Component
             session()->flash('message', __('An error occurred while creating the user: ' . $e->getMessage()));
             session()->flash('message_type', 'error');
         }
-    }
-
-    protected function prepareRequestData(): array
-    {
-        return [
-            'user' => $this->user,
-            'role' => $this->role,
-            'organization_id' => $this->organization_id,
-        ];
     }
 
     public function render()

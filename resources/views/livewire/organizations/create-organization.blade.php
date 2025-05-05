@@ -39,23 +39,23 @@
                                 {{ __('Organization Details') }}
                             </div>
 
-                            <x-ui.forms.group label="Organization Name" for="organization.name" error="organization.name">
+                            <x-ui.forms.group label="Organization Name" for="organization.name" error="organizationName">
                                 <x-ui.forms.input
-                                    wire:model.lazy="organization.name"
-                                    name="organization.name"
+                                    wire:model.lazy="organizationName"
+                                    name="organizationName"
                                     placeholder="Enter the organization's name"
-                                    error="{{ $errors->has('organization.name') }}"
+                                    error="{{ $errors->has('organizationName') }}"
                                     class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
                                 />
                             </x-ui.forms.group>
 
-                            <x-ui.forms.group label="Subdomain" for="organization.subdomain" error="organization.subdomain">
+                            <x-ui.forms.group label="Subdomain" for="organizationSubdomain" error="organizationSubdomain">
                                 <div class="flex">
                                     <x-ui.forms.input
-                                        wire:model.lazy="organization.subdomain"
-                                        name="organization.subdomain"
+                                        wire:model.lazy="organizationSubdomain"
+                                        name="organizationSubdomain"
                                         placeholder="the-organization"
-                                        error="{{ $errors->has('organization.subdomain') }}"
+                                        error="{{ $errors->has('organizationSubdomain') }}"
                                         class="rounded-l-xl shadow-md focus:ring-2 focus:ring-indigo-500"
                                     />
                                     <span class="inline-flex items-center px-3 bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 border border-l-0 border-gray-300 dark:border-gray-700 rounded-r-xl">
@@ -80,46 +80,45 @@
                                 {{ __('This user will have full administrative access to the organization.') }}
                             </p>
 
-                            <x-ui.forms.group label="Full Name" for="user.name" error="user.name">
+                            <x-ui.forms.group label="Full Name" for="userName" error="userName">
                                 <x-ui.forms.input
-                                    wire:model.lazy="user.name"
-                                    name="user.name"
+                                    wire:model.lazy="userName"
+                                    name="userName"
                                     placeholder="Enter admin's full name"
-                                    error="{{ $errors->has('user.name') }}"
+                                    error="{{ $errors->has('userName') }}"
                                     class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
                                 />
                             </x-ui.forms.group>
 
-                            <x-ui.forms.group label="Email Address" for="user.email" error="user.email">
+                            <x-ui.forms.group label="Email Address" for="userEmail" error="userEmail">
                                 <x-ui.forms.input
                                     type="email"
-                                    wire:model.lazy="user.email"
-                                    name="user.email"
+                                    wire:model.lazy="userEmail"
+                                    name="userEmail"
                                     placeholder="admin@example.com"
-                                    error="{{ $errors->has('user.email') }}"
+                                    error="{{ $errors->has('userEmail') }}"
                                     class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
                                 />
                             </x-ui.forms.group>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <x-ui.forms.group label="Password" for="user.password" error="user.password">
+                                <x-ui.forms.group label="Password" for="userPassword" error="userPassword">
                                     <x-ui.forms.input
                                         type="password"
-                                        wire:model.lazy="user.password"
-                                        name="user.password"
+                                        wire:model.lazy="userPassword"
+                                        name="userPassword"
                                         placeholder="••••••••"
-                                        error="{{ $errors->has('user.password') }}"
+                                        error="{{ $errors->has('userPassword') }}"
                                         class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
                                     />
                                 </x-ui.forms.group>
 
-                                <x-ui.forms.group label="Confirm Password" for="user.password_confirmation">
+                                <x-ui.forms.group label="Confirm Password" for="userPassword_confirmation">
                                     <x-ui.forms.input
                                         type="password"
-                                        wire:model.lazy="user.password_confirmation"
-                                        name="user.password_confirmation"
+                                        wire:model.lazy="userPassword_confirmation"
+                                        name="userPassword_confirmation"
                                         placeholder="••••••••"
-                                        error="{{ $errors->has('user.password.confirmed') }}"
                                         class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
                                     />
                                 </x-ui.forms.group>

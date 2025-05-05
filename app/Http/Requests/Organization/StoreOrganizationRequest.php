@@ -3,16 +3,10 @@
 namespace App\Http\Requests\Organization;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreOrganizationRequest extends OrganizationRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
-    {
-        return true;
-    }
 
     /**
      * Get the validation rules that apply to the request.
@@ -22,28 +16,37 @@ class StoreOrganizationRequest extends OrganizationRequest
     public function rules(): array
     {
         return array_merge(parent::rules(), [
-            'user.name' => ['required', 'string', 'max:255'],
-            'user.email' => [
+            'organizationSubdomain' => [
+                'required',
+                'string',
+                'max:50',
+                'regex:/^[a-z0-9\-]+$/',
+                'unique'
+            ],
+            'userName' => ['required', 'string', 'max:255'],
+            'userEmail' => [
                 'required',
                 'string',
                 'email',
                 'max:255',
                 'unique:users,email',
             ],
-            'user.password' => ['required', 'string', 'min:8', 'confirmed'],
+            'userPassword' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
     }
 
     public function messages(): array
     {
         return array_merge(parent::messages(), [
-            'user.name.required' => 'The user name is required.',
-            'user.email.required' => 'The email address is required.',
-            'user.email.email' => 'The email address must be a valid email.',
-            'user.email.unique' => 'This email address is already registered.',
-            'user.password.required' => 'The password is required.',
-            'user.password.min' => 'The password must be at least 8 characters long.',
-            'user.password.confirmed' => 'The password confirmation does not match.',
+            'organizationSubdomain.required' => 'The subdomain is required.',
+            'organizationSubdomain.regex' => 'The subdomain may only contain lowercase letters, numbers, and hyphens.',
+            'userName.required' => 'The user name is required.',
+            'userEmail.required' => 'The email address is required.',
+            'userEmail.email' => 'The email address must be a valid email.',
+            'userEmail.unique' => 'This email address is already registered.',
+            'userPassword.required' => 'The password is required.',
+            'userPassword.min' => 'The password must be at least 8 characters long.',
+            'userPassword.confirmed' => 'The password confirmation does not match.',
         ]);
     }
 }

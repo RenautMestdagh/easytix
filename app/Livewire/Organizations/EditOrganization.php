@@ -2,14 +2,11 @@
 
 namespace App\Livewire\Organizations;
 
-use App\Http\Requests\Organization\StoreOrganizationRequest;
 use App\Http\Requests\Organization\UpdateOrganizationRequest;
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -17,11 +14,10 @@ class EditOrganization extends Component
 {
     use WithPagination;
 
-    public Organization $organizationModel;
-    public $organization = [
-        'name' => '',
-        'subdomain' => ''
-    ];
+    public Organization $organization;
+    public $organizationName = '';
+    public $organizationSubdomain = '';
+
     public $adminCount;
     public $saveButtonVisible = false;
 
@@ -36,68 +32,49 @@ class EditOrganization extends Component
     public function mount(Organization $organization)
     {
         $this->authorize('organizations.update', $organization);
-        $this->organizationModel = $organization;
-        $this->organization = [
-            'name' => $organization->name,
-            'subdomain' => $organization->subdomain
-        ];
-        $this->adminCount = $this->organizationModel->admins()->count();
+
+        $this->organization = $organization;
+
+        $this->organizationName = $organization->name;
+        $this->organizationSubdomain = $organization->subdomain;
+
+        $this->adminCount = $this->organization->admins()->count();
     }
 
-    public function updated($property): void
+    public function updated($propertyName): void
     {
-        $this->resetErrorBag($property);
+        $this->resetErrorBag($propertyName);
 
-        $rules = (new StoreOrganizationRequest())->rules();
-        $messages = (new StoreOrganizationRequest())->messages();
+        $fieldRules = (new UpdateOrganizationRequest($this->organization->id))->rules();
+        $fieldMessages = (new UpdateOrganizationRequest())->messages();
 
-        if (!array_key_exists($property, $rules)) {
+        if (!array_key_exists($propertyName, $fieldRules)) {
             return; // skip validation if no rule is defined
         }
 
-        // Get value
-        $value = data_get($this, $property);
+        $this->saveButtonVisible = $this->organization->name !== $this->organizationName || $this->organization->subdomain !== $this->organizationSubdomain;
 
-        // Convert 'organization.name' to ['organization' => ['name' => 'value']]
-        $data = Arr::undot([$property => $value]);
-
-        if ($this->organizationModel->name !== $this->organization['name'] || $this->organizationModel->subdomain !== $this->organization['subdomain']) {
-            $this->saveButtonVisible = true;
-        } else {
-            $this->saveButtonVisible = false;
-        }
-
-        if($this->organizationModel->subdomain === $value) {
-            return;
-        }
-
-        Validator::make(
-            $data,
-            [$property => $rules[$property]],
-            $messages
-        )->validate();
+        $this->validateOnly($propertyName, $fieldRules, $fieldMessages);
     }
 
     public function save()
     {
-        $this->authorize('organizations.update', $this->organizationModel);
+        $this->authorize('organizations.update', $this->organization);
 
         // Skip validation for subdomain if it's unchanged
-        $rules = (new UpdateOrganizationRequest())->rules();
+        $rules = (new UpdateOrganizationRequest($this->organization->id))->rules();
         $messages = (new UpdateOrganizationRequest())->messages();
-
-        $oldSubdomain = $this->organizationModel->subdomain;
-        $newSubdomain = $this->organization['subdomain'];
-
-        // If the subdomain is not changed, remove its validation rule
-//        if ($this->organizationModel->subdomain === $this->organization['subdomain']) {
-//            unset($rules['organization.subdomain']);
-//        }
 
         $validated = $this->validate($rules, $messages);
 
+        $oldSubdomain = $this->organization->subdomain;
+        $newSubdomain = $validated['organizationSubdomain'];
+
         try {
-            $this->organizationModel->update($validated['organization']);
+            $this->organization->update([
+                'name' => $validated['organizationName'],
+                'subdomain' => $validated['organizationSubdomain'],
+            ]);
 
             session()->flash('message', __('Organization successfully updated.'));
             $this->dispatch('flash-message');
@@ -106,7 +83,7 @@ class EditOrganization extends Component
 
             // If the subdomain has changed, redirect to the new subdomain's edit page
             if ($oldSubdomain !== $newSubdomain && session('organization_id')) {
-                $baseUrl = config('app.url'); // http://localeasytix.org:8000
+                $baseUrl = config('app.url');
                 $hostParts = parse_url($baseUrl);
 
                 $scheme = $hostParts['scheme'] ?? 'http';
@@ -117,7 +94,7 @@ class EditOrganization extends Component
                 $newHost = $newSubdomain . '.' . $domain;
 
                 // Build relative path to edit page
-                $path = route('organizations.edit', $this->organizationModel->id, false);
+                $path = route('organizations.edit', $this->organization->id, false);
 
                 // Full new URL with port if present
                 $newUrl = $scheme . '://' . $newHost . $port . $path;
@@ -145,7 +122,7 @@ class EditOrganization extends Component
 
     public function getUsersProperty()
     {
-        return $this->organizationModel->users()
+        return $this->organization->users()
             ->with('roles')
             ->when($this->userSearch, function ($query) {
                 $query->where(function ($q) {
@@ -186,7 +163,7 @@ class EditOrganization extends Component
 
     public function removeUser($id)
     {
-        $this->authorize('users.delete', $this->organizationModel);
+        $this->authorize('users.delete', $this->organization);
         DB::transaction(function () use ($id) {
             $user = User::findOrFail($id);
             $organization = Organization::findOrFail($user->organization_id);
@@ -203,7 +180,7 @@ class EditOrganization extends Component
 
             $user->delete();
 
-            $this->adminCount = $this->organizationModel->admins()->count();
+            $this->adminCount = $this->organization->admins()->count();
 
             session()->flash('message', __('User deleted successfully.'));
             $this->dispatch('flash-message');
@@ -212,7 +189,7 @@ class EditOrganization extends Component
 
     public function forceDeleteUser($id)
     {
-        $this->authorize('users.delete', $this->organizationModel);
+        $this->authorize('users.delete', $this->organization);
         $user = User::withTrashed()->findOrFail($id);
         $user->forceDelete();
 
@@ -222,11 +199,11 @@ class EditOrganization extends Component
 
     public function restoreUser($id)
     {
-        $this->authorize('users.delete', $this->organizationModel);
+        $this->authorize('users.delete', $this->organization);
         $user = User::withTrashed()->findOrFail($id);
         $user->restore();
 
-        $this->adminCount = $this->organizationModel->admins()->count();
+        $this->adminCount = $this->organization->admins()->count();
 
         session()->flash('message', 'User restored successfully.');
         $this->dispatch('flash-message');

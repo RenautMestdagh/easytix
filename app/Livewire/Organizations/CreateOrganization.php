@@ -14,17 +14,15 @@ use Spatie\Permission\Models\Role;
 
 class CreateOrganization extends Component
 {
-    public $organization = [
-        'name' => '',
-        'subdomain' => '',
-    ];
 
-    public $user = [
-        'name' => '',
-        'email' => '',
-        'password' => '',
-        'password_confirmation' => '',
-    ];
+    public $organizationName = '';
+    public$organizationSubdomain = '';
+
+
+    public $userName = '';
+    public $userEmail = '';
+    public $userPassword = '';
+    public $userPasswordConfirmation = '';
 
     public function mount()
     {
@@ -36,34 +34,24 @@ class CreateOrganization extends Component
      * This allows us to validate fields individually as they're updated.
      */
 
-    public function updated($property): void
+    public function updated($propertyName): void
     {
-        $this->resetErrorBag($property);
+        $this->resetErrorBag($propertyName);
 
-        $rules = (new StoreOrganizationRequest())->rules();
-        $messages = (new StoreOrganizationRequest())->messages();
+        $fieldRules = (new StoreOrganizationRequest())->rules();
+        $fieldMessages = (new StoreOrganizationRequest())->messages();
 
         // Handle password confirmation case
-        if ($property === 'user.password_confirmation' || $property === 'user.password') {
-            $this->validateOnly('user.password', $rules, $messages);
+        if ($propertyName === 'userPassword' || $propertyName === 'userPassword_confirmation') {
+            $this->validateOnly('userPassword', $fieldRules, $fieldMessages);
             return;
         }
 
-        if (!array_key_exists($property, $rules)) {
+        if (!array_key_exists($propertyName, $fieldRules)) {
             return; // skip validation if no rule is defined
         }
 
-        // Get value
-        $value = data_get($this, $property);
-
-        // Convert 'organization.name' to ['organization' => ['name' => 'value']]
-        $data = Arr::undot([$property => $value]);
-
-        Validator::make(
-            $data,
-            [$property => $rules[$property]],
-            $messages
-        )->validate();
+        $this->validateOnly($propertyName, $fieldRules, $fieldMessages);
     }
 
 
@@ -75,7 +63,7 @@ class CreateOrganization extends Component
         $this->authorize('organizations.create');
 
         // Validate all fields using the FormRequest rules
-        $this->validate(
+        $validatedData = $this->validate(
             (new StoreOrganizationRequest())->rules(),
             (new StoreOrganizationRequest())->messages()
         );
@@ -85,15 +73,15 @@ class CreateOrganization extends Component
 
             // Create the organization
             $organization = Organization::create([
-                'name' => $this->organization['name'],
-                'subdomain' => $this->organization['subdomain'],
+                'name' => $validatedData['organizationName'],
+                'subdomain' => $validatedData['organizationSubdomain'],
             ]);
 
             // Create the user
             $user = User::create([
-                'name' => $this->user['name'],
-                'email' => $this->user['email'],
-                'password' => Hash::make($this->user['password']),
+                'name' => $validatedData['userName'],
+                'email' => $validatedData['userEmail'],
+                'password' => Hash::make($validatedData['userPassword']),
                 'organization_id' => $organization->id,
             ]);
 

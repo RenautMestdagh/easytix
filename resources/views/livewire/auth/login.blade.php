@@ -22,8 +22,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
     public bool $remember = false;
 
     public $organization = null;
-    public $subdomain = null;
-    public $isSubdomainLogin = false;
 
     /**
      * Mount the component.
@@ -31,16 +29,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
     public function mount()
     {
         // Check if we're in a subdomain
-        $this->subdomain = request()->route('subdomain');
-        $this->isSubdomainLogin = !empty($this->subdomain);
-
-        // Get organization data if we're in a subdomain
-        if ($this->isSubdomainLogin) {
-            $organizationId = session('organization_id');
-            if ($organizationId) {
-                $this->organization = Organization::find($organizationId);
-            }
-        }
+        $this->organization = request()->get('organization');
     }
 
     /**
@@ -140,8 +129,8 @@ new #[Layout('components.layouts.auth')] class extends Component {
                 :placeholder="__('Password')"
             />
 
-            @if($isSubdomainLogin && Route::has('subdomain.password.request'))
-                <flux:link class="absolute end-0 top-0 text-sm" :href="route('subdomain.password.request', ['subdomain' => $subdomain])" wire:navigate>
+            @if($organization && Route::has('subdomain.password.request'))
+                <flux:link class="absolute end-0 top-0 text-sm" :href="route('subdomain.password.request')" wire:navigate>
                     {{ __('Forgot your password?') }}
                 </flux:link>
             @elseif(Route::has('password.request'))
@@ -159,7 +148,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
         </div>
     </form>
 
-{{--    @if($isSubdomainLogin && Route::has('subdomain.register'))--}}
+{{--    @if($subdomain && Route::has('subdomain.register'))--}}
 {{--        <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-zinc-600 dark:text-zinc-400">--}}
 {{--            {{ __('Don\'t have an account?') }}--}}
 {{--            <flux:link :href="route('subdomain.register', ['subdomain' => $subdomain])" wire:navigate>{{ __('Sign up') }}</flux:link>--}}

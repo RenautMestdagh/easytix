@@ -2,16 +2,16 @@
 
 namespace App\Http\Requests\Organization;
 
-use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateOrganizationRequest extends OrganizationRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
+    protected $organizationId;
+
+    public function __construct($organizationId = null)
     {
-        return true; // Changed from false to true
+        parent::__construct();
+        $this->organizationId = $organizationId;
     }
 
     /**
@@ -21,11 +21,25 @@ class UpdateOrganizationRequest extends OrganizationRequest
      */
     public function rules(): array
     {
-        return parent::rules(); // We can just use parent rules since getUniqueSubdomainRule handles the update case
+        $organizationId = $this->organizationId ?? ($this->route('organization') ? $this->route('organization')->id : $this->route('organization'));
+
+        return array_merge(parent::rules(), [
+            'organizationSubdomain' => [
+                'required',
+                'string',
+                'max:50',
+                'regex:/^[a-z0-9\-]+$/',
+                Rule::unique('organizations','subdomain')->ignore($organizationId),
+            ],
+        ]);
     }
 
     public function messages(): array
     {
-        return parent::messages();
+        return array_merge(parent::messages(), [
+            'organizationSubdomain.required' => 'The subdomain is required.',
+            'organizationSubdomain.regex' => 'The subdomain may only contain lowercase letters, numbers, and hyphens.',
+            'organizationSubdomain.unique' => 'This subdomain is already in use. Please choose another one.',
+        ]);
     }
 }

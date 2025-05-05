@@ -10,6 +10,7 @@ use App\Livewire\Organizations\UploadMedia;
 use App\Livewire\Users\CreateUser;
 use App\Livewire\Users\EditUser;
 use App\Livewire\Users\ShowUsers;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 use App\Models\Event;
@@ -20,7 +21,7 @@ Route::domain('{subdomain}.'.config('app.domain'))
     ->group(function () {
         // Public routes for subdomain
          Route::get('/', function (string $subdomain, Request $request) {
-             return response()->json(Event::all());
+             return response()->json(User::all());
          });
     });
 

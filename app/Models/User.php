@@ -72,4 +72,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsTo(Organization::class);
     }
+
+    public function isSuperadmin(): bool
+    {
+        return $this->hasRole('superadmin');
+    }
 }

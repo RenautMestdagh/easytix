@@ -22,27 +22,17 @@ class OrganizationRequest extends FormRequest
      */
     public function rules(): array
     {
-        dd($this->organization);
         return [
-            'organization.name' => ['required', 'string', 'max:255'],
-            'organization.subdomain' => [
-                'required',
-                'string',
-                'max:50',
-                'regex:/^[a-z0-9\-]+$/',
-                Rule::unique('organizations','subdomain')->ignore($this->organization->subdomain),
-            ],
+            'organizationName' => ['required', 'string', 'max:255'],
+
         ];
     }
 
     public function messages(): array
     {
         return [
-            'organization.name.required' => 'The organization name is required.',
-            'organization.name.max' => 'The organization name may not be greater than 255 characters.',
-            'organization.subdomain.required' => 'The subdomain is required.',
-            'organization.subdomain.regex' => 'The subdomain may only contain lowercase letters, numbers, and hyphens.',
-            'organization.subdomain.unique' => 'This subdomain is already in use. Please choose another one.',
+            'organizationName.required' => 'The organization name is required.',
+            'organizationName.max' => 'The organization name may not be greater than 255 characters.',
         ];
     }
 }

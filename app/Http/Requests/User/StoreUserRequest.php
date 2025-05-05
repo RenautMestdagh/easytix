@@ -7,6 +7,7 @@ use Illuminate\Validation\Rules\Password;
 
 class StoreUserRequest extends UserRequest
 {
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -15,11 +16,18 @@ class StoreUserRequest extends UserRequest
     public function rules(): array
     {
         return array_merge(parent::rules(), [
-            'user.password' => [
+            'userPassword' => [
                 'required',
                 'string',
                 Password::defaults(),
                 'confirmed'
+            ],
+            'userEmail' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                'unique:users,email',
             ],
         ]);
     }
@@ -27,8 +35,12 @@ class StoreUserRequest extends UserRequest
     public function messages(): array
     {
         return array_merge(parent::messages(), [
-            'user.password.required' => 'The password field is required.',
-            'user.password.confirmed' => 'The password confirmation does not match.',
+            'userPassword.required' => 'The password field is required.',
+            'userPassword.confirmed' => 'The password confirmation does not match.',
+            'userEmail.required' => 'The email field is required.',
+            'userEmail.email' => 'The email must be a valid email address.',
+            'userEmail.max' => 'The email may not be greater than 255 characters.',
+            'userEmail.unique' => 'This email is already in use.',
         ]);
     }
 }
