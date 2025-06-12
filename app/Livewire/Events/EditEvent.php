@@ -81,7 +81,17 @@ class EditEvent extends Component
             'date' => 'required|date|after:now',
             'max_capacity' => 'required|integer|min:1',
             'publish_option' => 'required|in:publish_now,schedule,draft',
-            'publish_at' => 'nullable|required_if:publish_option,schedule|date|after:now',
+            'publish_at' => [
+                'nullable',
+                'required_if:publish_option,schedule',
+                'date',
+                'after:now',
+                function ($attribute, $value, $fail) {
+                    if ($this->publish_option === 'schedule' && $value >= $this->date) {
+                        $fail(__('The publish date must be before the event date.'));
+                    }
+                },
+            ],
         ];
 
         // If event is published and preventUnpublish is true, restrict to only published options
@@ -207,6 +217,42 @@ class EditEvent extends Component
         }
 
         return $filename;
+    }
+
+    public function removeEventImage()
+    {
+        // Delete the file from storage if it exists
+        if ($this->event->event_image) {
+            Storage::disk('public')->delete("events/{$this->event->id}/{$this->event->event_image}");
+        }
+
+        // Update the event to remove the image reference
+        $this->event->update(['event_image' => null]);
+
+        // Reset the file input
+        $this->reset('event_image');
+
+        // Show success message
+        session()->flash('message', __('Event image removed successfully.'));
+        session()->flash('message_type', 'success');
+    }
+
+    public function removeBackgroundImage()
+    {
+        // Delete the file from storage if it exists
+        if ($this->event->background_image) {
+            Storage::disk('public')->delete("events/{$this->event->id}/{$this->event->background_image}");
+        }
+
+        // Update the event to remove the image reference
+        $this->event->update(['background_image' => null]);
+
+        // Reset the file input
+        $this->reset('background_image');
+
+        // Show success message
+        session()->flash('message', __('Background image removed successfully.'));
+        session()->flash('message_type', 'success');
     }
 
     public function render()

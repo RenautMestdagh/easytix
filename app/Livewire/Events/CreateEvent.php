@@ -58,7 +58,17 @@ class CreateEvent extends Component
             'date' => 'required|date|after:now',
             'max_capacity' => 'required|integer|min:1',
             'publish_option' => 'required|in:publish_now,schedule,draft',
-            'publish_at' => 'nullable|required_if:publish_option,schedule|date|after:now',
+            'publish_at' => [
+                'nullable',
+                'required_if:publish_option,schedule',
+                'date',
+                'after:now',
+                function ($attribute, $value, $fail) {
+                    if ($this->publish_option === 'schedule' && $value >= $this->date) {
+                        $fail(__('The publish date must be before the event date.'));
+                    }
+                },
+            ],
         ];
     }
 
@@ -109,7 +119,7 @@ class CreateEvent extends Component
             session()->flash('message', __('Event successfully created.'));
             session()->flash('message_type', 'success');
 
-            return redirect()->route('events.index');
+            return redirect()->route('tickettypes.show');
 
         } catch (\Exception $e) {
             Log::error($e);

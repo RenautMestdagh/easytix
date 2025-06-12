@@ -21,6 +21,11 @@ class TicketType extends Model
         'available_quantity',
     ];
 
+    protected $casts = [
+        'publish_at' => 'datetime', // Also cast publish_at if needed
+        'is_published' => 'boolean',
+    ];
+
     public function scopePublished($query)
     {
         return $query->where('is_published', true);

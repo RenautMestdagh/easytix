@@ -23,8 +23,6 @@ class ShowEvents extends Component
     public $sortDirection = 'asc';
     public $perPage = 10;
 
-    protected $paginationTheme = 'tailwind';
-
     public function mount()
     {
         $this->authorize('events.read');
@@ -63,7 +61,10 @@ class ShowEvents extends Component
                 $query->where('is_published', true);
             })
             ->when($this->statusFilter === 'draft', function ($query) {
-                $query->where('is_published', false);
+                $query->where('publish_at', null)->where('is_published', false);
+            })
+            ->when($this->statusFilter === 'scheduled', function ($query) {
+                $query->whereNot('publish_at', null)->where('is_published', false);
             })
             ->when($this->includeDeleted, function ($query) {
                 $query->withTrashed();

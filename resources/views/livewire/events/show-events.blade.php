@@ -65,6 +65,7 @@
         <x-ui.forms.select wire:model.live="statusFilter">
             <option value="all">All Statuses</option>
             <option value="published">Published</option>
+            <option value="scheduled">Scheduled</option>
             <option value="draft">Draft</option>
         </x-ui.forms.select>
 
@@ -207,6 +208,13 @@
                                     </svg>
                                 </button>
                             @else
+                                <a href="{{ route('tickettypes.show', $event) }}" wire:navigate
+                                   class="p-1 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                                   title="{{ __('Tickets') }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" />
+                                    </svg>
+                                </a>
                                 <a href="{{ route('events.edit', $event) }}" wire:navigate
                                    class="p-1 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
                                    title="{{ __('Edit') }}">

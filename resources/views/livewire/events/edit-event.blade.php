@@ -144,7 +144,8 @@
                                                     {{ $event_image ? round($event_image->getSize() / 1024, 2) : '' }} KB
                                                 </p>
                                             </div>
-                                            <button wire:click="removeEventImage"
+                                            <button wire:click.prevent="removeEventImage"
+                                                    type="button"
                                                     class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -193,7 +194,8 @@
                                                     {{ $background_image ? round($background_image->getSize() / 1024, 2) : '' }} KB
                                                 </p>
                                             </div>
-                                            <button wire:click="removeBackgroundImage"
+                                            <button wire:click.prevent="removeBackgroundImage"
+                                                    type="button"
                                                     class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>

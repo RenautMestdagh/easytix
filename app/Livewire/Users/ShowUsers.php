@@ -201,7 +201,7 @@ class ShowUsers extends Component
 
     public function loginAsUser($userId)
     {
-//        $this->authorize('login-as.use'); // This checks for the specific permission
+        $this->authorize('login-as.use'); // This checks for the specific permission
 
         $targetUser = User::findOrFail($userId);
 

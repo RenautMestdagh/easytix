@@ -9,6 +9,7 @@ use App\Livewire\Organizations\CreateOrganization;
 use App\Livewire\Organizations\EditOrganization;
 use App\Livewire\Organizations\ShowOrganizations;
 use App\Livewire\Organizations\UploadMedia;
+use App\Livewire\Tickettypes\ShowTypes;
 use App\Livewire\Users\CreateUser;
 use App\Livewire\Users\EditUser;
 use App\Livewire\Users\ShowUsers;
@@ -66,6 +67,8 @@ Route::middleware(['auth', 'verified', SubdomainOrganizationMiddleware::class])-
     Route::get('/events', ShowEvents::class)->name('events.index');
     Route::get('/events/create', CreateEvent::class)->name('events.create');
     Route::get('/events/{event}/edit', EditEvent::class)->name('events.edit');
+
+    Route::get('/events/{event}/tickets', ShowTypes::class)->name('tickettypes.show');
 });
 
 require __DIR__ . '/auth.php';
