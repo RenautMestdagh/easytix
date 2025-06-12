@@ -61,6 +61,7 @@ Route::middleware(['auth', 'verified', SubdomainOrganizationMiddleware::class])-
     Route::get('/users', ShowUsers::class)->name('users.index');
     Route::get('/users/create', CreateUser::class)->name('users.create');
     Route::get('/users/{user}/edit', EditUser::class)->name('users.edit');
+    Route::post('/switch-back', [ShowUsers::class, 'switchBackToOriginalUser'])->name('switch-back');
 
     Route::get('/events', ShowEvents::class)->name('events.index');
     Route::get('/events/create', CreateEvent::class)->name('events.create');

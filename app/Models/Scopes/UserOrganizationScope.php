@@ -13,6 +13,10 @@ class UserOrganizationScope implements Scope
      */
     public function apply(Builder $builder, Model $model): void
     {
+        if (request()->routeIs('switch-back')) {
+            return;
+        }
+
         if ($organizationId = session('organization_id')) {
             $builder->where('organization_id', $organizationId);
         }

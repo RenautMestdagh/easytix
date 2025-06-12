@@ -27,6 +27,9 @@ class SubdomainOrganizationMiddleware
             if (!$organization) {
                 abort(404, 'Organization not found');
             }
+        } else if (session('original_user_id')) {
+            // This means we are superadmin but currently logged in as user
+            $organization = auth()->user()->organization;
         }
 
         // Share the organization id with the request

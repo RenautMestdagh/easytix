@@ -6,6 +6,7 @@ use App\Http\Requests\User\StoreUserRequest;
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Spatie\Permission\Models\Role;
 
@@ -54,7 +55,7 @@ class CreateUser extends Component
         if ($propertyName === 'role') {
             $this->resetErrorBag('organization_id');
             if($this->role === 'superadmin')
-                $this->organization_id = '';
+                $this->organization_id = null;
         }
 
         // Handle password confirmation case
@@ -112,6 +113,7 @@ class CreateUser extends Component
             return redirect()->route('users.index');
 
         } catch (\Exception $e) {
+            Log::error('An error occurred while creating the user: ' . $e->getMessage());
             session()->flash('message', __('An error occurred while creating the user: ' . $e->getMessage()));
             session()->flash('message_type', 'error');
         }

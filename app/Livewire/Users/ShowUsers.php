@@ -5,6 +5,7 @@ namespace App\Livewire\Users;
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Spatie\Permission\Models\Role;
@@ -196,5 +197,59 @@ class ShowUsers extends Component
 
         session()->flash('message', 'User restored successfully.');
         $this->dispatch('flash-message');
+    }
+
+    public function loginAsUser($userId)
+    {
+//        $this->authorize('login-as.use'); // This checks for the specific permission
+
+        $targetUser = User::findOrFail($userId);
+
+        // Check if trying to login as self or another superadmin
+        if (auth()->id() === $userId) {
+            session()->flash('message_type', 'error');
+            session()->flash('message', __('You cannot login as yourself.'));
+            $this->dispatch('flash-message');
+            return;
+        }
+
+        if ($targetUser->hasRole('superadmin')) {
+            session()->flash('message_type', 'error');
+            session()->flash('message', __('Cannot login as another superadmin.'));
+            $this->dispatch('flash-message');
+            return;
+        }
+
+        // Store the original user ID in session so we can switch back
+        session()->put('original_user_id', auth()->id());
+
+        // Login as the target user
+        auth()->login($targetUser);
+
+        session()->flash('message', __('Now logged in as :name', ['name' => $targetUser->name]));
+        $this->dispatch('flash-message');
+
+        return redirect()->route('dashboard'); // Redirect to dashboard or desired route
+    }
+
+    public function switchBackToOriginalUser()
+    {
+        if (!session()->has('original_user_id')) {
+            session()->flash('message_type', 'error');
+            session()->flash('message', __('No original user to switch back to.'));
+            $this->dispatch('flash-message');
+            return;
+        }
+
+        $originalUser = User::findOrFail(session('original_user_id'));
+
+        auth()->login($originalUser);
+        session()->forget('original_user_id');
+        session()->forget('organization_id');
+
+        session()->flash('message', __('Switched back to your original account.'));
+        $this->dispatch('flash-message');
+
+        return redirect()->route('users.index');
     }
 }
