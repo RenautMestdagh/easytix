@@ -94,7 +94,7 @@ class Event extends Model
     public function getEventImageUrlAttribute()
     {
         if (!$this->event_image) return null;
-        return Storage::disk('public')->url("organizations/{$this->organization_id}/{$this->event_image}");
+        return Storage::disk('public')->url("events/{$this->id}/{$this->event_image}");
     }
 
     /**
@@ -103,7 +103,7 @@ class Event extends Model
     public function getHeaderImageUrlAttribute()
     {
         if (!$this->header_image) return null;
-        return Storage::disk('public')->url("organizations/{$this->organization_id}/{$this->header_image}");
+        return Storage::disk('public')->url("events/{$this->id}/{$this->header_image}");
     }
 
     /**
@@ -112,6 +112,6 @@ class Event extends Model
     public function getBackgroundImageUrlAttribute()
     {
         if (!$this->background_image) return null;
-        return Storage::disk('public')->url("organizations/{$this->organization_id}/{$this->background_image}");
+        return Storage::disk('public')->url("events/{$this->id}/{$this->background_image}");
     }
 }

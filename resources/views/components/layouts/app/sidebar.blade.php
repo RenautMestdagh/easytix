@@ -17,6 +17,7 @@
                 </flux:navlist.group>
             </flux:navlist>
 
+            @unlessrole('superadmin')
             <flux:navlist.item
                 icon="calendar"
                 :href="route('events.index')"
@@ -25,6 +26,7 @@
             >
                 {{ __('Events') }}
             </flux:navlist.item>
+            @endunlessrole
 
             @hasanyrole('superadmin|admin')
                 <flux:navlist.item
