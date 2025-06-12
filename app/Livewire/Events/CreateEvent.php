@@ -96,6 +96,7 @@ class CreateEvent extends Component
 
             // Create the event
             $event = Event::create([
+                'uniqid' => str_replace('-', '', Str::uuid()),
                 'organization_id' => Auth::user()->organization_id,
                 'name' => $validatedData['name'],
                 'description' => $validatedData['description'],
@@ -119,7 +120,7 @@ class CreateEvent extends Component
             session()->flash('message', __('Event successfully created.'));
             session()->flash('message_type', 'success');
 
-            return redirect()->route('tickettypes.show');
+            return redirect()->route('tickettypes.show', $event);
 
         } catch (\Exception $e) {
             Log::error($e);

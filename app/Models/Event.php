@@ -17,6 +17,7 @@ class Event extends Model
 
     // Fillable attributes for mass assignment
     protected $fillable = [
+        'uniqid',
         'organization_id',
         'name',
         'description',

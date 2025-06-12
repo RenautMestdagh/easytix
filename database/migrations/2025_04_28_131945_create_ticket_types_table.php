@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('event_id')->constrained('events');
             $table->string('name');
             $table->integer('price_cents');
-            $table->integer('available_quantity');
+            $table->integer('available_quantity')->nullable();
             $table->boolean('is_published')->default(false);
             $table->timestamp('publish_at')->nullable();
             $table->boolean('publish_with_event')->default(false);

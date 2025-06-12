@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\PermissionRegistrar;
@@ -18,26 +19,26 @@ class RoleSeeder extends Seeder
         ],
         'organizations' => [
             'superadmin' => ['create', 'read', 'update', 'delete'],
-            'admin' => ['read', 'update'],
-            'organizer' => ['read'],
+            'admin' => ['update'],
+            'organizer' => [],
         ],
         'events' => [
-            'superadmin' => ['create', 'read', 'update', 'delete'],
+            'superadmin' => [],
             'admin' => ['create', 'read', 'update', 'delete'],
             'organizer' => ['create', 'read', 'update', 'delete'],
         ],
         'discount codes' => [
-            'superadmin' => ['create', 'read', 'update', 'delete'],
+            'superadmin' => [],
             'admin' => ['create', 'read', 'update', 'delete'],
             'organizer' => ['create', 'read', 'update', 'delete'],
         ],
         'ticket types' => [
-            'superadmin' => ['create', 'read', 'update', 'delete'],
+            'superadmin' => [],
             'admin' => ['create', 'read', 'update', 'delete'],
             'organizer' => ['create', 'read', 'update', 'delete'],
         ],
         'tickets' => [
-            'superadmin' => ['create', 'read', 'update', 'delete'],
+            'superadmin' => [],
             'admin' => ['create', 'read', 'update', 'delete'],
             'organizer' => ['read'],
         ],
@@ -79,7 +80,7 @@ class RoleSeeder extends Seeder
         }
 
         // Additional global permissions if needed
-        $superadmin = Role::where('name', 'superadmin')->first();
-        $superadmin->givePermissionTo(Permission::all());
+//        $superadmin = Role::where('name', 'superadmin')->first();
+//        $superadmin->givePermissionTo(Permission::all());
     }
 }

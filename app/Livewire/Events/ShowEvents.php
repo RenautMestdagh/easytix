@@ -135,6 +135,21 @@ class ShowEvents extends Component
     {
         $this->authorize('events.delete');
         $event = Event::withTrashed()->findOrFail($id);
+        $ticketTypes = $event->ticketTypes;
+
+        foreach ($ticketTypes as $ticketType) {
+            if($ticketType->tickets->count() > 0) {
+                session()->flash('message', __('Cannot permanently delete event with tickets.'));
+                session()->flash('message_type', __('error'));
+                $this->dispatch('flash-message');
+                return;
+            }
+        }
+
+        foreach ($ticketTypes as $ticketType) {
+            $ticketType->delete();
+        }
+
         $event->forceDelete();
 
         session()->flash('message', __('Event permanently deleted.'));

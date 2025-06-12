@@ -6,19 +6,21 @@ use App\Models\Scopes\TicketTypeOrganizationScope;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[ScopedBy([TicketTypeOrganizationScope::class])]
 class TicketType extends Model
 {
     /** @use HasFactory<\Database\Factories\TicketTypeFactory> */
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     protected $fillable = [
         'event_id',
         'name',
         'price_cents',
         'available_quantity',
+        'is_published',
+        'publish_at',
+        'publish_with_event',
     ];
 
     protected $casts = [
@@ -48,7 +50,7 @@ class TicketType extends Model
      */
     public function event()
     {
-        return $this->belongsTo(Event::class);
+        return $this->belongsTo(Event::class, 'event_id');
     }
 
     /**

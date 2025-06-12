@@ -12,7 +12,7 @@ class OrderFactory extends Factory
     {
         return [
             'customer_id' => Customer::factory(),
-            'payment_id' => Payment::factory(),
+            'transaction_id' => uniqid(),
         ];
     }
 }

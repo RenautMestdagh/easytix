@@ -51,10 +51,11 @@ jobs:
             echo "→ Running Laravel optimizations..."
             # php artisan migrate:fresh --force
             php artisan migrate:fresh --seed --force
-            php artisan storage:link
-            php artisan config:cache
-            php artisan route:cache
-            php artisan view:cache
+            # php artisan storage:link
+            # php artisan optimize:clear
+            # php artisan config:cache
+            # php artisan route:cache
+            # php artisan view:cache
             php artisan optimize
 
             echo "→ Installing frontend dependencies and building assets..."

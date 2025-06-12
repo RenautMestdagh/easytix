@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Models\Organization;
 use DateTime;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Event>
@@ -31,6 +32,7 @@ class EventFactory extends Factory
 
         return [
             'organization_id' => Organization::inRandomOrder()->first()->id,
+            'uniqid' => str_replace('-', '', Str::uuid()),
             'name' => $this->faker->words(3, true),
             'description' => $this->faker->paragraph,
             'location' => $this->faker->address,

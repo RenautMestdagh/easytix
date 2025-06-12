@@ -19,45 +19,28 @@ class ShowTypes extends Component
                 $query->withCount('tickets');
             },
         ]);
-        $this->authorize('tickets.read');
+        $this->authorize('ticket types.read');
     }
 
     public function deleteTicketType($ticketTypeId)
     {
         $ticketType = $this->event->ticketTypes()->findOrFail($ticketTypeId);
+        if($ticketType->tickets->count() > 0)
+            return false;
+
         Gate::authorize('tickets.delete', $ticketType);
 
         $ticketType->delete();
 
+        $this->event->load([
+            'ticketTypes' => function ($query) {
+                $query->withCount('tickets');
+            },
+        ]);
+
         $this->dispatch('notify',
             type: 'success',
             content: 'Ticket type deleted successfully'
-        );
-    }
-
-    public function restoreTicketType($ticketTypeId)
-    {
-        $ticketType = $this->event->ticketTypes()->withTrashed()->findOrFail($ticketTypeId);
-        Gate::authorize('tickets.restore', $ticketType);
-
-        $ticketType->restore();
-
-        $this->dispatch('notify',
-            type: 'success',
-            content: 'Ticket type restored successfully'
-        );
-    }
-
-    public function forceDeleteTicketType($ticketTypeId)
-    {
-        $ticketType = $this->event->ticketTypes()->withTrashed()->findOrFail($ticketTypeId);
-        Gate::authorize('tickets.forceDelete', $ticketType);
-
-        $ticketType->forceDelete();
-
-        $this->dispatch('notify',
-            type: 'success',
-            content: 'Ticket type permanently deleted'
         );
     }
 

@@ -21,7 +21,6 @@ class DatabaseSeeder extends Seeder
             DiscountCodeSeeder::class,
             TicketTypeSeeder::class,
             CustomerSeeder::class,
-            PaymentSeeder::class,
             OrderSeeder::class,
             TemporaryOrderSeeder::class,
             TicketSeeder::class,

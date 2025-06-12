@@ -12,7 +12,8 @@ class DiscountCodeOrganizationScope implements Scope
     {
         if ($organizationId = session('organization_id')) {
             $builder->whereHas('event', function (Builder $query) use ($organizationId) {
-                $query->where('organization_id', $organizationId);
+                $query->withTrashed() // Include soft-deleted events in the check
+                ->where('organization_id', $organizationId);
             });
         }
     }
