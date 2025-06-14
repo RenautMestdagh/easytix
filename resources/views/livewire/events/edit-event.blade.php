@@ -106,7 +106,7 @@
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <!-- Event Image Upload -->
-                                <div>
+                                <div class="md:col-span-2">
                                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                         {{ __('Event Image') }}
                                     </label>
@@ -145,6 +145,56 @@
                                                 </p>
                                             </div>
                                             <button wire:click.prevent="removeEventImage"
+                                                    type="button"
+                                                    class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <!-- Header Image Upload -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        {{ __('Header Image') }}
+                                    </label>
+                                    <input type="file" wire:model="header_image" id="header-image-upload" class="hidden">
+                                    <label for="header-image-upload" class="cursor-pointer">
+                                        <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center hover:border-purple-500 transition duration-200">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                            </svg>
+                                            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                                                <span class="font-medium text-purple-600 dark:text-purple-400">{{ __('Click to upload') }}</span>
+                                                {{ __('or drag and drop') }}
+                                            </p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                                PNG, JPG up to 2MB (Recommended: 800x450px)
+                                            </p>
+                                        </div>
+                                    </label>
+                                    @error('header_image')
+                                    <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
+                                    @enderror
+
+                                    @if($header_image || $event->header_image)
+                                        <div class="flex items-center gap-4 mt-4">
+                                            <div class="flex-shrink-0">
+                                                <img class="h-12 w-20 rounded-md object-cover"
+                                                     src="{{ $header_image ? $header_image->temporaryUrl() : Storage::url("events/{$event->id}/{$event->header_image}") }}"
+                                                     alt="Header image preview">
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="text-sm font-medium text-gray-900 dark:text-gray-200 truncate">
+                                                    {{ $header_image ? $header_image->getClientOriginalName() : $event->header_image }}
+                                                </p>
+                                                <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                    {{ $header_image ? round($header_image->getSize() / 1024, 2) : '' }} KB
+                                                </p>
+                                            </div>
+                                            <button wire:click.prevent="$set('header_image', null)"
                                                     type="button"
                                                     class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

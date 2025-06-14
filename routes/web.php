@@ -1,33 +1,32 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\OrganizationController;
 use App\Http\Middleware\SubdomainOrganizationMiddleware;
-use App\Livewire\Events\CreateEvent;
-use App\Livewire\Events\EditEvent;
-use App\Livewire\Events\ShowEvents;
-use App\Livewire\Organizations\CreateOrganization;
-use App\Livewire\Organizations\EditOrganization;
-use App\Livewire\Organizations\ShowOrganizations;
-use App\Livewire\Organizations\UploadMedia;
-use App\Livewire\Tickettypes\CreateTicketType;
-use App\Livewire\Tickettypes\EditTicketType;
-use App\Livewire\Tickettypes\ShowTypes;
-use App\Livewire\Users\CreateUser;
-use App\Livewire\Users\EditUser;
-use App\Livewire\Users\ShowUsers;
-use App\Models\User;
+use App\Livewire\Backend\Events\CreateEvent;
+use App\Livewire\Backend\Events\EditEvent;
+use App\Livewire\Backend\Events\ShowEvents;
+use App\Livewire\Backend\Organizations\CreateOrganization;
+use App\Livewire\Backend\Organizations\EditOrganization;
+use App\Livewire\Backend\Organizations\ShowOrganizations;
+use App\Livewire\Backend\Organizations\UploadMedia;
+use App\Livewire\Backend\Tickettypes\CreateTicketType;
+use App\Livewire\Backend\Tickettypes\EditTicketType;
+use App\Livewire\Backend\Tickettypes\ShowTypes;
+use App\Livewire\Backend\Users\CreateUser;
+use App\Livewire\Backend\Users\EditUser;
+use App\Livewire\Backend\Users\ShowUsers;
+use App\Livewire\Frontend\EventTicketsSelector;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
-use App\Models\Event;
 
 // Subdomain Routes
 Route::domain('{subdomain}.'.config('app.domain'))
     ->middleware(SubdomainOrganizationMiddleware::class)
     ->group(function () {
         // Public routes for subdomain
-         Route::get('/', function (string $subdomain, Request $request) {
-             return response()->json(Event::all());
-         });
+        Route::get('/', [OrganizationController::class, 'show'])->name('organization.home');
+        Route::get('/event/{eventuniqid}', EventTicketsSelector::class)->name('event.tickets');
     });
 
 // Main domain routes

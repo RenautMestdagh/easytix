@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Livewire\Organizations;
+namespace App\Livewire\Backend\Organizations;
 
-use Livewire\Component;
-use Livewire\WithFileUploads;
+use App\Http\Requests\OrganizationMediaRequest;
 use App\Models\Organization;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Requests\OrganizationMediaRequest;
 use Illuminate\Support\Str;
+use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class UploadMedia extends Component
 {

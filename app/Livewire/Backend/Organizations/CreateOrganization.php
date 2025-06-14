@@ -1,14 +1,12 @@
 <?php
 
-namespace App\Livewire\Organizations;
+namespace App\Livewire\Backend\Organizations;
 
 use App\Http\Requests\Organization\StoreOrganizationRequest;
 use App\Models\Organization;
 use App\Models\User;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 use Livewire\Component;
 use Spatie\Permission\Models\Role;
 

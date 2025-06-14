@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Livewire\Events;
+namespace App\Livewire\Backend\Events;
 
 use App\Models\Event;
 use App\Models\Organization;
-use App\Models\Ticket;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;

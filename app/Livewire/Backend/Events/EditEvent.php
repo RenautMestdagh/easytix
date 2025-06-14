@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Livewire\Events;
+namespace App\Livewire\Backend\Events;
 
-use Illuminate\Support\Facades\Log;
-use Livewire\Component;
-use Livewire\WithFileUploads;
 use App\Models\Event;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class EditEvent extends Component
 {
@@ -24,6 +23,7 @@ class EditEvent extends Component
     public $max_capacity;
 
     public $event_image;
+    public $header_image;
     public $background_image;
 
     public $is_published;
@@ -106,6 +106,7 @@ class EditEvent extends Component
     {
         return [
             'event_image' => 'nullable|image|max:2048', // 2MB
+            'header_image' => 'nullable|image|max:2048', // 2MB
             'background_image' => 'nullable|image|max:5120', // 5MB
         ];
     }
@@ -138,6 +139,10 @@ class EditEvent extends Component
             // Handle file uploads
             if ($this->event_image) {
                 $this->uploadEventImage();
+            }
+
+            if ($this->header_image) {
+                $this->uploadHeaderImage();
             }
 
             if ($this->background_image) {
@@ -186,6 +191,24 @@ class EditEvent extends Component
         );
 
         $this->event->update(['event_image' => $filename]);
+    }
+
+    protected function uploadHeaderImage()
+    {
+        // Delete old image if exists
+        if ($this->event->header_image) {
+            Storage::disk('public')->delete("events/{$this->event->id}/{$this->event->header_image}");
+        }
+
+        $filename = $this->generateUniqueFilename('header', $this->header_image->extension(), $this->event->id);
+
+        $this->header_image->storeAs(
+            "events/{$this->event->id}",
+            $filename,
+            'public'
+        );
+
+        $this->event->update(['header_image' => $filename]);
     }
 
     protected function uploadBackgroundImage()

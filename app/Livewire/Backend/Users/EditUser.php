@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Users;
+namespace App\Livewire\Backend\Users;
 
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Models\Organization;

@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Livewire\Tickettypes;
+namespace App\Livewire\Backend\Tickettypes;
 
 use App\Models\Event;
-use Livewire\Component;
-use Livewire\Attributes\Title;
 use Illuminate\Support\Facades\Gate;
+use Livewire\Component;
 
 class ShowTypes extends Component
 {

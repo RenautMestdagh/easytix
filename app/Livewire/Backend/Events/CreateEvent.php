@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Livewire\Events;
+namespace App\Livewire\Backend\Events;
 
-use Illuminate\Support\Facades\Log;
-use Livewire\Component;
-use Livewire\WithFileUploads;
 use App\Models\Event;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class CreateEvent extends Component
 {
@@ -24,6 +24,7 @@ class CreateEvent extends Component
     public $max_capacity = '';
 
     public $event_image;
+    public $header_image;
     public $background_image;
 
     public $is_published = false;
@@ -76,6 +77,7 @@ class CreateEvent extends Component
     {
         return [
             'event_image' => 'nullable|image|max:2048', // 2MB
+            'header_image' => 'nullable|image|max:2048', // 2MB
             'background_image' => 'nullable|image|max:5120', // 5MB
         ];
     }
@@ -111,6 +113,10 @@ class CreateEvent extends Component
             // Handle file uploads
             if ($this->event_image) {
                 $this->uploadEventImage($event);
+            }
+
+            if ($this->header_image) {
+                $this->uploadHeaderImage($event);
             }
 
             if ($this->background_image) {
@@ -149,6 +155,19 @@ class CreateEvent extends Component
         );
 
         $event->update(['event_image' => $filename]);
+    }
+
+    protected function uploadHeaderImage($event)
+    {
+        $filename = $this->generateUniqueFilename('header', $this->event_image->extension(), $event->id);
+
+        $this->event_image->storeAs(
+            "events/{$event->id}",
+            $filename,
+            'public'
+        );
+
+        $event->update(['header_image' => $filename]);
     }
 
     protected function uploadBackgroundImage($event)

@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Livewire\Organizations;
+namespace App\Livewire\Backend\Organizations;
 
 use App\Http\Requests\Organization\UpdateOrganizationRequest;
 use App\Models\Organization;
 use App\Models\User;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;

@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Livewire\Tickettypes;
+namespace App\Livewire\Backend\Tickettypes;
 
 use App\Models\Event;
 use App\Models\TicketType;
 use Livewire\Component;
-use Illuminate\Support\Facades\Gate;
 
 class EditTicketType extends Component
 {

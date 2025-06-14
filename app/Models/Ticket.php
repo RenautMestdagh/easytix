@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Ticket extends Model
 {
     /** @use HasFactory<\Database\Factories\TicketFactory> */
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     // Fillable attributes for mass assignment
     protected $fillable = [
@@ -30,7 +30,7 @@ class Ticket extends Model
 
     public function temporaryOrder()
     {
-        return $this->belongsTo(TemporaryOrder::class);
+        return $this->belongsTo(TemporaryOrder::class,  'temporary_order_id');
     }
 
     public function ticketType()
