@@ -49,7 +49,20 @@ class EditTicketType extends Component
     {
         $rules = [
             'name' => 'required|string|max:255',
-            'available_quantity' => 'nullable|integer|min:1',
+            'available_quantity' =>
+                ['nullable',
+                    'integer',
+                    'min:1',
+                    function ($attribute, $value, $fail) {
+                        if($this->event->max_capacity === null)
+                            return;
+
+                        $alreadyAvailableTickets = $this->event->ticketTypes->where('id', '!=', $this->ticketType->id)->sum('available_quantity');
+                        if ($value > $this->event->max_capacity - $alreadyAvailableTickets) {
+                            $fail(__('The available quantity must not exceed the event capacity.'));
+                        }
+                    },
+                ],
             'publish_option' => 'required|in:publish_now,schedule,draft,with_event',
             'publish_at' => [
                 'nullable',

@@ -147,25 +147,28 @@
                         {{ Str::limit($event->location, 30) }}
                     </td>
                     <td class="px-4 py-4 whitespace-nowrap">
-                        @if($event->max_capacity)
-                            <div class="flex items-center">
-                                <div class="w-20 mr-2">
-                                    <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-600">
-                                        <div class="h-2 rounded-full
-                                        @if(($event->tickets->count() / $event->max_capacity * 100) >= 90) bg-red-500
-                                        @elseif(($event->tickets->count() / $event->max_capacity * 100) >= 50) bg-yellow-500
-                                        @else bg-green-500 @endif"
-                                             style="width: {{ min(100, ($event->tickets->count() / $event->max_capacity * 100)) }}%">
-                                        </div>
+                        <div class="flex items-center">
+                            <div class="w-20 mr-2">
+                                <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-600">
+                                    <div
+                                        class="h-2 rounded-full
+                                            @if(!$event->max_capacity) bg-green-500
+                                            @elseif(($event->tickets->count() / $event->max_capacity * 100) >= 90) bg-red-500
+                                            @elseif(($event->tickets->count() / $event->max_capacity * 100) >= 50) bg-yellow-500
+                                            @else bg-green-500 @endif
+                                        "
+                                        style="
+                                            @if(!$event->max_capacity) width: 100%
+                                            @else width: {{ min(100, ($event->tickets->count() / $event->max_capacity * 100)) }}% @endif
+                                        "
+                                        >
                                     </div>
                                 </div>
-                                <span class="text-xs text-gray-600 dark:text-gray-300">
-                                    {{ $event->tickets->count() }}/{{ $event->max_capacity }}
-                                </span>
                             </div>
-                        @else
-                            <span class="text-xs text-gray-500 dark:text-gray-400">Unlimited</span>
-                        @endif
+                            <span class="text-xs text-gray-600 dark:text-gray-300">
+                                {{ $event->tickets->count() }}/{{ $event->max_capacity ?? '∞' }}
+                            </span>
+                        </div>
                     </td>
                     <td class="px-4 py-4 whitespace-nowrap">
                         @if($event->trashed())

@@ -35,7 +35,7 @@
             <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-300">{{ __('Total Capacity') }}</p>
                 <p class="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">
-                    {{ $event->max_capacity ?: __('Unlimited') }}
+                    {{ $event->max_capacity ?: '∞' }}
                 </p>
             </div>
             <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">

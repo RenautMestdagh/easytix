@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('event_image')->nullable(); // For line-up, date, location display
             $table->string('header_image')->nullable(); // For purchasing page header
             $table->string('background_image')->nullable(); // Event background image
-            $table->integer('max_capacity');
+            $table->integer('max_capacity')->nullable();
             $table->boolean('is_published')->default(false);
             $table->timestamp('publish_at')->nullable();
             $table->timestamps();

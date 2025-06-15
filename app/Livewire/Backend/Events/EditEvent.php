@@ -20,7 +20,7 @@ class EditEvent extends Component
     public $description;
     public $location;
     public $date;
-    public $max_capacity;
+    public ?int $max_capacity;
 
     public $event_image;
     public $header_image;
@@ -79,7 +79,16 @@ class EditEvent extends Component
             'description' => 'string',
             'location' => 'required|string|max:255',
             'date' => 'required|date|after:now',
-            'max_capacity' => 'required|integer|min:1',
+            'max_capacity' => ['nullable',
+                'integer',
+                'min:1',
+                function ($attribute, $value, $fail) {
+                    $publishedTickets = $this->event->ticketTypes->sum('available_quantity');
+                    if ($value < $publishedTickets) {
+                        $fail(__("The maximum capacity must be greater than or equal to the number of published tickets ($publishedTickets)."));
+                    }
+                },
+            ],
             'publish_option' => 'required|in:publish_now,schedule,draft',
             'publish_at' => [
                 'nullable',

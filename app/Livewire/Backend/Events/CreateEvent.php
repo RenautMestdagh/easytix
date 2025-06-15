@@ -21,7 +21,7 @@ class CreateEvent extends Component
     public $description = '';
     public $location = '';
     public $date = '';
-    public $max_capacity = '';
+    public $max_capacity = null;
 
     public $event_image;
     public $header_image;
@@ -57,7 +57,7 @@ class CreateEvent extends Component
             'description' => 'string',
             'location' => 'required|string|max:255',
             'date' => 'required|date|after:now',
-            'max_capacity' => 'required|integer|min:1',
+            'max_capacity' => 'nullable|integer|min:1',
             'publish_option' => 'required|in:publish_now,schedule,draft',
             'publish_at' => [
                 'nullable',

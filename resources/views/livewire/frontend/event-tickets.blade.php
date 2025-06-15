@@ -83,7 +83,7 @@
                                         <button
                                             wire:click="increment({{ $ticketType->id }})"
                                             class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-r disabled:opacity-50 disabled:hover:bg-gray-200 aspect-square h-10 flex items-center justify-center"
-                                            @disabled($quantities[$ticketType->id] >= $ticketType->available_quantity)
+                                            @disabled($ticketType->available_quantity != null && $quantities[$ticketType->id] >= $ticketType->available_quantity)
                                             wire:loading.attr="disabled"
                                             wire:target="increment({{ $ticketType->id }})"
                                         >

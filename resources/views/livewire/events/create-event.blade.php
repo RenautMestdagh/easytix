@@ -88,7 +88,7 @@
                                         type="number"
                                         wire:model.lazy="max_capacity"
                                         name="max_capacity"
-                                        placeholder="Enter maximum attendees"
+                                        placeholder="Leave empty for unlimited"
                                         min="1"
                                         error="{{ $errors->has('max_capacity') }}"
                                         class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
@@ -181,7 +181,7 @@
                                     <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
                                     @enderror
 
-                                    @if($header_image || $event->header_image)
+                                    @if($header_image)
                                         <div class="flex items-center gap-4 mt-4">
                                             <div class="flex-shrink-0">
                                                 <img class="h-12 w-20 rounded-md object-cover"

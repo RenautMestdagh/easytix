@@ -176,7 +176,11 @@ class EventTicketsSelector extends Component
 
     protected function determineAvailability($total, $reserved, $sold)
     {
-        return $sold >= $total ? -99 : ($total - $reserved - $sold);
+        $maxTickets = $this->event->max_capacity - $this->event->tickets->count();
+        if($total == null)
+            return $maxTickets;
+
+        return $sold >= $total ? -99 : min(($total - $reserved - $sold), $maxTickets);
     }
 
     public function increment($ticketTypeId)
@@ -215,7 +219,7 @@ class EventTicketsSelector extends Component
 
     public function render()
     {
-        return view('livewire.event-tickets')
+        return view('livewire.frontend.event-tickets')
             ->layout('components.layouts.organization', [
                 'backgroundOverride' => $this->event->background_image_url ?? null,
                 'logoOverride' => $this->event->header_image_url ?? null
