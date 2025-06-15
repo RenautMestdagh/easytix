@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Event;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
 
@@ -11,7 +12,7 @@ class TemporaryOrderFactory extends Factory
     {
         return [
             'expires_at' => Carbon::now()->addHours(2),
-            'is_confirmed' => $this->faker->boolean(),
+            'event_id' => Event::inRandomOrder()->first()->id,
         ];
     }
 }

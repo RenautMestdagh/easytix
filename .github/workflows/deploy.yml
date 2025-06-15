@@ -48,9 +48,10 @@ jobs:
             # composer install --no-dev --optimize-autoloader
             composer install --optimize-autoloader
 
-            echo "→ Running Laravel optimizations..."
+            echo "→ Migrating database..."
             # php artisan migrate:fresh --force
             php artisan migrate:fresh --seed --force
+            echo "→ Running Laravel optimizations..."
             # php artisan storage:link
             # php artisan optimize:clear
             # php artisan config:cache

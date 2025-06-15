@@ -16,7 +16,6 @@ class TemporaryOrder extends Model
     protected $fillable = [
         'event_id',
         'expires_at',
-        'is_confirmed',
     ];
 
     protected $casts = [

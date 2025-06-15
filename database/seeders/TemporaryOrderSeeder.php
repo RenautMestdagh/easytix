@@ -12,11 +12,6 @@ class TemporaryOrderSeeder extends Seeder
         // Create 100 temporary orders
         TemporaryOrder::factory(100)->create();
 
-        // Create some confirmed temporary orders
-        TemporaryOrder::factory(20)->create([
-            'is_confirmed' => true,
-        ]);
-
         // Create some expired temporary orders
         TemporaryOrder::factory(15)->create([
             'expires_at' => now()->subHours(1),
