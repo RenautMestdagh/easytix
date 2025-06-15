@@ -14,7 +14,7 @@ class TemporaryOrder extends Model
     use HasFactory;
 
     protected $fillable = [
-        'basket_id',
+        'event_id',
         'expires_at',
         'is_confirmed',
     ];
@@ -26,18 +26,6 @@ class TemporaryOrder extends Model
     public function tickets(): HasMany
     {
         return $this->hasMany(Ticket::class);
-    }
-
-    public function event(): HasOneThrough
-    {
-        return $this->hasOneThrough(
-            Event::class,          // Target model (Event)
-            Ticket::class,         // Intermediate model (Ticket)
-            'temporary_order_id',  // Foreign key on Ticket table
-            'id',                 // Foreign key on Event table (event.id)
-            'id',                 // Local key on TemporaryOrder (temporary_orders.id)
-            'ticket_type_id'      // Local key on Ticket (tickets.ticket_type_id → ticket_types.id)
-        )->through('ticketType');  // Assumes Ticket has a `ticketType` relationship
     }
 
     public function resetExpiry()

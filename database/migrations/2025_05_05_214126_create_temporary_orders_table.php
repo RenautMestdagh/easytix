@@ -10,12 +10,12 @@ return new class extends Migration
     {
         Schema::create('temporary_orders', function (Blueprint $table) {
             $table->id();
-            $table->string('basket_id');
+            $table->foreignId('event_id')->constrained('events');
             $table->timestamp('expires_at');
             $table->boolean('is_confirmed')->default(false);
             $table->timestamps();
 
-            $table->index(['basket_id', 'expires_at', 'is_confirmed']);
+            $table->index(['expires_at', 'is_confirmed']);
         });
     }
 

@@ -38,11 +38,32 @@ class EventTicketsSelector extends Component
             ->where('is_published', true)
             ->firstOrFail();
 
-        $this->tempOrder = TemporaryOrder::with(['tickets' => function($query) use ($event) {
-            $query->whereIn('ticket_type_id', $event->ticketTypes->pluck('id'));
-        }])
-            ->where('basket_id', session('basket_id'))
-            ->first();
+
+        $basketIds = session('basket_id', []);
+        $idsToRemove = []; // Store IDs that need removal
+
+        foreach ($basketIds as $basketId) {
+            // correct basket can be found by adding event id in query but i've done it this way to clean up expired baskets from session
+            $tempOrder = TemporaryOrder::with(['tickets' => function($query) use ($event) {
+                $query->whereIn('ticket_type_id', $event->ticketTypes->pluck('id'));
+            }])
+                ->where('id', $basketId)
+                ->first();
+
+            if (!$tempOrder) {    // basket doesnt exist anymore
+                $idsToRemove[] = $basketId;
+            } else if($tempOrder->event_id == $event->id) {
+                $this->tempOrder = $tempOrder;
+                break;
+            }
+        }
+
+        // Remove invalid IDs after loop completes
+        if (!empty($idsToRemove)) {
+            $updatedBasketIds = array_diff($basketIds, $idsToRemove);
+            session(['basket_id' => $updatedBasketIds]);
+        }
+
 
         $this->event = $event;
         $this->ticketTypes = $event->ticketTypes;
@@ -77,12 +98,11 @@ class EventTicketsSelector extends Component
     }
 
     public function newTemporaryOrder() {
-        $uuid = \Str::uuid();
         $this->tempOrder = TemporaryOrder::create([
-            'basket_id' => $uuid,
+            'event_id' => $this->event->id
         ]);
         $this->tempOrderId = $this->tempOrder->id;
-        session(['basket_id' => $uuid]);
+        session()->push('basket_id', $this->tempOrder->id);
         $this->tempOrder->resetExpiry();
         foreach ($this->ticketTypes as $ticketType) {
             $this->quantities[$ticketType->id] = 0;
