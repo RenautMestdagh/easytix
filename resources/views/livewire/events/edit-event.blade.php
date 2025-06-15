@@ -194,7 +194,7 @@
                                                     {{ $header_image ? round($header_image->getSize() / 1024, 2) : '' }} KB
                                                 </p>
                                             </div>
-                                            <button wire:click.prevent="$set('header_image', null)"
+                                            <button wire:click.prevent="removeHeaderImage"
                                                     type="button"
                                                     class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

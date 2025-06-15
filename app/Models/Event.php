@@ -86,7 +86,14 @@ class Event extends Model
      */
     public function tickets()
     {
-        return $this->hasManyThrough(Ticket::class, TicketType::class);
+        return $this->hasManyThrough(
+            Ticket::class,       // Final model (tickets)
+            TicketType::class,   // Intermediate model (ticket_types)
+            'event_id',          // Foreign key on ticket_types table
+            'ticket_type_id',    // Foreign key on tickets table
+            'id',                // Local key on events table
+            'id'                // Local key on ticket_types table
+        )->whereNotNull('tickets.order_id');
     }
 
     /**

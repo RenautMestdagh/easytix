@@ -269,6 +269,24 @@ class EditEvent extends Component
         session()->flash('message_type', 'success');
     }
 
+    public function removeHeaderImage()
+    {
+        // Delete the file from storage if it exists
+        if ($this->event->header_image) {
+            Storage::disk('public')->delete("events/{$this->event->id}/{$this->event->header_image}");
+        }
+
+        // Update the event to remove the image reference
+        $this->event->update(['header_image' => null]);
+
+        // Reset the file input
+        $this->reset('header_image');
+
+        // Show success message
+        session()->flash('message', __('Header image removed successfully.'));
+        session()->flash('message_type', 'success');
+    }
+
     public function removeBackgroundImage()
     {
         // Delete the file from storage if it exists

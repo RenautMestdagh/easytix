@@ -58,7 +58,7 @@ class TicketType extends Model
      */
     public function tickets()
     {
-        return $this->hasMany(Ticket::class);
+        return $this->hasMany(Ticket::class)->whereNotNull('order_id');
     }
 
 }
