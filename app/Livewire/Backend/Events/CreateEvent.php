@@ -41,7 +41,7 @@ class CreateEvent extends Component
         $this->resetErrorBag($propertyName);
 
         // Handle file upload validation separately
-        if (in_array($propertyName, ['event_image', 'background_image'])) {
+        if (in_array($propertyName, ['event_image', 'header_image', 'background_image'])) {
             $this->validateOnly($propertyName, $this->fileRules());
             return;
         }
@@ -159,9 +159,9 @@ class CreateEvent extends Component
 
     protected function uploadHeaderImage($event)
     {
-        $filename = $this->generateUniqueFilename('header', $this->event_image->extension(), $event->id);
+        $filename = $this->generateUniqueFilename('header', $this->header_image->extension(), $event->id);
 
-        $this->event_image->storeAs(
+        $this->header_image->storeAs(
             "events/{$event->id}",
             $filename,
             'public'

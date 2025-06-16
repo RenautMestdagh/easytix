@@ -26,6 +26,9 @@ class EventTicketsSelector extends Component
             return;
         $this->tempOrder = TemporaryOrder::find($this->tempOrderId);
         if(!$this->tempOrder) {
+            // temporder was expired and cleaned up by scheduler
+            $basketIds = array_diff(session('basket_id', []), [$this->tempOrderId]);
+            session(['basket_id' => $basketIds]);
             $this->orderExpired();
         }
     }
@@ -50,7 +53,7 @@ class EventTicketsSelector extends Component
                 ->where('id', $basketId)
                 ->first();
 
-            if (!$tempOrder) {    // basket doesnt exist anymore
+            if (!$tempOrder || $tempOrder->isExpired()) {    // basket doesnt exist anymore or is expired
                 $idsToRemove[] = $basketId;
             } else if($tempOrder->event_id == $event->id) {
                 $this->tempOrder = $tempOrder;
@@ -111,9 +114,10 @@ class EventTicketsSelector extends Component
 
     public function updateTimeRemaining()
     {
-        if (!$this->tempOrder->expires_at) {
-            $this->timeRemaining = 'EXPIRED';
-            $this->pollInterval = 60000; // No need to poll frequently if expired
+        if (collect($this->quantities)->flatten()->sum() == 0) {
+            $this->tempOrder->resetExpiry();
+            $this->timeRemaining = null;
+            $this->pollInterval = 60000;
             return;
         }
 
@@ -133,7 +137,7 @@ class EventTicketsSelector extends Component
             // Format minutes (singular/plural)
             $minutesText = $minutes == 1 ? '1 minute' : "$minutes minutes";
             $this->timeRemaining = $minutesText;
-            $this->pollInterval = 60500; // 1 minute
+            $this->pollInterval = 60100; // 1 minute
         } else {
             // Format seconds and minutes (singular/plural)
             $minutesText = $minutes == 1 ? '1 minute' : "$minutes minutes";
@@ -145,10 +149,6 @@ class EventTicketsSelector extends Component
                 $this->timeRemaining = $secondsText;
             }
             $this->pollInterval = 1000; // 1 second
-        }
-
-        if (collect($this->quantities)->flatten()->sum() == 0) {
-            $this->tempOrder->resetExpiry();
         }
     }
 
@@ -164,11 +164,10 @@ class EventTicketsSelector extends Component
             ->get()
             ->keyBy('ticket_type_id');
 
-        $result = [];
         foreach ($this->ticketTypes as $type) {
             $reserved = $counts[$type->id]->reserved ?? 0;
             $sold = $counts[$type->id]->sold ?? 0;
-            $this->remainingQuantities[$type->id] = $this->determineAvailability($type->available_quantity, $reserved, $sold);
+            $this->remainingQuantities[$type->id] = $this->determineAvailability($type, $reserved, $sold);
         }
     }
 
@@ -187,19 +186,44 @@ class EventTicketsSelector extends Component
             ->first();
 
         $this->remainingQuantities[$ticketTypeId] =  $this->determineAvailability(
-            $ticketType->available_quantity,
+            $ticketType,
             $counts->reserved ?? 0,
             $counts->sold ?? 0
         );
     }
 
-    protected function determineAvailability($total, $reserved, $sold)
+    protected function determineAvailability($ticketType, $reserved, $sold)
     {
-        $maxTickets = $this->event->max_capacity - $this->event->tickets->count();
-        if($total == null)
-            return $maxTickets;
+        $soldTickets = $this->event->tickets->count();
+        $reservedTickets = $this->event->reserved_tickets->count();
 
-        return $sold >= $total ? -99 : min(($total - $reserved - $sold), $maxTickets);
+        $ticketType_max_quantity = $ticketType->available_quantity;
+
+        // If tickettype has unlimited quantity
+        $ticketsLeft = $this->event->max_capacity - $soldTickets - $reservedTickets;
+        $plusDisabledFrom = $this->event->max_capacity - $soldTickets;
+        $soldout = $soldTickets >= $this->event->max_capacity;
+
+        if($ticketType_max_quantity !== null) {
+            // If tickettype doesnt have unlimited quantity
+            $ticketsLeft = min($ticketsLeft, $ticketType_max_quantity - $reserved - $sold);
+            $plusDisabledFrom = min($plusDisabledFrom, $ticketType_max_quantity - $sold);
+            $soldout |= $sold >= $ticketType_max_quantity;
+        }
+
+        if($soldout) {
+            // This case should only happen if the organizer changes ticket quantity or event capacity
+            $this->quantities[$ticketType->id] = 0;
+            $this->tempOrder->tickets->where('ticket_type_id', $ticketType->id)->each(function($ticket) {
+                $ticket->delete();
+            });
+        }
+
+        return (object)[
+            'ticketsLeft' => $ticketsLeft,
+            'plusDisabledFrom' => $plusDisabledFrom,
+            'soldout' => $soldout,
+        ];
     }
 
     public function increment($ticketTypeId)
@@ -214,7 +238,7 @@ class EventTicketsSelector extends Component
         ]);
 
         $this->calculateAvailableTickets($ticketTypeId);
-        if($this->remainingQuantities[$ticketType->id] < 0) {
+        if($this->remainingQuantities[$ticketType->id]->ticketsLeft < 0) {
             Ticket::where('id', $ticket->id)->delete();
             return;
         }

@@ -15,7 +15,8 @@ class ShowTypes extends Component
         // Eager load ticketTypes with their ticket counts
         $this->event = $event->load([
             'ticketTypes' => function ($query) {
-                $query->withCount('tickets');
+                $query->withCount('tickets')
+                    ->withCount('reservedTickets');
             },
         ]);
         $this->authorize('ticket types.read');

@@ -61,4 +61,9 @@ class TicketType extends Model
         return $this->hasMany(Ticket::class)->whereNotNull('order_id');
     }
 
+    public function reservedTickets()
+    {
+        return $this->hasMany(Ticket::class)->whereNotNull('temporary_order_id');
+    }
+
 }

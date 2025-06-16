@@ -52,7 +52,7 @@ class EditTicketType extends Component
             'available_quantity' =>
                 ['nullable',
                     'integer',
-                    'min:1',
+                    'min:0',
                     function ($attribute, $value, $fail) {
                         if($this->event->max_capacity === null)
                             return;

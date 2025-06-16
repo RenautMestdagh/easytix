@@ -335,7 +335,7 @@
                             </div>
                             @else
                                 <p class="text-sm text-gray-600 dark:text-gray-400">
-                                    {{ __('This event cannot be unpublished as it is currently active.') }}
+                                    {{ __('This event cannot be unpublished as there are already tickets sold or reserved.') }}
                                 </p>
                             @endif
                         </div>

@@ -77,3 +77,7 @@ Route::middleware(['auth', 'verified', SubdomainOrganizationMiddleware::class])-
 });
 
 require __DIR__ . '/auth.php';
+
+Route::fallback(function () {
+    return redirect('/');
+});

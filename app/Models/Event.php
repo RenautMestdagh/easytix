@@ -93,7 +93,24 @@ class Event extends Model
             'ticket_type_id',    // Foreign key on tickets table
             'id',                // Local key on events table
             'id'                // Local key on ticket_types table
-        )->whereNotNull('tickets.order_id');
+        )->whereNotNull('tickets.order_id')
+            ->whereNull('tickets.temporary_order_id');
+    }
+
+    /**
+     * Get the reserved tickets for the event (in baskets but not purchased).
+     */
+    public function reserved_tickets()
+    {
+        return $this->hasManyThrough(
+            Ticket::class,       // Final model (tickets)
+            TicketType::class,   // Intermediate model (ticket_types)
+            'event_id',          // Foreign key on ticket_types table
+            'ticket_type_id',    // Foreign key on tickets table
+            'id',               // Local key on events table
+            'id'                // Local key on ticket_types table
+        )->whereNotNull('tickets.temporary_order_id')
+            ->whereNull('tickets.order_id');
     }
 
     /**

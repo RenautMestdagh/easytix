@@ -80,7 +80,7 @@
                                         wire:model.lazy="available_quantity"
                                         name="available_quantity"
                                         placeholder="{{$placeholder}}"
-                                        min="1"
+                                        min="0"
                                         error="{{ $errors->has('available_quantity') }}"
                                         class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
                                     />

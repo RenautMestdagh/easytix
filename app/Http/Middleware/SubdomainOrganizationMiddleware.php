@@ -25,7 +25,9 @@ class SubdomainOrganizationMiddleware
             // Find the organization by subdomain
             $organization = Organization::where('subdomain', $subdomain)->first();
             if (!$organization) {
-                abort(404, 'Organization not found');
+                // Redirect to main domain if subdomain doesn't exist
+                $mainUrl = $request->getScheme() . '://' . $mainDomain;
+                return redirect($mainUrl);
             }
         } else if (session('original_user_id')) {
             // This means we are superadmin but currently logged in as user

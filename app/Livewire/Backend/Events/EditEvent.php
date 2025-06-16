@@ -46,7 +46,7 @@ class EditEvent extends Component
         $this->is_published = $event->is_published;
         $this->publish_at = $event->publish_at ? $event->publish_at->format('Y-m-d\TH:i') : null;
 
-        $this->preventUnpublish = $event->tickets()->count() > 0;
+        $this->preventUnpublish = $event->tickets->count() + $event->reserved_tickets->count() > 0;
 
         // Set publish option based on current status
         if ($event->is_published) {
