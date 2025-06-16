@@ -103,7 +103,6 @@ class EventTicketsSelector extends Component
         ]);
         $this->tempOrderId = $this->tempOrder->id;
         session()->push('basket_id', $this->tempOrder->id);
-        $this->tempOrder->resetExpiry();
         foreach ($this->ticketTypes as $ticketType) {
             $this->quantities[$ticketType->id] = 0;
         }

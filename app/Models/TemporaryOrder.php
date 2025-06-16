@@ -13,6 +13,8 @@ class TemporaryOrder extends Model
 {
     use HasFactory;
 
+    const TEMPORARY_EXPIRATION_MINUTES = 20;
+
     protected $fillable = [
         'event_id',
         'expires_at',
@@ -22,6 +24,15 @@ class TemporaryOrder extends Model
         'expires_at' => 'datetime',
     ];
 
+    public function __construct(array $attributes = [])
+    {
+        if (!isset($attributes['expires_at'])) {
+            $attributes['expires_at'] = now()->addMinutes(self::TEMPORARY_EXPIRATION_MINUTES);
+        }
+
+        parent::__construct($attributes);
+    }
+
     public function tickets(): HasMany
     {
         return $this->hasMany(Ticket::class);
@@ -30,7 +41,7 @@ class TemporaryOrder extends Model
     public function resetExpiry()
     {
         $this->update([
-            'expires_at' => now()->addMinutes(20)
+            'expires_at' => now()->addMinutes(self::TEMPORARY_EXPIRATION_MINUTES)
         ]);
     }
 
