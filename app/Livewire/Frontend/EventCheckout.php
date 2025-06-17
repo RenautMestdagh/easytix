@@ -5,19 +5,14 @@ namespace App\Livewire\Frontend;
 use App\Models\Customer;
 use App\Models\Event;
 use App\Models\TemporaryOrder;
+use App\Traits\NavigateEventCheckout;
+use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Stripe\StripeClient;
 
 class EventCheckout extends Component
 {
-    public Event $event;
-    public $tempOrderId;
-    public $orderTickets;
-    public $orderTotal;
-    public $timeRemaining;
-    public $pollInterval = 60000; // Default to 1 minute (60000ms)
-    public $flowStage = 2;
-    private $tempOrder;
+    use NavigateEventCheckout;
 
     // Customer fields
     public $first_name;
@@ -44,135 +39,115 @@ class EventCheckout extends Component
 
     public function boot()
     {
-        if(!$this->tempOrderId)
-            return;
-        $this->tempOrder = TemporaryOrder::find($this->tempOrderId);
-        if(!$this->tempOrder) {
-            // temporder was expired and cleaned up by scheduler
-            $this->orderExpired();
-        }  else if (!$this->tempOrder->at_checkout) {
-            $this->backToTickets();
-        }
+        $this->checkCorrectFlow();
     }
+
     public function mount($subdomain, $eventuniqid)
     {
-        $this->event = Event::with(['ticketTypes' => function ($query) {
-            $query->where('is_published', true)->with('tickets');
-        }])
-            ->where('uniqid', $eventuniqid)
-            ->where('is_published', true)
-            ->firstOrFail();
-
-        $this->tempOrderId = session('temporary_order_id');
-        $this->tempOrder = TemporaryOrder::with('tickets.ticketType')->find($this->tempOrderId);
-
-        if (!$this->tempOrder->at_checkout) {
-            $this->backToTickets();
-        }
-
-        if(!$this->tempOrder || $this->tempOrder->isExpired()) {
-            $this->orderExpired();
-        }
-
-        $this->orderTickets = $this->tempOrder->tickets
-            ->groupBy('ticket_type_id')
-            ->sortBy(function ($tickets, $ticketTypeId) {
-                return $ticketTypeId;
-            })
-            ->map(function ($tickets) {
-                $firstTicket = $tickets->first();
-                return (object) [
-                    'name' => $firstTicket->ticketType->name,
-                    'price_cents' => $firstTicket->ticketType->price_cents,
-                    'amount' => $tickets->count(),
-                ];
-            })
-            ->values();
-
-        $this->orderTotal = $this->orderTickets->sum(function($ticket) {
-            return $ticket->price_cents * $ticket->amount;
-        });
-
-        $this->updateTimeRemaining();
-    }
-
-    public function newTemporaryOrder()
-    {
-        redirect()->route('event.tickets', [$this->event->organization->subdomain, $this->event->uniqid]);
-    }
-
-    public function orderExpired()
-    {
-        $basketIds = array_diff(session('basket_id', []), [$this->tempOrderId]);
-        session(['basket_id' => $basketIds]);
-        $this->timeRemaining = 'EXPIRED';
-        $this->pollInterval = 999999999; // No need to poll if expired
-    }
-
-    public function updateTimeRemaining()
-    {
-        $seconds = max(0, $this->tempOrder->expires_at->timestamp - now()->timestamp);
-
-        if ($seconds <= 0)
-            return $this->orderExpired();
-
-        $minutes = floor($seconds / 60);
-        $seconds = $seconds % 60;
-
-        // Update polling interval based on remaining time
-        if ($minutes >= 2) {
-            // Format minutes (singular/plural)
-            $minutesText = $minutes == 1 ? '1 minute' : "$minutes minutes";
-            $this->timeRemaining = $minutesText;
-            $this->pollInterval = 60100; // 1 minute
-        } else {
-            // Format seconds and minutes (singular/plural)
-            $minutesText = $minutes == 1 ? '1 minute' : "$minutes minutes";
-            $secondsText = $seconds == 1 ? '1 second' : "$seconds seconds";
-
-            if ($minutes > 0) {
-                $this->timeRemaining = "$minutesText $secondsText";
-            } else {
-                $this->timeRemaining = $secondsText;
+        // Only populate fields if customer exists, otherwise leave blank
+        if ($this->tempOrder->customer_id) {
+            $customer = Customer::withoutGlobalScopes()->find($this->tempOrder->customer_id);
+            if ($customer) {
+                $this->first_name = $customer->first_name;
+                $this->last_name = $customer->last_name;
+                $this->email = $customer->email;
+                $this->phone = $customer->phone;
+                $this->gender = $customer->gender;
+                $this->date_of_birth = $customer->date_of_birth;
+                $this->address = $customer->address;
+                $this->city = $customer->city;
+                $this->country = $customer->country;
             }
-            $this->pollInterval = 1000; // 1 second
+        }
+    }
+
+
+    public function updated($propertyName)
+    {
+        if (str_starts_with($propertyName, 'first_name') ||
+            str_starts_with($propertyName, 'last_name') ||
+            str_starts_with($propertyName, 'email') ||
+            str_starts_with($propertyName, 'phone') ||
+            str_starts_with($propertyName, 'gender') ||
+            str_starts_with($propertyName, 'date_of_birth') ||
+            str_starts_with($propertyName, 'address') ||
+            str_starts_with($propertyName, 'city') ||
+            str_starts_with($propertyName, 'country')
+        ) {
+            $this->saveCustomerData();
+        }
+    }
+
+    protected function saveCustomerData()
+    {
+        if (!$this->tempOrder) return;
+
+        // Validate the data using the same rules defined in the $rules property
+        $validatedData = $this->validate();
+
+        $customerData = [
+            'first_name' => $validatedData['first_name'],
+            'last_name' => $validatedData['last_name'],
+            'email' => $validatedData['email'],
+            'phone' => $validatedData['phone'],
+            'gender' => $validatedData['gender'],
+            'date_of_birth' => $validatedData['date_of_birth'],
+            'address' => $validatedData['address'],
+            'city' => $validatedData['city'],
+            'country' => $validatedData['country'],
+        ];
+
+        $customer = Customer::withoutGlobalScopes()->find($this->tempOrder->customer_id);
+
+        if ($customer) {
+            // Customer exists, update it
+            $customer->update($customerData);
+        } else {
+            // No customer yet, create new one
+            $customer = Customer::withoutGlobalScopes()->create($customerData);
+
+            // Link new customer to the temp order
+            $this->tempOrder->customer_id = $customer->id;
+            $this->tempOrder->save();
         }
     }
 
     public function backToTickets()
     {
-        $this->tempOrder->at_checkout = false;
+        try {
+            $this->saveCustomerData();
+        } catch (ValidationException $e) {}
+
+        $this->tempOrder->checkout_stage = 0;
         $this->tempOrder->save();
         return redirect()->route('event.tickets', [$this->event->organization->subdomain, $this->event->uniqid]);
     }
 
     public function proceedToPayment()
     {
-        $this->validate();
+        $this->saveCustomerData();
 
-        // Create customer
-        $customer = Customer::withoutGlobalScopes()->updateOrCreate(
-            ['email' => strtolower(trim($this->email))],
-            [
-                'first_name' => $this->first_name,
-                'last_name' => $this->last_name,
-                'phone' => $this->phone,
-                'gender' => $this->gender,
-                'date_of_birth' => $this->date_of_birth,
-                'address' => $this->address,
-                'city' => $this->city,
-                'country' => $this->country,
-            ]
-        );
+        $orderTotal = $this->tempOrder->tickets
+            ->groupBy('ticket_type_id')
+            ->sum(function ($tickets) {
+                $firstTicket = $tickets->first();
+                return $firstTicket->ticketType->price_cents * $tickets->count();
+            });
 
-        $stripe = new StripeClient('sk_test_51Ralh8EFHVIkIeLWalsOQYaiqGOPiHU3LvH0n3WoejvpFo6599dzBuLNZJPNeto06crQBVIdYyOn8lCrX2HRkbfu00SvivRoGB');
-        $paymentIntent = $stripe->paymentIntents->create([
-            'amount' => $this->orderTotal,
-            'currency' => 'eur',
-            'automatic_payment_methods' => ['enabled' => true],
-        ]);
+        if(!$this->tempOrder->payment_intent_id) {
+            // Create Stripe payment intent
+            $stripe = new StripeClient(config('app.stripe.secret'));
+            $paymentIntent = $stripe->paymentIntents->create([
+                'amount' => $orderTotal,
+                'currency' => 'eur',
+                'automatic_payment_methods' => ['enabled' => true],
+            ]);
 
-        session(['stripe_client_secret' => $paymentIntent->client_secret]);
+            $this->tempOrder->payment_intent_id = $paymentIntent->id;
+        }
+
+        $this->tempOrder->checkout_stage = 2;
+        $this->tempOrder->save();
 
         return redirect()->route('event.payment', [$this->event->organization->subdomain, $this->event->uniqid]);
     }

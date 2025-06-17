@@ -4,7 +4,7 @@
     @include('partials.head')
     @stack('styles')
 </head>
-<body class="min-h-screen bg-gray-50 flex flex-col">
+<body class="min-h-screen bg-gray-50 dark:bg-zinc-800 flex flex-col">
 
 <div class="flex-1">
     @if(isset($backgroundOverride) ? $backgroundOverride : $organization->background_image)

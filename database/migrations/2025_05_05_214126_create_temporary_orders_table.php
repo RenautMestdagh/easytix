@@ -11,8 +11,10 @@ return new class extends Migration
         Schema::create('temporary_orders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('event_id')->constrained('events');
+            $table->foreignId('customer_id')->nullable()->constrained('customers');
             $table->timestamp('expires_at');
-            $table->boolean('at_checkout')->default(false);
+            $table->tinyInteger('checkout_stage')->default(0);
+            $table->string('payment_intent_id')->unique()->nullable();
             $table->timestamps();
 
             $table->index(['expires_at']);

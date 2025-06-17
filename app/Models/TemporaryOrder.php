@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class TemporaryOrder extends Model
@@ -17,8 +18,10 @@ class TemporaryOrder extends Model
 
     protected $fillable = [
         'event_id',
+        'customer_id',
         'expires_at',
-        'at_checkout',
+        'checkout_stage',
+        'payment_intent_id',
     ];
 
     protected $casts = [
@@ -37,6 +40,11 @@ class TemporaryOrder extends Model
     public function tickets(): HasMany
     {
         return $this->hasMany(Ticket::class);
+    }
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class, 'customer_id');
     }
 
     public function resetExpiry()

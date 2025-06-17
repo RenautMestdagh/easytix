@@ -11,10 +11,10 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('customer_id')->constrained('customers');
-            $table->string('transaction_id')->unique();
+            $table->string('payment_intent_id')->unique();
             $table->timestamps();
 
-            $table->index(['customer_id', 'transaction_id']);
+            $table->index(['customer_id', 'payment_intent_id']);
         });
     }
 

@@ -2,154 +2,30 @@
 
 namespace App\Livewire\Frontend;
 
-use App\Models\Event;
-use App\Models\TemporaryOrder;
 use App\Models\Ticket;
+use App\Traits\NavigateEventCheckout;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Livewire\Component;
+use Stripe\StripeClient;
 
 class EventTicketsSelector extends Component
 {
-    public Event $event;
-    public $ticketTypes;
-    public $quantities = [];
+    use NavigateEventCheckout;
+
     public $remainingQuantities = [];
-    public $timeRemaining;
-    public $pollInterval = 60000; // Default to 1 minute (60000ms)
-    public $tempOrderId;
-    public $tempOrderAtCheckout;
-    public $flowStage = 1;
-    private $tempOrder;
 
     public function boot()
     {
-        if(!$this->tempOrderId)
-            return;
-        $this->tempOrder = TemporaryOrder::find($this->tempOrderId);
-        if(!$this->tempOrder) {
-            // temporder was expired and cleaned up by scheduler
-            $this->orderExpired();
-        } else if ($this->tempOrder->at_checkout) {
-            $this->proceedToCheckout();
-        }
+        $this->checkCorrectFlow();
     }
     public function mount($subdomain, $eventuniqid)
     {
-        $this->event = Event::with(['ticketTypes' => function($query) {
-            $query->where('is_published', true)->with('tickets');
-        }])
-            ->where('uniqid', $eventuniqid)
-            ->where('is_published', true)
-            ->firstOrFail();
-
-
-        $basketIds = session('basket_id', []);
-        $idsToRemove = []; // Store IDs that need removal
-
-        foreach ($basketIds as $basketId) {
-            // correct basket can be found by adding event id in query but i've done it this way to clean up expired baskets from session
-            $tempOrder = TemporaryOrder::with(['tickets' => function($query) {
-                $query->whereIn('ticket_type_id', $this->event->ticketTypes->pluck('id'));
-            }])
-                ->where('id', $basketId)
-                ->first();
-
-            if (!$tempOrder || $tempOrder->isExpired()) {    // basket doesnt exist anymore or is expired
-                $idsToRemove[] = $basketId;
-            } else if($tempOrder->event_id == $this->event->id) {
-                $this->tempOrder = $tempOrder;
-                break;
-            }
-        }
-
-        // Remove invalid IDs after loop completes
-        if (!empty($idsToRemove)) {
-            $updatedBasketIds = array_diff($basketIds, $idsToRemove);
-            session(['basket_id' => $updatedBasketIds]);
-        }
-
-        $this->ticketTypes = $this->event->ticketTypes;
-
-        if(!$this->tempOrder || $this->tempOrder->isExpired()) {
-            $this->newTemporaryOrder();
-        } else {
-            $this->updateTimeRemaining();
-            $this->calculateAllAvailableTickets();
-        }
-
-        $this->tempOrderId = $this->tempOrder->id;
-        if ($this->tempOrder->at_checkout) {
-            $this->proceedToCheckout();
-        }
-
-        $ticketCounts = $this->tempOrder->tickets->groupBy('ticket_type_id')->map->count();
-        foreach ($this->ticketTypes as $ticketType) {
-            $this->quantities[$ticketType->id] = $ticketCounts[$ticketType->id] ?? 0;
-        }
-    }
-
-    public function orderExpired()
-    {
-        $basketIds = array_diff(session('basket_id', []), [$this->tempOrderId]);
-        session(['basket_id' => $basketIds]);
-        $this->timeRemaining = 'EXPIRED';
-        $this->pollInterval = 999999999; // No need to poll if expired
-    }
-
-    public function newTemporaryOrder() {
-        $this->tempOrder = TemporaryOrder::create([
-            'event_id' => $this->event->id
-        ]);
-        $this->tempOrderId = $this->tempOrder->id;
-        session()->push('basket_id', $this->tempOrder->id);
-        foreach ($this->ticketTypes as $ticketType) {
-            $this->quantities[$ticketType->id] = 0;
-        }
-        $this->updateTimeRemaining();
         $this->calculateAllAvailableTickets();
-    }
-
-    public function updateTimeRemaining()
-    {
-        if ($this->tempOrder->tickets->count() == 0) {
-            $this->tempOrder->resetExpiry();
-            $this->timeRemaining = null;
-            $this->pollInterval = 60000;
-            return;
-        }
-
-        $seconds = max(0, $this->tempOrder->expires_at->timestamp - now()->timestamp);
-
-        if ($seconds <= 0)
-            return $this->orderExpired();
-
-        $minutes = floor($seconds / 60);
-        $seconds = $seconds % 60;
-
-        // Update polling interval based on remaining time
-        if ($minutes >= 2) {
-            // Format minutes (singular/plural)
-            $minutesText = $minutes == 1 ? '1 minute' : "$minutes minutes";
-            $this->timeRemaining = $minutesText;
-            $this->pollInterval = 60100; // 1 minute
-        } else {
-            // Format seconds and minutes (singular/plural)
-            $minutesText = $minutes == 1 ? '1 minute' : "$minutes minutes";
-            $secondsText = $seconds == 1 ? '1 second' : "$seconds seconds";
-
-            if ($minutes > 0) {
-                $this->timeRemaining = "$minutesText $secondsText";
-            } else {
-                $this->timeRemaining = $secondsText;
-            }
-            $this->pollInterval = 1000; // 1 second
-        }
     }
 
     public function calculateAllAvailableTickets()
     {
-        $counts = Ticket::whereIn('ticket_type_id', $this->ticketTypes->pluck('id'))
+        $counts = Ticket::whereIn('ticket_type_id', $this->event->ticketTypes->pluck('id'))
             ->select([
                 'ticket_type_id',
                 DB::raw('SUM(temporary_order_id IS NOT NULL) as reserved'),
@@ -159,7 +35,7 @@ class EventTicketsSelector extends Component
             ->get()
             ->keyBy('ticket_type_id');
 
-        foreach ($this->ticketTypes as $type) {
+        foreach ($this->event->ticketTypes as $type) {
             $reserved = $counts[$type->id]->reserved ?? 0;
             $sold = $counts[$type->id]->sold ?? 0;
             $this->remainingQuantities[$type->id] = $this->determineAvailability($type, $reserved, $sold);
@@ -168,7 +44,7 @@ class EventTicketsSelector extends Component
 
     public function calculateAvailableTickets($ticketTypeId)
     {
-        $ticketType = $this->ticketTypes->firstWhere('id', $ticketTypeId);
+        $ticketType = $this->event->ticketTypes->firstWhere('id', $ticketTypeId);
         if (!$ticketType) {
             throw new \Exception("Ticket type {$ticketTypeId} not found");
         }
@@ -180,11 +56,9 @@ class EventTicketsSelector extends Component
             ])
             ->first();
 
-        $this->remainingQuantities[$ticketTypeId] =  $this->determineAvailability(
-            $ticketType,
-            $counts->reserved ?? 0,
-            $counts->sold ?? 0
-        );
+        $reserved = $counts->reserved ?? 0;
+        $sold = $counts->sold ?? 0;
+        $this->remainingQuantities[$ticketType->id] = $this->determineAvailability($ticketType, $reserved, $sold);
     }
 
     protected function determineAvailability($ticketType, $reserved, $sold)
@@ -208,7 +82,7 @@ class EventTicketsSelector extends Component
 
         if($soldout) {
             // This case should only happen if the organizer changes ticket quantity or event capacity
-            $this->quantities[$ticketType->id] = 0;
+            $this->quantities[$ticketType->id]->amount = 0;
             $this->tempOrder->tickets->where('ticket_type_id', $ticketType->id)->each(function($ticket) {
                 $ticket->delete();
             });
@@ -223,7 +97,9 @@ class EventTicketsSelector extends Component
 
     public function increment($ticketTypeId)
     {
-        $ticketType = $this->ticketTypes->firstWhere('id', $ticketTypeId);
+        if($this->tempOrder->payment_intent_id) return;
+
+        $ticketType = $this->event->ticketTypes->firstWhere('id', $ticketTypeId);
         if (!$ticketType) return;
 
         $ticket = Ticket::create([
@@ -238,22 +114,28 @@ class EventTicketsSelector extends Component
             return;
         }
 
-        $this->quantities[$ticketTypeId]++;
+        $this->quantities[$ticketTypeId]->amount++;
 
-        if (collect($this->quantities)->flatten()->sum() == 1){
+        if (collect($this->quantities)->sum('amount') == 1){
             // on addition of first ticket to cart, reset expiration timer
             $this->tempOrder->resetExpiry();
             $this->updateTimeRemaining();
         }
-
     }
 
     public function decrement($ticketTypeId)
     {
+        if($this->tempOrder->payment_intent_id) return;
+
         $deleted = $this->tempOrder->tickets()->where('ticket_type_id', $ticketTypeId)->limit(1)?->delete();
         if(!$deleted) return;
 
-        $this->quantities[$ticketTypeId]--;
+        $this->quantities[$ticketTypeId]->amount--;
+
+        if (collect($this->quantities)->sum('amount') == 0){
+            $this->tempOrder->resetExpiry();
+            $this->updateTimeRemaining();
+        }
     }
 
     public function proceedToCheckout()
@@ -264,10 +146,9 @@ class EventTicketsSelector extends Component
             return;
         }
 
-        $this->tempOrder->at_checkout = true;
+        $this->tempOrder->checkout_stage = 1;
         $this->tempOrder->save();
 
-        session()->put('temporary_order_id', $this->tempOrder->id);
         return redirect()->route('event.checkout', [$this->event->organization->subdomain, $this->event->uniqid]);
     }
 

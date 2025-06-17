@@ -2,88 +2,50 @@
 
 namespace App\Livewire\Frontend;
 
-use App\Models\Customer;
 use App\Models\Event;
 use App\Models\TemporaryOrder;
+use App\Traits\NavigateEventCheckout;
 use Livewire\Component;
 use Stripe\StripeClient;
 
 class EventPayment extends Component
 {
-    public Event $event;
-    public $tempOrderId;
-    public $orderTickets;
-    public $timeRemaining;
-    public $pollInterval = 60000; // Default to 1 minute (60000ms)
-    public $flowStage = 3;
-    private $tempOrder;
+    use NavigateEventCheckout;
+
+    public $stripeClientSecret;
+
 
     public function boot()
     {
-        if(!$this->tempOrderId)
-            return;
-        $this->tempOrder = TemporaryOrder::find($this->tempOrderId);
-        if(!$this->tempOrder) {
-            // temporder was expired and cleaned up by scheduler
-            $this->orderExpired();
-        }  else if (!$this->tempOrder->at_checkout) {
-            $this->backToTickets();
-        }
+        $this->checkCorrectFlow();
     }
+
     public function mount($subdomain, $eventuniqid)
     {
-        $this->event = Event::with(['ticketTypes' => function ($query) {
-            $query->where('is_published', true)->with('tickets');
-        }])
-            ->where('uniqid', $eventuniqid)
-            ->where('is_published', true)
-            ->firstOrFail();
+        $stripe = new StripeClient(config('app.stripe.secret'));
+        $paymentIntent = $stripe->paymentIntents->retrieve($this->tempOrder->payment_intent_id);
+        $this->stripeClientSecret = $paymentIntent->client_secret;
+    }
 
-        $this->tempOrderId = session('temporary_order_id');
-        $this->tempOrder = TemporaryOrder::with('tickets.ticketType')->find($this->tempOrderId);
-
-        if (!$this->tempOrder->at_checkout) {
-            $this->backToTickets();
+    public function backToCheckout()
+    {
+        if($this->tempOrder->payment_intent_id) {
+            $stripe = new StripeClient(config('app.stripe.secret'));
+            $paymentIntent = $stripe->paymentIntents->cancel($this->tempOrder->payment_intent_id, [
+                'cancellation_reason' => 'requested_by_customer'
+            ]);
+            $this->tempOrder->payment_intent_id = null;
         }
 
-        if(!$this->tempOrder || $this->tempOrder->isExpired()) {
-            $this->orderExpired();
-        }
-
-        $this->orderTickets = $this->tempOrder->tickets
-            ->groupBy('ticket_type_id')
-            ->sortBy(function ($tickets, $ticketTypeId) {
-                return $ticketTypeId;
-            })
-            ->map(function ($tickets) {
-                $firstTicket = $tickets->first();
-                return (object) [
-                    'name' => $firstTicket->ticketType->name,
-                    'price_cents' => $firstTicket->ticketType->price_cents,
-                    'amount' => $tickets->count(),
-                ];
-            })
-            ->values();
-    }
-
-    public function newTemporaryOrder()
-    {
-        redirect()->route('event.tickets', [$this->event->organization->subdomain, $this->event->uniqid]);
-    }
-
-    public function orderExpired()
-    {
-        $basketIds = array_diff(session('basket_id', []), [$this->tempOrderId]);
-        session(['basket_id' => $basketIds]);
-        $this->timeRemaining = 'EXPIRED';
-        $this->pollInterval = 999999999; // No need to poll if expired
-    }
-
-    public function backToTickets()
-    {
-        $this->tempOrder->at_checkout = false;
+        $this->tempOrder->checkout_stage = 1;
         $this->tempOrder->save();
-        return redirect()->route('event.tickets', [$this->event->organization->subdomain, $this->event->uniqid]);
+        return redirect()->route('event.checkout', [$this->event->organization->subdomain, $this->event->uniqid]);
+    }
+
+    public function submitPayment()
+    {
+        $this->tempOrder->checkout_stage = 3;
+        $this->tempOrder->save();
     }
 
     public function render()

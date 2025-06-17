@@ -9,38 +9,42 @@
                     </svg>
                 </div>
                 <p class="text-gray-600 mb-6">Your order has expired. Please refresh the page to start a new order.</p>
-                <button
-                    wire:click="newTemporaryOrder"
+                <a
+                    href="{{ route('event.tickets', [$this->event->organization->subdomain, $this->event->uniqid]) }}"
                     class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
                 >
                     Refresh Page
-                </button>
+                </a>
             </div>
         </div>
     @else
 
-        {{-- No polling at checkout--}}
-        <div {{ $this->flowStage !== 3 ? 'wire:poll.' . $pollInterval . 'ms=updateTimeRemaining' : '' }}>
-            @if($this->tempOrder?->tickets->count() !== 0 ?? false)
-            <!-- Floating Countdown Timer -->
-            <div class="sm:fixed sm:top-6 sm:right-6 sm:mb-0 mb-4 z-50 bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-2 rounded-xl shadow-lg flex items-center gap-2">
-                <svg class="w-5 h-5 text-yellow-500" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
-                </svg>
-                <span class="text-sm">
-                    Order expires in <span class="font-bold" id="timeRemaining">{{ $timeRemaining }}</span>
-                </span>
-            </div>
+        <div
+            @if($this->tempOrder_checkout_stage === 0 || $this->tempOrder_checkout_stage === 1)
+                 wire:poll.{{ $pollInterval }}ms="updateTimeRemaining"
+            @endif
+        >
+            @if($this->tempOrder->checkout_stage > 0 || collect($this->quantities)->sum('amount') != 0)
+                <!-- Floating Countdown Timer -->
+                <div class="sm:fixed sm:top-6 sm:right-6 sm:mb-0 mb-4 z-50 bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-2 rounded-xl shadow-lg flex items-center gap-2">
+                    <svg class="w-5 h-5 text-yellow-500" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                    </svg>
+                    <span class="text-sm">
+                        Order expires in <span class="font-bold" id="timeRemaining">{{ $timeRemaining }}</span>
+                    </span>
+                </div>
             @endif
         </div>
 
-        @if($this->flowStage === 1)
+        @if($this->tempOrder_checkout_stage === 0)
             @include('partials.tenant-event.tickets')
-        @elseif($this->flowStage === 2)
-{{--            @include('partials.tenant-event.payment-method')--}}
+        @elseif($this->tempOrder_checkout_stage === 1)
             @include('partials.tenant-event.checkout')
-        @elseif($this->flowStage === 3)
+        @elseif($this->tempOrder_checkout_stage === 2 || $this->tempOrder_checkout_stage === 3)
             @include('partials.tenant-event.payment')
+{{--        @elseif($this->tempOrder_checkout_stage === 4)--}}
+{{--            @include('partials.tenant-event.confirmation')--}}
         @endif
 
     @endif

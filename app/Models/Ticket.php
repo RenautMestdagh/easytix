@@ -25,7 +25,7 @@ class Ticket extends Model
 
     public function order()
     {
-        return $this->belongsTo(Order::class);
+        return $this->belongsTo(Order::class,  'order_id');
     }
 
     public function temporaryOrder()

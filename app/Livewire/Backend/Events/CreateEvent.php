@@ -58,7 +58,7 @@ class CreateEvent extends Component
             'location' => 'required|string|max:255',
             'date' => 'required|date|after:now',
             'max_capacity' => 'nullable|integer|min:1',
-            'publish_option' => 'required|in:publish_now,schedule,draft',
+            'publish_option' => 'required|in:publish_now,schedule,unlisted',
             'publish_at' => [
                 'nullable',
                 'required_if:publish_option,schedule',
@@ -140,7 +140,7 @@ class CreateEvent extends Component
         return match ($this->publish_option) {
             'publish_now' => ['is_published' => true, 'publish_at' => null],
             'schedule' => ['is_published' => false, 'publish_at' => $this->publish_at],
-            'draft' => ['is_published' => false, 'publish_at' => null],
+            'unlisted' => ['is_published' => false, 'publish_at' => null],
         };
     }
 

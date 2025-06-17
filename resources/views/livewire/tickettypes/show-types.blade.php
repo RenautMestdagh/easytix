@@ -6,6 +6,14 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" />
                 </svg>
                 <h1 class="text-base font-semibold leading-6 text-gray-900 dark:text-white">{{ __('Ticket Types for :event', ['event' => $event->name]) }}</h1>
+                <a href="{{ route('event.tickets', [$event->organization->subdomain, $event->uniqid]) }}" target="_blank"
+                   class="p-1 text-blue-600 hover:text-green-900 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                   title="{{ __('Show event') }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                    </svg>
+
+                </a>
             </div>
             <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">
                 {{ __('Manage all ticket types for this event.') }}
@@ -19,7 +27,31 @@
         </a>
     </div>
 
-    <div class="mt-4 flex flex-row-reverse">
+    <div class="mt-4 flex justify-between">
+        <div class="flex gap-3 h-min">
+            <p class="text-sm text-gray-700 dark:text-gray-300">Status:</p>
+            @if($event->trashed())
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400">
+                    {{ __('Deleted') }}
+                </span>
+            @elseif($event->date->isPast())
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400">
+                    {{ __('Passed') }}
+                </span>
+            @elseif($event->is_published)
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400">
+                    {{ __('Published') }}
+                </span>
+            @elseif($event->publish_at)
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400" title="Will publish on {{ $event->publish_at->format('M j, Y g:i A') }}">
+                    {{ __('Publishes ') }}{{ $event->publish_at->diffForHumans() }}
+                </span>
+            @else
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400">
+                    {{ __('Unlisted') }}
+                </span>
+            @endif
+        </div>
         <x-ui.button href="{{ route('tickettypes.create', $event) }}">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -139,8 +171,12 @@
                             <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400">
                                 {{ __('Published') }}
                             </span>
-                        @elseif($ticketType->publish_at)
+                        @elseif($ticketType->publish_with_event)
                             <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
+                                {{ __('Publishes with event') }}
+                            </span>
+                        @elseif($ticketType->publish_at)
+                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400">
                                 {{ __('Publishes ') }}{{ $ticketType->publish_at->diffForHumans() }}
                             </span>
                         @elseif($ticketType->tickets_count!=0)

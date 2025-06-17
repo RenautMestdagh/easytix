@@ -7,13 +7,12 @@ use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laravel\Cashier\Billable;
 
 #[ScopedBy([CustomerOrganizationScope::class])]
 class Customer extends Model
 {
     /** @use HasFactory<\Database\Factories\CustomerFactory> */
-    use HasFactory, SoftDeletes, Billable;
+    use HasFactory;
 
     protected $fillable = [
         'first_name',
@@ -39,5 +38,10 @@ class Customer extends Model
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function temporaryOrders()
+    {
+        return $this->hasMany(TemporaryOrder::class);
     }
 }

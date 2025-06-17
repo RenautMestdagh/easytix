@@ -26,7 +26,7 @@
 
         <!-- Ticket Selection -->
         <div class="p-6" wire:poll.15s="calculateAllAvailableTickets">
-            @forelse($this->ticketTypes as $ticketType)
+            @forelse($event->ticketTypes as $ticketType)
                 <div class="border-b dark:border-gray-700 last:border-b-0">
                     <div class="flex flex-wrap items-center mb-2 mt-2 text-gray-800 dark:text-gray-200">
                         <h3 class="font-bold text-lg w-full sm:w-auto sm:flex-1">{{ $ticketType->name }}</h3>
@@ -38,7 +38,7 @@
                                     <button
                                         wire:click="decrement({{ $ticketType->id }})"
                                         class="bg-gray-200 text-gray-800 hover:bg-gray-300 disabled:hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 dark:disabled:hover:bg-gray-700 font-bold py-2 px-4 rounded-l disabled:opacity-50  aspect-square h-10 flex items-center justify-center"
-                                        @disabled($quantities[$ticketType->id] <= 0 || $tempOrderAtCheckout)
+                                        @disabled($quantities[$ticketType->id]->amount <= 0)
                                         wire:loading.attr="disabled"
                                         wire:target="decrement({{ $ticketType->id }})"
                                     >
@@ -50,7 +50,7 @@
                                         </span>
                                     </button>
                                     <span class="bg-gray-100 dark:bg-gray-600 px-4 py-2 text-gray-800 dark:text-gray-200 tabular-nums">
-                                        {{ $quantities[$ticketType->id] }}
+                                        {{ $quantities[$ticketType->id]->amount }}
                                     </span>
                                     @php
                                         $allRemainingTicketsInBasket = $this->event->tickets->count() + array_sum($this->quantities) >= $this->event->max_capacity
@@ -58,7 +58,7 @@
                                     <button
                                         wire:click="increment({{ $ticketType->id }})"
                                         class="bg-gray-200 text-gray-800 hover:bg-gray-300 disabled:hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 dark:disabled:hover:bg-gray-700 font-bold py-2 px-4 rounded-r disabled:opacity-50  aspect-square h-10 flex items-center justify-center"
-                                        @disabled($quantities[$ticketType->id] >= $remainingQuantities[$ticketType->id]->plusDisabledFrom || $allRemainingTicketsInBasket || $tempOrderAtCheckout)
+                                        @disabled($quantities[$ticketType->id]->amount >= $remainingQuantities[$ticketType->id]->plusDisabledFrom || $allRemainingTicketsInBasket)
                                         wire:loading.attr="disabled"
                                         wire:target="increment({{ $ticketType->id }})"
                                     >
@@ -101,7 +101,7 @@
         </div>
     </div>
 
-    @if($this->ticketTypes->isNotEmpty())
+    @if($event->ticketTypes->isNotEmpty())
         <!-- Checkout -->
         <button
             class="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 transition-colors duration-200 rounded-lg shadow-lg overflow-hidden mb-8 w-full"

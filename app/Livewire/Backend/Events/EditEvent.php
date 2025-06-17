@@ -30,9 +30,6 @@ class EditEvent extends Component
     public $publish_at;
     public $publish_option;
 
-    // Hardcoded variable to prevent unpublishing
-    public $preventUnpublish = false;
-
     public function mount(Event $event)
     {
         $this->authorize('events.update', $event);
@@ -46,15 +43,13 @@ class EditEvent extends Component
         $this->is_published = $event->is_published;
         $this->publish_at = $event->publish_at ? $event->publish_at->format('Y-m-d\TH:i') : null;
 
-        $this->preventUnpublish = $event->tickets->count() + $event->reserved_tickets->count() > 0;
-
         // Set publish option based on current status
         if ($event->is_published) {
             $this->publish_option = 'publish_now';
         } elseif ($event->publish_at) {
             $this->publish_option = 'schedule';
         } else {
-            $this->publish_option = 'draft';
+            $this->publish_option = 'unlisted';
         }
     }
 
@@ -89,7 +84,7 @@ class EditEvent extends Component
                     }
                 },
             ],
-            'publish_option' => 'required|in:publish_now,schedule,draft',
+            'publish_option' => 'required|in:publish_now,schedule,unlisted',
             'publish_at' => [
                 'nullable',
                 'required_if:publish_option,schedule',
@@ -102,11 +97,6 @@ class EditEvent extends Component
                 },
             ],
         ];
-
-        // If event is published and preventUnpublish is true, restrict to only published options
-        if ($this->event->is_published && $this->preventUnpublish) {
-            $rules['publish_option'] = 'required|in:publish_now';
-        }
 
         return $rules;
     }
@@ -172,15 +162,10 @@ class EditEvent extends Component
 
     protected function determinePublishStatus()
     {
-        // If preventUnpublish is true and event is published, ensure it stays published
-        if ($this->preventUnpublish && $this->event->is_published && $this->publish_option === 'draft') {
-            $this->publish_option = 'publish_now'; // Force publish_now
-        }
-
         return match ($this->publish_option) {
             'publish_now' => ['is_published' => true, 'publish_at' => null],
             'schedule' => ['is_published' => false, 'publish_at' => $this->publish_at],
-            'draft' => ['is_published' => false, 'publish_at' => null],
+            'unlisted' => ['is_published' => false, 'publish_at' => null],
         };
     }
 

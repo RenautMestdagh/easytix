@@ -13,7 +13,7 @@ class Order extends Model
 
     protected $fillable = [
         'customer_id',
-        'payment_id',
+        'payment_intent_id',
     ];
 
     public function customer(): BelongsTo

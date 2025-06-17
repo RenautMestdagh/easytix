@@ -282,7 +282,7 @@
                                         <select wire:model.live="publish_option" id="publish_option" class="block w-full rounded-md p-2 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600">
                                             <option value="publish_now">{{ __('Publish Immediately') }}</option>
                                             <option value="schedule">{{ __('Schedule for Later') }}</option>
-                                            <option value="draft">{{ __('Save as Draft') }}</option>
+                                            <option value="unlisted">{{ __('Save as Unlisted') }}</option>
                                         </select>
                                     </x-ui.forms.group>
                                 </div>
@@ -319,8 +319,8 @@
                                     </div>
                                 @endif
 
-                                <!-- Draft Notice -->
-                                @if($publish_option === 'draft')
+                                <!-- Unlisted Notice -->
+                                @if($publish_option === 'unlisted')
                                     <div class="bg-gray-50 dark:bg-gray-700/30 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
                                         <div class="flex items-center">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">

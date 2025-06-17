@@ -41,5 +41,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 return new RedirectResponse('/');
             }
         });
+
+        return new RedirectResponse('/');
     })
     ->create();

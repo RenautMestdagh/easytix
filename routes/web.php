@@ -19,6 +19,7 @@ use App\Livewire\Backend\Users\ShowUsers;
 use App\Livewire\Frontend\EventCheckout;
 use App\Livewire\Frontend\EventPayment;
 use App\Livewire\Frontend\EventTicketsSelector;
+use App\Livewire\Frontend\PaymentConfirmation;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
@@ -28,9 +29,11 @@ Route::domain('{subdomain}.'.config('app.domain'))
     ->group(function () {
         // Public routes for subdomain
         Route::get('/', [OrganizationController::class, 'show'])->name('organization.home');
+
         Route::get('/event/{eventuniqid}', EventTicketsSelector::class)->name('event.tickets');
         Route::get('/event/{eventuniqid}/checkout', EventCheckout::class)->name('event.checkout');
         Route::get('/event/{eventuniqid}/payment', EventPayment::class)->name('event.payment');
+        Route::get('/event/{eventuniqid}/payment/confirmation', PaymentConfirmation::class)->name('stripe.payment.confirmation');
     });
 
 // Main domain routes
