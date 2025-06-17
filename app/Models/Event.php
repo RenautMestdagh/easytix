@@ -74,14 +74,6 @@ class Event extends Model
     }
 
     /**
-     * Get the payments associated with the event.
-     */
-    public function payments()
-    {
-        return $this->hasManyThrough(Payment::class, Ticket::class);
-    }
-
-    /**
      * Get the tickets associated with the event.
      */
     public function tickets()

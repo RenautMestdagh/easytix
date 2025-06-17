@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Customer;
 use App\Models\Order;
-use App\Models\Payment;
 use Illuminate\Database\Seeder;
 
 class OrderSeeder extends Seeder
