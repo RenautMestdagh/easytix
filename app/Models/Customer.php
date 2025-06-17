@@ -7,12 +7,13 @@ use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laravel\Cashier\Billable;
 
 #[ScopedBy([CustomerOrganizationScope::class])]
 class Customer extends Model
 {
     /** @use HasFactory<\Database\Factories\CustomerFactory> */
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, Billable;
 
     protected $fillable = [
         'first_name',
@@ -26,19 +27,17 @@ class Customer extends Model
         'country',
     ];
 
-    /**
-     * Get the tickets for the customer.
-     */
-    public function tickets()
+    public function setEmailAttribute($value)
     {
-        return $this->hasMany(Ticket::class);
+        $this->attributes['email'] = strtolower(trim($value));
     }
 
+
     /**
-     * Get the payments for the customer.
+     * Get the orders for the customer.
      */
-    public function payments()
+    public function orders()
     {
-        return $this->hasMany(Payment::class);
+        return $this->hasMany(Order::class);
     }
 }

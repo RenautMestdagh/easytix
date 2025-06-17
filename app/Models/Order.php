@@ -21,11 +21,6 @@ class Order extends Model
         return $this->belongsTo(Customer::class);
     }
 
-    public function payment(): BelongsTo
-    {
-        return $this->belongsTo(Payment::class);
-    }
-
     public function tickets(): HasMany
     {
         return $this->hasMany(Ticket::class);

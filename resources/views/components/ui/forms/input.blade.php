@@ -4,6 +4,7 @@
     'name' => null,
     'error' => null,
     'disabled' => false,
+    'autocomplete' => 'off', // Add autocomplete prop with default 'off'
 ])
 
 @php
@@ -18,5 +19,6 @@
         'id' => $id ?? $name,
         'name' => $name,
         'class' => "$baseClasses $errorClasses $disabledClasses",
+        'autocomplete' => $autocomplete, // Include autocomplete in merge
     ])->when($disabled, fn($attr) => $attr->merge(['disabled' => 'disabled'])) }}
 >

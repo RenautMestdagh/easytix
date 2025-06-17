@@ -6,7 +6,6 @@ use App\Models\Organization;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
-use Symfony\Component\HttpFoundation\Response;
 
 class SubdomainOrganizationMiddleware
 {
@@ -17,16 +16,14 @@ class SubdomainOrganizationMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        $host = $request->getHost();
-        $mainDomain = config('app.domain');
-        $subdomain = str_replace('.' . $mainDomain, '', $host);
+        $subdomain = $request->route('subdomain');
 
-        if ($subdomain !== $host) {
+        if ($subdomain) {
             // Find the organization by subdomain
             $organization = Organization::where('subdomain', $subdomain)->first();
             if (!$organization) {
                 // Redirect to main domain if subdomain doesn't exist
-                $mainUrl = $request->getScheme() . '://' . $mainDomain;
+                $mainUrl = $request->getScheme() . '://' . config('app.domain');
                 return redirect($mainUrl);
             }
         } else if (session('original_user_id')) {

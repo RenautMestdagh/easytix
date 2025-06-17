@@ -10,13 +10,14 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "ext-redis": "*",
+        "laravel/cashier": "^15.7",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "livewire/flux": "^2.1.1",
         "livewire/volt": "^1.7.0",
         "predis/predis": "^3.0",
-        "spatie/laravel-permission": "^6.17",
-        "ext-redis": "*"
+        "spatie/laravel-permission": "^6.17"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.15",

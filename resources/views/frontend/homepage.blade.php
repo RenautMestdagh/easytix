@@ -2,9 +2,9 @@
 
     <!-- Event Agenda Section -->
     <div class="max-w-4xl mx-auto relative z-10">
-        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Event Agenda</h2>
-            <p class="text-gray-600 mb-6">Please choose one of the following events to buy your tickets</p>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4">Event Agenda</h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">Please choose one of the following events to buy your tickets</p>
 
             <!-- Search Bar -->
             <div class="relative mb-6">
@@ -12,7 +12,7 @@
                     <input
                         type="text"
                         placeholder="Search for event"
-                        class="flex-1 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                        class="flex-1 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black dark:text-white"
                         id="eventSearch"
                     >
                     <button class="px-3 py-2 bg-gray-50 border-l border-gray-300 hover:bg-gray-100">
@@ -25,7 +25,7 @@
         </div>
 
         <!-- Events List -->
-        @include('partials.events-list', ['events' => $events])
+        @include('partials.tenant-home.events-list', ['events' => $events])
     </div>
 
     @push('scripts')

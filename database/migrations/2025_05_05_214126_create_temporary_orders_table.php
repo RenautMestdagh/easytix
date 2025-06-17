@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('event_id')->constrained('events');
             $table->timestamp('expires_at');
+            $table->boolean('at_checkout')->default(false);
             $table->timestamps();
 
             $table->index(['expires_at']);

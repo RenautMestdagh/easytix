@@ -11,4 +11,5 @@ Artisan::command('inspire', function () {
 // * * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
 Schedule::call(function () {
     CleanExpiredOrdersJob::dispatch();
-})->everyFiveMinutes();
+//})->everyMinute();
+})->everyFiveMinutes();   // TODO

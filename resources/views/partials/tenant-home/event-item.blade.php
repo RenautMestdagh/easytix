@@ -19,12 +19,12 @@
             <!-- Event Details -->
             <div class="flex flex-col h-30">
                 <div class="flex-1">
-                    <h4 class="text-xl font-semibold text-gray-800 mb-2">{{ $event->name }}</h4>
-                    <p class="text-gray-600 text-sm mb-4">{{ Str::limit($event->description, 100) }}</p>
+                    <h4 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">{{ $event->name }}</h4>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">{{ Str::limit($event->description, 100) }}</p>
                 </div>
 
                 <div class="">
-                    <div class="flex items-center space-x-4 text-sm text-gray-500">
+                    <div class="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
                         <!-- Time -->
                         <div class="flex items-center space-x-1">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -52,7 +52,7 @@
         <div class="flex-shrink-0 ml-4 self-center">
             <a href="{{ route('event.tickets', [$organization->subdomain, $event->uniqid]) }}"
                target="_blank"
-               class="inline-flex items-center px-6 py-2 bg-black text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors duration-200">
+               class="inline-flex items-center px-6 py-2 bg-black dark:bg-white text-white dark:text-black text-sm font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors duration-200">
                 Buy Tickets
             </a>
         </div>

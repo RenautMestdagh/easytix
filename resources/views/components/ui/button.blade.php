@@ -10,7 +10,7 @@
 
     $variants = [
         'primary' => 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500',
-        'secondary' => 'bg-gray-200 text-gray-700 hover:bg-gray-300 focus:ring-gray-400',
+        'secondary' => 'bg-gray-200 text-gray-700 dark:text-gray-700 hover:bg-gray-300 focus:ring-gray-400',
         'danger' => 'bg-red-600 hover:bg-red-700 focus:ring-red-500',
         'purple' => 'bg-purple-600 hover:bg-purple-700 focus:ring-purple-500',
         'indigo' => 'bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500',
