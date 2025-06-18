@@ -67,4 +67,7 @@ jobs:
             sudo chown -R www-data:www-data storage bootstrap/cache vendor
             sudo chmod -R 775 storage bootstrap/cache vendor
 
+            echo "→ Restarting queue..."
+            sudo supervisorctl restart easytix-worker:easytix-worker_00
+
             echo "✅ Deployment complete!"

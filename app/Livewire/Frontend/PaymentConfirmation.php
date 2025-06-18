@@ -20,8 +20,6 @@ class PaymentConfirmation extends Component
 
     public function mount($subdomain, $eventuniqid)
     {
-        session()->forget("temporary_order_id_{$eventuniqid}");
-
         // Beetje beveiliging tegen sjoemelaars maar referer header is nog te spoofen
         if(request()->header('Referer') !== "https://payments.stripe.com/")
             return redirect('/');
@@ -32,8 +30,9 @@ class PaymentConfirmation extends Component
             ->where('uniqid', $eventuniqid)
             ->firstOrFail();
 
-        $this->tempOrderId = session("temporary_order_id_{$this->event->uniqid}");
+        $this->tempOrderId = session("temporary_order_id_{$eventuniqid}");
         $this->tempOrder = TemporaryOrder::find($this->tempOrderId);
+        session()->forget("temporary_order_id_{$eventuniqid}");
 
         if($this->tempOrder) {
             $this->tempOrder->checkout_stage = 4;
@@ -50,6 +49,7 @@ class PaymentConfirmation extends Component
 
     public function backToPayment()
     {
+        $this->tempOrder = TemporaryOrder::find($this->tempOrderId);
         if($this->tempOrder) {
             $this->tempOrder->checkout_stage = 2;
             $this->tempOrder->save();

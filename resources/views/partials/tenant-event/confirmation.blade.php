@@ -17,6 +17,32 @@
             </a>
         </div>
 
+    @elseif($this->redirect_status === 'failed')
+        {{-- Failed State --}}
+        <div class="text-center">
+            <div class="flex justify-center mb-4">
+                <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">Payment Failed</h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">We couldn't process your payment. Please try again or use a different payment method.</p>
+            <div class="flex justify-center gap-4">
+                <a
+                    href="{{ route('event.tickets', [$this->event->organization->subdomain, $this->event->uniqid]) }}"
+                    class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded-lg transition-colors duration-200 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200"
+                >
+                    Return to Event
+                </a>
+                <button
+                    wire:click="backToPayment"
+                    class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200"
+                >
+                    Try Again
+                </button>
+            </div>
+        </div>
+
     @elseif($this->redirect_status === 'processing')
         {{-- Processing State --}}
         <div class="text-center">

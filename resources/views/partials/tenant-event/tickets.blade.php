@@ -53,7 +53,7 @@
                                         {{ $quantities[$ticketType->id]->amount }}
                                     </span>
                                     @php
-                                        $allRemainingTicketsInBasket = $this->event->tickets->count() + array_sum($this->quantities) >= $this->event->max_capacity
+                                        $allRemainingTicketsInBasket = $this->event->tickets->count() + collect($this->quantities)->sum('amount') >= $this->event->max_capacity
                                     @endphp
                                     <button
                                         wire:click="increment({{ $ticketType->id }})"
