@@ -26,6 +26,18 @@ class Order extends Model
         return $this->hasMany(Ticket::class);
     }
 
+    public function event()
+    {
+        return $this->hasOneThrough(
+            Event::class,
+            Ticket::class,
+            'order_id',    // Foreign key on tickets table
+            'id',          // Foreign key on events table
+            'id',          // Local key on orders table
+            'ticket_type_id' // Local key on tickets table (via ticket_type)
+        )->through('tickets');
+    }
+
     public function getEventAttribute()
     {
         return $this->tickets->first()->ticketType->event ?? null;

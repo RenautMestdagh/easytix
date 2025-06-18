@@ -3,10 +3,13 @@
 namespace App\Livewire\Frontend;
 
 use App\Jobs\CheckTemporaryOrderStatus;
+use App\Mail\OrderConfirmationMail;
 use App\Models\Event;
+use App\Models\Order;
 use App\Models\TemporaryOrder;
 use App\Traits\NavigateEventCheckout;
 use Exception;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
 
 class PaymentConfirmation extends Component
