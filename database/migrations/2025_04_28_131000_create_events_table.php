@@ -30,6 +30,12 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
+
+        DB::statement("
+        ALTER TABLE events
+        ADD CONSTRAINT events_publish_before_date_check
+        CHECK (publish_at IS NULL OR publish_at <= date)
+    ");
     }
 
     /**
@@ -37,6 +43,9 @@ return new class extends Migration
      */
     public function down(): void
     {
+        try {
+            DB::statement('ALTER TABLE events DROP CONSTRAINT events_publish_before_date_check');
+        } catch (\Exception $e) {}
         Schema::dropIfExists('events');
     }
 };

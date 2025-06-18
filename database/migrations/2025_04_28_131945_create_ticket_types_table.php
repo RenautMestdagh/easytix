@@ -23,6 +23,14 @@ return new class extends Migration
             $table->boolean('publish_with_event')->default(false);
             $table->timestamps();
         });
+
+        DB::statement("
+            ALTER TABLE ticket_types
+            ADD CONSTRAINT ticket_types_not_both_check
+            CHECK (
+                NOT (publish_at IS NOT NULL AND publish_with_event = true)
+            )
+        ");
     }
 
     /**
@@ -30,6 +38,9 @@ return new class extends Migration
      */
     public function down(): void
     {
+        try {
+            DB::statement('ALTER TABLE ticket_types DROP CONSTRAINT ticket_types_not_both_check');
+        } catch (\Exception $e) {}
         Schema::dropIfExists('ticket_types');
     }
 };

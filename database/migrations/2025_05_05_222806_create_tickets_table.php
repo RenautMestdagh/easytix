@@ -36,7 +36,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::statement('ALTER TABLE tickets DROP CONSTRAINT tickets_order_or_temp_order_check');
+        try {
+            DB::statement('ALTER TABLE tickets DROP CONSTRAINT tickets_order_or_temp_order_check');
+        } catch (\Exception $e) {}
         Schema::dropIfExists('tickets');
     }
 };

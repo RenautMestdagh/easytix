@@ -135,6 +135,21 @@ class EditEvent extends Component
                 'publish_at' => $publishStatus['publish_at'],
             ]);
 
+            if($publishStatus['is_published']) {
+                // Publish any ticket types that should publish with the event
+                $ticketTypesToPublish = $this->event->ticketTypes()
+                    ->where('publish_with_event', true)
+                    ->where('is_published', false)
+                    ->get();
+
+                foreach ($ticketTypesToPublish as $ticketType) {
+                    $ticketType->update([
+                        'is_published' => true,
+                        'publish_at' => null // Clear the publish_at since it's now published
+                    ]);
+                }
+            }
+
             // Handle file uploads
             if ($this->event_image) {
                 $this->uploadEventImage();
@@ -166,6 +181,7 @@ class EditEvent extends Component
             'publish_now' => ['is_published' => true, 'publish_at' => null],
             'schedule' => ['is_published' => false, 'publish_at' => $this->publish_at],
             'unlisted' => ['is_published' => false, 'publish_at' => null],
+            default => ['is_published' => false, 'publish_at' => null],
         };
     }
 

@@ -146,6 +146,7 @@ class EditTicketType extends Component
             'schedule' => ['is_published' => false, 'publish_at' => $this->publish_at, 'publish_with_event' => false],
             'with_event' => ['is_published' => false, 'publish_at' => null, 'publish_with_event' => true],
             'draft' => ['is_published' => false, 'publish_at' => null, 'publish_with_event' => false],
+            default => ['is_published' => false, 'publish_at' => null, 'publish_with_event' => false],
         };
     }
 

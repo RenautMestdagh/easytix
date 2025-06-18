@@ -38,7 +38,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::statement('ALTER TABLE discount_code_orders DROP CONSTRAINT IF EXISTS discount_code_orders_order_xor_temp_order_check');
+        try {
+            DB::statement('ALTER TABLE discount_code_orders DROP CONSTRAINT discount_code_orders_order_xor_temp_order_check');
+        } catch (\Exception $e) {}
         Schema::dropIfExists('discount_code_order');
     }
 };

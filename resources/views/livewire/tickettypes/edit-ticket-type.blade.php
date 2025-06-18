@@ -109,9 +109,8 @@
 
                                     <x-ui.forms.group label="Publish Option" for="publish_option" error="publish_at">
                                         <select wire:model.live="publish_option" id="publish_option" class="block w-full rounded-md p-2 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600">
-                                            @if($event->is_published)
-                                                <option value="publish_now">{{ __('Publish Immediately') }}</option>
-                                            @else
+                                            <option value="publish_now">{{ __('Publish Immediately') }}</option>
+                                            @if(!$event->is_published)
                                                 <option value="with_event">{{ __('Publish with Event') }}</option>
                                             @endif
                                             <option value="schedule">{{ __('Schedule for Later') }}</option>

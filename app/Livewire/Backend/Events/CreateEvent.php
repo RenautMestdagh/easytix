@@ -148,6 +148,7 @@ class CreateEvent extends Component
             'publish_now' => ['is_published' => true, 'publish_at' => null],
             'schedule' => ['is_published' => false, 'publish_at' => $this->publish_at],
             'unlisted' => ['is_published' => false, 'publish_at' => null],
+            default => ['is_published' => false, 'publish_at' => null],
         };
     }
 
