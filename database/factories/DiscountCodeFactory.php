@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Event;
+use App\Models\Organization;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -21,6 +22,7 @@ class DiscountCodeFactory extends Factory
 
         return [
             'event_id' => Event::inRandomOrder()->first()->id, // Random event
+            'organization_id' => Organization::inRandomOrder()->first()->id,
             'code' => $this->faker->unique()->word, // Unique discount code
             'discount_percent' => $discount_type ? $this->faker->numberBetween(5, 50) : null, // Percent if true
             'discount_fixed_cents' => !$discount_type ? $this->faker->numberBetween(100, 5000) : null, // Fixed amount if false

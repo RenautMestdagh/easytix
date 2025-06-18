@@ -14,8 +14,6 @@ return new class extends Migration
             $table->foreignId('customer_id')->constrained('customers');
             $table->string('payment_id')->unique();
             $table->timestamps();
-
-            $table->index(['customer_id', 'payment_id']);
         });
     }
 

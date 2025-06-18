@@ -18,15 +18,10 @@ return new class extends Migration
             $table->string('name');
             $table->integer('price_cents');
             $table->integer('available_quantity')->nullable();
-            $table->boolean('is_published')->default(false);
+            $table->boolean('is_published')->default(false)->index();
             $table->timestamp('publish_at')->nullable();
             $table->boolean('publish_with_event')->default(false);
             $table->timestamps();
-            $table->softDeletes();
-
-            $table->index(['event_id']);
-            $table->index(['is_published']);
-            $table->index(['publish_at']);
         });
     }
 

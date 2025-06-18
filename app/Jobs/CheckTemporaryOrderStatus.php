@@ -6,6 +6,7 @@ use App\Mail\OrderConfirmationMail;
 use App\Models\TemporaryOrder;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -50,11 +51,18 @@ class CheckTemporaryOrderStatus implements ShouldQueue
 
             switch ($paymentIntent->status) {
                 case 'succeeded':
-                    $order = Order::create([
-                        'uniqid' => str_replace('-', '', Str::uuid()),
-                        'customer_id' => $tempOrder->customer_id,
-                        'payment_id' => $paymentIntent->id,
-                    ]);
+
+                    $order = null;
+                    while (true) {
+                        try {
+                            $order = Order::create([
+                                'uniqid' => str_replace('-', '', Str::uuid()),
+                                'customer_id' => $tempOrder->customer_id,
+                                'payment_id' => $paymentIntent->id,
+                            ]);
+                            break;
+                        } catch (QueryException $e) {}
+                    }
 
                     $tempOrder->tickets()->update([
                         'order_id' => $order->id,

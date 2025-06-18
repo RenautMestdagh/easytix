@@ -4,6 +4,7 @@ namespace App\Livewire\Frontend;
 
 use App\Models\Ticket;
 use App\Traits\NavigateEventCheckout;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
@@ -103,11 +104,17 @@ class EventTicketsSelector extends Component
         $ticketType = $this->event->ticketTypes->firstWhere('id', $ticketTypeId);
         if (!$ticketType) return;
 
-        $ticket = Ticket::create([
-            'temporary_order_id' => $this->tempOrder->id,
-            'ticket_type_id' => $ticketTypeId,
-            'qr_code' => uniqid()
-        ]);
+        $ticket = null;
+        while (true) {
+            try {
+                $ticket = Ticket::create([
+                    'temporary_order_id' => $this->tempOrder->id,
+                    'ticket_type_id' => $ticketTypeId,
+                    'qr_code' => uniqid(),
+                ]);
+                break;
+            } catch (QueryException $e) {}
+        }
 
         $this->calculateAvailableTickets($ticketTypeId);
         if($this->remainingQuantities[$ticketType->id]->ticketsLeft < 0) {

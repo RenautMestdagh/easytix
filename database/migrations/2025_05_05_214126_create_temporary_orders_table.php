@@ -16,8 +16,6 @@ return new class extends Migration
             $table->tinyInteger('checkout_stage')->default(0);
             $table->string('payment_id')->unique()->nullable();
             $table->timestamps();
-
-            $table->index(['expires_at']);
         });
     }
 

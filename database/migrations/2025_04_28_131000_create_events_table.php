@@ -20,20 +20,15 @@ return new class extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->string('location')->nullable();
-            $table->dateTime('date');
+            $table->dateTime('date')->index();
             $table->string('event_image')->nullable(); // For line-up, date, location display
             $table->string('header_image')->nullable(); // For purchasing page header
             $table->string('background_image')->nullable(); // Event background image
             $table->integer('max_capacity')->nullable();
-            $table->boolean('is_published')->default(false);
+            $table->boolean('is_published')->default(false)->index();
             $table->timestamp('publish_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
-
-            $table->index(['organization_id']);
-            $table->index(['date']);
-            $table->index(['is_published']);
-            $table->index(['publish_at']);
         });
     }
 

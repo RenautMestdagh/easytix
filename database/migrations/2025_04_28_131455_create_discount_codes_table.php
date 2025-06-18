@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('discount_codes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('event_id')->constrained('events'); // Link to event
+            $table->foreignId('event_id')->nullable()->constrained('events'); // Link to event
+            $table->foreignId('organization_id')->constrained('organizations'); // Link to organization in case event is null
             $table->string('code')->unique(); // Discount code
             $table->integer('discount_percent')->nullable(); // Percentage discount
             $table->integer('discount_fixed_cents')->nullable(); // Fixed amount discount

@@ -3,6 +3,7 @@
 namespace App\Livewire\Backend\Events;
 
 use App\Models\Event;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -97,18 +98,24 @@ class CreateEvent extends Component
             $publishStatus = $this->determinePublishStatus();
 
             // Create the event
-            $event = Event::create([
-                'uniqid' => str_replace('-', '', Str::uuid()),
-                'organization_id' => Auth::user()->organization_id,
-                'name' => $validatedData['name'],
-                'description' => $validatedData['description'],
-                'location' => $validatedData['location'],
-                'date' => $validatedData['date'],
-                'max_capacity' => $validatedData['max_capacity'],
-                'is_published' => $publishStatus['is_published'],
-                'publish_at' => $publishStatus['publish_at'],
-                'user_id' => Auth::id(),
-            ]);
+            $event = null;
+            while (true) {
+                try {
+                    $event = Event::create([
+                        'uniqid' => str_replace('-', '', Str::uuid()),
+                        'organization_id' => Auth::user()->organization_id,
+                        'name' => $validatedData['name'],
+                        'description' => $validatedData['description'],
+                        'location' => $validatedData['location'],
+                        'date' => $validatedData['date'],
+                        'max_capacity' => $validatedData['max_capacity'],
+                        'is_published' => $publishStatus['is_published'],
+                        'publish_at' => $publishStatus['publish_at'],
+                        'user_id' => Auth::id(),
+                    ]);
+                    break;
+                } catch (QueryException $e) {}
+            }
 
             // Handle file uploads
             if ($this->event_image) {

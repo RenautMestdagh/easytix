@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
             TicketTypeSeeder::class,
             CustomerSeeder::class,
             OrderSeeder::class,
-            TemporaryOrderSeeder::class,
+//            TemporaryOrderSeeder::class,
             TicketSeeder::class,
         ]);
 
