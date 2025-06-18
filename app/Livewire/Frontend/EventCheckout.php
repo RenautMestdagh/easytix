@@ -42,7 +42,8 @@ class EventCheckout extends Component
 
     public function mount($subdomain, $eventuniqid)
     {
-        $this->checkCorrectFlow();
+        if(!$this->checkCorrectFlow())
+            return;
         // Only populate fields if customer exists, otherwise leave blank
         if ($this->tempOrder->customer_id) {
             $customer = Customer::withoutGlobalScopes()->find($this->tempOrder->customer_id);
@@ -126,14 +127,16 @@ class EventCheckout extends Component
     {
         $this->saveCustomerData();
 
-        $orderTotal = $this->tempOrder->tickets
+        $orderTotal = $this->tempOrder->tickets()
+            ->with('ticketType') // Eager load the ticketType relationship
+            ->get()
             ->groupBy('ticket_type_id')
             ->sum(function ($tickets) {
                 $firstTicket = $tickets->first();
                 return $firstTicket->ticketType->price_cents * $tickets->count();
             });
 
-        if(!$this->tempOrder->payment_intent_id) {
+        if(!$this->tempOrder->payment_id) {
             // Create Stripe payment intent
             $stripe = new StripeClient(config('app.stripe.secret'));
             $paymentIntent = $stripe->paymentIntents->create([
@@ -142,7 +145,7 @@ class EventCheckout extends Component
                 'automatic_payment_methods' => ['enabled' => true],
             ]);
 
-            $this->tempOrder->payment_intent_id = $paymentIntent->id;
+            $this->tempOrder->payment_id = $paymentIntent->id;
         }
 
         $this->tempOrder->checkout_stage = 2;

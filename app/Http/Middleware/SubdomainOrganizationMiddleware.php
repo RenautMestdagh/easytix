@@ -17,8 +17,13 @@ class SubdomainOrganizationMiddleware
     public function handle(Request $request, Closure $next)
     {
         $subdomain = $request->route('subdomain');
+        $mainDomain = config('app.domain');
+        if(!$subdomain) {
+            $host = $request->getHost();
+            $subdomain = str_replace('.' . $mainDomain, '', $host);
+        }
 
-        if ($subdomain) {
+        if ($subdomain !== $mainDomain) {
             // Find the organization by subdomain
             $organization = Organization::where('subdomain', $subdomain)->first();
             if (!$organization) {

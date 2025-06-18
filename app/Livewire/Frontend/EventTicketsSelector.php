@@ -19,7 +19,8 @@ class EventTicketsSelector extends Component
     }
     public function mount($subdomain, $eventuniqid)
     {
-        $this->checkCorrectFlow();
+        if(!$this->checkCorrectFlow())
+            return;
         $this->calculateAllAvailableTickets();
     }
 
@@ -97,7 +98,7 @@ class EventTicketsSelector extends Component
 
     public function increment($ticketTypeId)
     {
-        if($this->tempOrder->payment_intent_id) return;
+        if($this->tempOrder->payment_id) return;
 
         $ticketType = $this->event->ticketTypes->firstWhere('id', $ticketTypeId);
         if (!$ticketType) return;
@@ -125,7 +126,7 @@ class EventTicketsSelector extends Component
 
     public function decrement($ticketTypeId)
     {
-        if($this->tempOrder->payment_intent_id) return;
+        if($this->tempOrder->payment_id) return;
 
         $deleted = $this->tempOrder->tickets()->where('ticket_type_id', $ticketTypeId)->limit(1)?->delete();
         if(!$deleted) return;

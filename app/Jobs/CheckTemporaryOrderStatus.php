@@ -10,6 +10,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Stripe\StripeClient;
 use App\Models\Order;
 use Illuminate\Support\Facades\Log;
@@ -38,8 +39,9 @@ class CheckTemporaryOrderStatus implements ShouldQueue
         try {
             $paymentIntent = $stripe->paymentIntents->retrieve($this->paymentIntentId);
 
+
             // Find the associated order (you might need to adjust this based on your DB structure)
-            $tempOrder = TemporaryOrder::where('payment_intent_id', $this->paymentIntentId)->first();
+            $tempOrder = TemporaryOrder::where('payment_id', $this->paymentIntentId)->first();
 
             if (!$tempOrder) {
                 Log::error("Order not found for PaymentIntent: {$this->paymentIntentId}");
@@ -49,8 +51,9 @@ class CheckTemporaryOrderStatus implements ShouldQueue
             switch ($paymentIntent->status) {
                 case 'succeeded':
                     $order = Order::create([
+                        'uniqid' => str_replace('-', '', Str::uuid()),
                         'customer_id' => $tempOrder->customer_id,
-                        'payment_intent_id' => $paymentIntent->id,
+                        'payment_id' => $paymentIntent->id,
                     ]);
 
                     $tempOrder->tickets()->update([

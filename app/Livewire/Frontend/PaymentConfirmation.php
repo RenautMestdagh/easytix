@@ -9,8 +9,11 @@ use App\Models\Order;
 use App\Models\TemporaryOrder;
 use App\Traits\NavigateEventCheckout;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Livewire\Component;
+use Stripe\StripeClient;
 
 class PaymentConfirmation extends Component
 {
@@ -24,6 +27,7 @@ class PaymentConfirmation extends Component
         if(request()->header('Referer') !== "https://payments.stripe.com/")
             return redirect('/');
 
+        $this->toShowPartial = Str::afterLast(request()->route()->getName(), '.');
         $this->event = Event::with(['ticketTypes' => function($query) {
             $query->where('is_published', true)->with('tickets');
         }])
@@ -37,14 +41,15 @@ class PaymentConfirmation extends Component
         if($this->tempOrder) {
             $this->tempOrder->checkout_stage = 4;
             $this->tempOrder->save();
-            $this->checkCorrectFlow();
+            if(!$this->checkCorrectFlow())
+                return;
         }
         $this->tempOrder_checkout_stage = 4;
 
-        $pament_intent_id = request('payment_intent');
+        $pament_id = request('payment_intent');
         $this->redirect_status = request('redirect_status');
 
-        CheckTemporaryOrderStatus::dispatch($pament_intent_id);
+         CheckTemporaryOrderStatus::dispatch($pament_id);
     }
 
     public function backToPayment()

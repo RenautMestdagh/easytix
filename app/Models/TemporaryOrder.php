@@ -21,7 +21,7 @@ class TemporaryOrder extends Model
         'customer_id',
         'expires_at',
         'checkout_stage',
-        'payment_intent_id',
+        'payment_id',
     ];
 
     protected $casts = [

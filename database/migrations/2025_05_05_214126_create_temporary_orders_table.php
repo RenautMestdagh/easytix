@@ -14,7 +14,7 @@ return new class extends Migration
             $table->foreignId('customer_id')->nullable()->constrained('customers');
             $table->timestamp('expires_at');
             $table->tinyInteger('checkout_stage')->default(0);
-            $table->string('payment_intent_id')->unique()->nullable();
+            $table->string('payment_id')->unique()->nullable();
             $table->timestamps();
 
             $table->index(['expires_at']);

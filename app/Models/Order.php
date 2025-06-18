@@ -12,8 +12,9 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
+        'uniqid',
         'customer_id',
-        'payment_intent_id',
+        'payment_id',
     ];
 
     public function customer(): BelongsTo
@@ -35,7 +36,7 @@ class Order extends Model
             'id',          // Foreign key on events table
             'id',          // Local key on orders table
             'ticket_type_id' // Local key on tickets table (via ticket_type)
-        )->through('tickets');
+        );
     }
 
     public function getEventAttribute()

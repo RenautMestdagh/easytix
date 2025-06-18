@@ -57,76 +57,78 @@
 
 
 
-                // Stripe element creation
-                const stripe = Stripe("{{config('app.stripe.key')}}");
+                @if(!empty($this->stripeClientSecret))
+                    // Stripe element creation
+                    const stripe = Stripe("{{config('app.stripe.key')}}");
 
-                const appearance = {
-                    theme: document.documentElement.classList.contains('dark') ? 'night' : 'stripe',
-                };
+                    const appearance = {
+                        theme: document.documentElement.classList.contains('dark') ? 'night' : 'stripe',
+                    };
 
-                const elements = stripe.elements({
-                    clientSecret: "{{$this->stripeClientSecret}}",
-                    appearance,
-                });
-
-                var paymentElement = elements.create('payment', {
-                    // layout: {
-                    //     type: 'tabs',
-                    //     visibleAccordionItemsCount: 5
-                    // },
-                });
-                paymentElement.mount('#payment-element');
-
-
-
-                // Submit payment details
-                const submitBtn = document.getElementById('submit-button');
-
-                function handleError(submitError) {
-                    alert(submitError.message);
-                    return window.location.reload();
-                }
-
-                submitBtn.addEventListener('click', async (event) => {
-                    // Prevent multiple form submissions
-                    if (submitBtn.disabled) {
-                        return;
-                    }
-
-                    // Disable form submission while loading
-                    submitBtn.disabled = true;
-                    clearInterval(timer);
-
-                    // Trigger form validation and wallet collection
-                    const {error: submitError} = await elements.submit();
-                    if (submitError) {
-                        handleError(submitError);
-                        return;
-                    }
-
-
-                    const clientSecret = "{{session('stripe_client_secret')}}"
-
-                    // Confirm the PaymentIntent using the details collected by the Payment Element
-                    const result = await stripe.confirmPayment({
-                        elements,
-                        clientSecret,
-                        confirmParams: {
-                            return_url: '{{ route("stripe.payment.confirmation", [$this->event->organization->subdomain, $this->event->uniqid]) }}',
-                        },
+                    const elements = stripe.elements({
+                        clientSecret: "{{$this->stripeClientSecret}}",
+                        appearance,
                     });
-                    // console.log(result);
 
-                    if (result.error) {
-                        // This point is only reached if there's an immediate error when
-                        // confirming the payment. Show the error to your customer (for example, payment details incomplete)
-                        handleError(result.error);
-                    } else {
-                        // Your customer is redirected to your `return_url`. For some payment
-                        // methods like iDEAL, your customer is redirected to an intermediate
-                        // site first to authorize the payment, then redirected to the `return_url`.
+                    var paymentElement = elements.create('payment', {
+                        // layout: {
+                        //     type: 'tabs',
+                        //     visibleAccordionItemsCount: 5
+                        // },
+                    });
+                    paymentElement.mount('#payment-element');
+
+
+
+                    // Submit payment details
+                    const submitBtn = document.getElementById('submit-button');
+
+                    function handleError(submitError) {
+                        alert(submitError.message);
+                        return window.location.reload();
                     }
-                });
+
+                    submitBtn.addEventListener('click', async (event) => {
+                        // Prevent multiple form submissions
+                        if (submitBtn.disabled) {
+                            return;
+                        }
+
+                        // Disable form submission while loading
+                        submitBtn.disabled = true;
+                        clearInterval(timer);
+
+                        // Trigger form validation and wallet collection
+                        const {error: submitError} = await elements.submit();
+                        if (submitError) {
+                            handleError(submitError);
+                            return;
+                        }
+
+
+                        const clientSecret = "{{session('stripe_client_secret')}}"
+
+                        // Confirm the PaymentIntent using the details collected by the Payment Element
+                        const result = await stripe.confirmPayment({
+                            elements,
+                            clientSecret,
+                            confirmParams: {
+                                return_url: '{{ route("stripe.payment.confirmation", [$this->event->organization->subdomain, $this->event->uniqid]) }}',
+                            },
+                        });
+                        // console.log(result);
+
+                        if (result.error) {
+                            // This point is only reached if there's an immediate error when
+                            // confirming the payment. Show the error to your customer (for example, payment details incomplete)
+                            handleError(result.error);
+                        } else {
+                            // Your customer is redirected to your `return_url`. For some payment
+                            // methods like iDEAL, your customer is redirected to an intermediate
+                            // site first to authorize the payment, then redirected to the `return_url`.
+                        }
+                    });
+                @endif
             }
 
 

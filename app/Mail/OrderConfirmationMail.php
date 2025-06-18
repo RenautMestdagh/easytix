@@ -48,7 +48,7 @@ class OrderConfirmationMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "Confirmation for {$this->order->event->name} - Order {$this->order->id}",
+            subject: "Order confirmation for {$this->order->event->name} - {$this->event->location}",
         );
     }
 

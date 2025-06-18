@@ -19,7 +19,10 @@ Schedule::call(function () {
 Schedule::call(function () {
     $temporaryOrders = TemporaryOrder::where('checkout_stage', '>', 3)->get();
     foreach ($temporaryOrders as $order) {
-        CheckTemporaryOrderStatus::dispatch($order->payment_intent_id);
+        if($order->payment_id)
+            CheckTemporaryOrderStatus::dispatch($order->payment_id);
+        else
+            $order->delete();
     }
 
 //})->everyMinute();

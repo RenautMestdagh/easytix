@@ -5,6 +5,7 @@ namespace App\Traits;
 use App\Models\Event;
 use App\Models\TemporaryOrder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 trait NavigateEventCheckout
 {
@@ -17,10 +18,12 @@ trait NavigateEventCheckout
 
     public $timeRemaining;
     public $pollInterval = 60000; // Default to 1 minute (60000ms)
+    public $toShowPartial;
 
     public function initialize()
     {
         if(empty($this->event)) {
+            $this->toShowPartial = Str::afterLast(request()->route()->getName(), '.');
             $this->event = Event::with(['ticketTypes' => function($query) {
                 $query->where('is_published', true)->with('tickets');
             }])
@@ -71,12 +74,17 @@ trait NavigateEventCheckout
         $correctUrl = route('event.tickets', [$subdomain, $this->event->uniqid]);   // checkout_stage 0 => Tickets kiezen
         if($this->tempOrder->checkout_stage > 0)
             $correctUrl = route('event.checkout', [$subdomain, $this->event->uniqid]);  // checkout_stage 1 => Persoonlijke info
-        if($this->tempOrder->checkout_stage > 1 && $this->tempOrder->payment_intent_id && $this->tempOrder->customer_id)
+        if($this->tempOrder->checkout_stage > 1 && $this->tempOrder->payment_id && $this->tempOrder->customer_id)
             $correctUrl = route('event.payment', [$subdomain, $this->event->uniqid]);  // checkout_stage 2 => Stripe    checkout_stage 3 => At checkout page
-        if($this->tempOrder->checkout_stage > 3 && $this->tempOrder->payment_intent_id && $this->tempOrder->customer_id)
+        if($this->tempOrder->checkout_stage > 3 && $this->tempOrder->payment_id && $this->tempOrder->customer_id)
             $correctUrl = route('stripe.payment.confirmation', [$subdomain, $this->event->uniqid]);  // checkout_stage 4 => Order processing, failed or succeeded
+        $redirect = $this->safeRedirect($correctUrl);
+        return !$redirect;
+    }
 
-        $this->safeRedirect($correctUrl);
+    public function determineCorrectPartial()
+    {
+
     }
 
     public function orderExpired()
@@ -147,34 +155,3 @@ trait NavigateEventCheckout
         }
     }
 }
-
-
-
-
-//        if($this->tempOrder->payment_intent_id) {
-//            $stripe = new StripeClient(config('app.stripe.secret'));
-//            $paymentIntent = $stripe->paymentIntents->retrieve($this->tempOrder->payment_intent_id);
-//
-//            // https://docs.stripe.com/payments/paymentintents/lifecycle#intent-statuses
-//            switch ($paymentIntent->status) {
-//                case 'requires_payment_method':
-//                case 'requires_confirmation':
-//                case 'requires_action':
-//                case 'processing':
-//                    $this->tempOrder->checkout_stage=4;
-//                    $this->tempOrder->save();
-//                    break;
-//                case 'canceled':
-//                    $this->tempOrder->checkout_stage=5;
-//                    $this->tempOrder->save();
-//                    break;
-//                case 'succeeded':
-//                    $this->tempOrder->checkout_stage=5;
-//                    $this->tempOrder->save();
-//                    break;
-//                case 'requires_capture':
-//                    throw new Exception('Should not happen');
-//                default:
-//                    throw new Exception('Unknown payment intent status: ' . $paymentIntent->status);
-//            }
-//        }

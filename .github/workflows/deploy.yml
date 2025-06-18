@@ -32,7 +32,7 @@ jobs:
             set -e
 
             echo "→ Navigating to project directory..."
-            cd /var/www/easytix
+            cd /var/www/easyTix
 
             echo "→ Setting permissions for ubuntu user (to avoid Composer errors)..."
             sudo chown -R $USER:$USER .
@@ -65,9 +65,9 @@ jobs:
 
             echo "→ Setting final permissions for web server..."
             sudo chown -R www-data:www-data storage bootstrap/cache vendor
-            sudo chmod -R 775 storage bootstrap/cache vendor
+            # sudo chmod -R 775 storage bootstrap/cache vendor
 
             echo "→ Restarting queue..."
-            sudo supervisorctl restart easytix-worker:easytix-worker_00
+            sudo supervisorctl restart easytix-worker:easytix-worker
 
             echo "✅ Deployment complete!"

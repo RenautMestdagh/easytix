@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\TicketController;
 use App\Http\Middleware\SubdomainOrganizationMiddleware;
@@ -36,7 +37,7 @@ Route::domain('{subdomain}.'.config('app.domain'))
         Route::get('/event/{eventuniqid}/payment', EventPayment::class)->name('event.payment');
         Route::get('/event/{eventuniqid}/payment/confirmation', PaymentConfirmation::class)->name('stripe.payment.confirmation');
 
-        Route::get('/orders/{order}', null/*[OrderController::class, 'show']*/)->name('orders.show');   // TODO
+        Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
         Route::get('/tickets/{order}/download', [TicketController::class, 'download'])->name('tickets.download');
     });
 

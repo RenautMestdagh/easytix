@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Tickets for Order #{{ $order->id }}</title>
+    <title>Tickets for Order #{{ $order->uniqid }}</title>
     <style>
         * {
             margin: 0;
@@ -286,10 +286,8 @@
         .qr-code-placeholder {
             background: white;
             border-radius: 12px;
-            padding: 20px;
-            font-weight: 600;
+            padding: 10px;
             color: #2c3e50;
-            font-size: 16px;
             min-width: 200px;
             min-height: 200px;
             display: flex;
@@ -299,16 +297,16 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
-        .qr-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-            opacity: 0.7;
+        .qr-code-placeholder svg {
+            width: 180px;
+            height: 180px;
+            margin-top: 10px;
+            margin-bottom: 10px;
         }
 
         .qr-code-text {
             font-size: 14px;
             color: #6c757d;
-            margin-top: 10px;
             word-break: break-all;
             text-align: center;
         }
@@ -439,7 +437,7 @@
                     <div class="detail-item order">
                         <div class="detail-content">
                             <div class="detail-label">Order Number</div>
-                            <div class="detail-value">#{{ $order->id }}</div>
+                            <div class="detail-value" style="font-size: 10px">{{ $order->uniqid }}</div>
                         </div>
                         <div class="detail-icon">📋</div>
                     </div>
@@ -465,8 +463,7 @@
             <div class="qr-section">
                 <div class="qr-container">
                     <div class="qr-code-placeholder">
-                        <div class="qr-icon">📱</div>
-                        <div><strong>SCAN TO ENTER</strong></div>
+                        <div>{!! $ticket->qr_code_image !!}</div>
                         <div class="qr-code-text">{{ $ticket->qr_code }}</div>
                     </div>
                 </div>

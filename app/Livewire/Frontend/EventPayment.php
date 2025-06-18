@@ -20,20 +20,21 @@ class EventPayment extends Component
 
     public function mount($subdomain, $eventuniqid)
     {
-        $this->checkCorrectFlow();
+        if(!$this->checkCorrectFlow())
+            return;
         $stripe = new StripeClient(config('app.stripe.secret'));
-        $paymentIntent = $stripe->paymentIntents->retrieve($this->tempOrder->payment_intent_id);
+        $paymentIntent = $stripe->paymentIntents->retrieve($this->tempOrder->payment_id);
         $this->stripeClientSecret = $paymentIntent->client_secret;
     }
 
     public function backToCheckout()
     {
-        if($this->tempOrder->payment_intent_id) {
+        if($this->tempOrder->payment_id) {
             $stripe = new StripeClient(config('app.stripe.secret'));
-            $paymentIntent = $stripe->paymentIntents->cancel($this->tempOrder->payment_intent_id, [
+            $paymentIntent = $stripe->paymentIntents->cancel($this->tempOrder->payment_id, [
                 'cancellation_reason' => 'requested_by_customer'
             ]);
-            $this->tempOrder->payment_intent_id = null;
+            $this->tempOrder->payment_id = null;
         }
 
         $this->tempOrder->checkout_stage = 1;

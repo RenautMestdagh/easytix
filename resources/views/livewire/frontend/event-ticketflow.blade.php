@@ -34,18 +34,10 @@
                         Order expires in <span class="font-bold" id="timeRemaining">{{ $timeRemaining }}</span>
                     </span>
                 </div>
-            @endif
+           @endif
         </div>
 
-        @if($this->tempOrder_checkout_stage === 0)
-            @include('partials.tenant-event.tickets')
-        @elseif($this->tempOrder_checkout_stage === 1)
-            @include('partials.tenant-event.checkout')
-        @elseif($this->tempOrder_checkout_stage === 2 || $this->tempOrder_checkout_stage === 3)
-            @include('partials.tenant-event.payment')
-        @elseif($this->tempOrder_checkout_stage === 4)
-            @include('partials.tenant-event.confirmation')
-        @endif
+        @include("partials.tenant-event.{$toShowPartial}")
 
     @endif
 
