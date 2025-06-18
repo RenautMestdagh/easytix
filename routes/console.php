@@ -1,6 +1,8 @@
 <?php
 
+use App\Jobs\CheckTemporaryOrderStatus;
 use App\Jobs\CleanExpiredOrdersJob;
+use App\Models\TemporaryOrder;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 
@@ -13,3 +15,12 @@ Schedule::call(function () {
     CleanExpiredOrdersJob::dispatch();
 //})->everyMinute();
 })->everyFiveMinutes();   // TODO
+
+Schedule::call(function () {
+    $temporaryOrders = TemporaryOrder::where('checkout_stage', '>', 3)->get();
+    foreach ($temporaryOrders as $order) {
+        CheckTemporaryOrderStatus::dispatch($order->payment_intent_id);
+    }
+
+//})->everyMinute();
+})->everyTenMinutes();   // TODO

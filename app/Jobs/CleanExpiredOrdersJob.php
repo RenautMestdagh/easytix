@@ -28,10 +28,10 @@ class CleanExpiredOrdersJob implements ShouldQueue
         //
         $expiredOrders = TemporaryOrder::where(function($query) {
             $query->where('expires_at', '<', now())
-                ->where('checkout_stage', '!=', 3);
+                ->where('checkout_stage', '<', 3);
         })->orWhere(function($query) {
-            $query->where('checkout_stage', 3)
-                ->where('expires_at', '<', now()->subDay());
+            $query->where('checkout_stage', '>=', 3)
+                ->where('expires_at', '<', now()->subWeek());
         })->get();
 
         foreach($expiredOrders as $expiredOrder) {

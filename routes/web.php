@@ -34,6 +34,9 @@ Route::domain('{subdomain}.'.config('app.domain'))
         Route::get('/event/{eventuniqid}/checkout', EventCheckout::class)->name('event.checkout');
         Route::get('/event/{eventuniqid}/payment', EventPayment::class)->name('event.payment');
         Route::get('/event/{eventuniqid}/payment/confirmation', PaymentConfirmation::class)->name('stripe.payment.confirmation');
+
+        Route::get('/orders/{order}', null/*[OrderController::class, 'show']*/)->name('orders.show');
+        Route::get('/tickets/{order}/download', null/*[TicketController::class, 'download']*/)->name('tickets.download');
     });
 
 // Main domain routes

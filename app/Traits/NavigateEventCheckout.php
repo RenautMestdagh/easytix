@@ -17,9 +17,9 @@ trait NavigateEventCheckout
 
     public $timeRemaining;
     public $pollInterval = 60000; // Default to 1 minute (60000ms)
-    public function checkCorrectFlow()
+
+    public function initialize()
     {
-        // only gets executed on page load
         if(empty($this->event)) {
             $this->event = Event::with(['ticketTypes' => function($query) {
                 $query->where('is_published', true)->with('tickets');
@@ -36,13 +36,11 @@ trait NavigateEventCheckout
 
         if(empty($this->tempOrder))
             $this->newTemporaryOrder();
-
-        if($this->tempOrder->isExpired())
+        else if($this->tempOrder->isExpired())
             return $this->orderExpired();
 
         $this->tempOrder_checkout_stage = $this->tempOrder->checkout_stage;
 
-        // only gets executed on page load
         if (empty($this->quantities)) {
             $this->quantities = $this->event->ticketTypes->mapWithKeys(function ($ticket) {
                 return [
@@ -61,17 +59,24 @@ trait NavigateEventCheckout
             });
         }
 
+        if($this->tempOrder->checkout_stage < 3)
+            $this->updateTimeRemaining();
+    }
+
+    public function checkCorrectFlow()
+    {
         // Livewire calls pass here as well, they dont contain subdomain variable.
         $subdomain = request()->route('subdomain') ?? $this->event->organization->subdomain;
 
         $correctUrl = route('event.tickets', [$subdomain, $this->event->uniqid]);   // checkout_stage 0 => Tickets kiezen
-        if($this->tempOrder->checkout_stage>0)
+        if($this->tempOrder->checkout_stage > 0)
             $correctUrl = route('event.checkout', [$subdomain, $this->event->uniqid]);  // checkout_stage 1 => Persoonlijke info
-        if($this->tempOrder->checkout_stage>1 && $this->tempOrder->payment_intent_id && $this->tempOrder->customer_id)
-            $correctUrl = route('event.payment', [$subdomain, $this->event->uniqid]);  // checkout_stage 2 => Stripe
-        $this->safeRedirect($correctUrl);
+        if($this->tempOrder->checkout_stage > 1 && $this->tempOrder->payment_intent_id && $this->tempOrder->customer_id)
+            $correctUrl = route('event.payment', [$subdomain, $this->event->uniqid]);  // checkout_stage 2 => Stripe    checkout_stage 3 => At checkout page
+        if($this->tempOrder->checkout_stage > 3 && $this->tempOrder->payment_intent_id && $this->tempOrder->customer_id)
+            $correctUrl = route('stripe.payment.confirmation', [$subdomain, $this->event->uniqid]);  // checkout_stage 4 => Order processing, failed or succeeded
 
-        $this->updateTimeRemaining();
+        $this->safeRedirect($correctUrl);
     }
 
     public function orderExpired()
@@ -87,18 +92,6 @@ trait NavigateEventCheckout
         ]);
         $this->tempOrderId = $this->tempOrder->id;
         session()->put("temporary_order_id_{$this->event->uniqid}", $this->tempOrder->id);
-    }
-
-    public function moveForwardInCheckout()
-    {
-        $this->tempOrder->checkout_stage++;
-        $this->tempOrder->save();
-    }
-
-    public function goBackInCheckout()
-    {
-        // Implementation here
-        return "Result from shared function 1";
     }
 
     public function updateTimeRemaining()
@@ -148,8 +141,40 @@ trait NavigateEventCheckout
         $requestUrl = request()->url();
         if( request()->is('livewire/*') )
             $requestUrl = request()->header('Referer');
+
         if ($requestUrl !== $url) {
             return redirect($url);
         }
     }
 }
+
+
+
+
+//        if($this->tempOrder->payment_intent_id) {
+//            $stripe = new StripeClient(config('app.stripe.secret'));
+//            $paymentIntent = $stripe->paymentIntents->retrieve($this->tempOrder->payment_intent_id);
+//
+//            // https://docs.stripe.com/payments/paymentintents/lifecycle#intent-statuses
+//            switch ($paymentIntent->status) {
+//                case 'requires_payment_method':
+//                case 'requires_confirmation':
+//                case 'requires_action':
+//                case 'processing':
+//                    $this->tempOrder->checkout_stage=4;
+//                    $this->tempOrder->save();
+//                    break;
+//                case 'canceled':
+//                    $this->tempOrder->checkout_stage=5;
+//                    $this->tempOrder->save();
+//                    break;
+//                case 'succeeded':
+//                    $this->tempOrder->checkout_stage=5;
+//                    $this->tempOrder->save();
+//                    break;
+//                case 'requires_capture':
+//                    throw new Exception('Should not happen');
+//                default:
+//                    throw new Exception('Unknown payment intent status: ' . $paymentIntent->status);
+//            }
+//        }

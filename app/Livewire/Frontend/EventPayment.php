@@ -2,8 +2,6 @@
 
 namespace App\Livewire\Frontend;
 
-use App\Models\Event;
-use App\Models\TemporaryOrder;
 use App\Traits\NavigateEventCheckout;
 use Livewire\Component;
 use Stripe\StripeClient;
@@ -17,11 +15,12 @@ class EventPayment extends Component
 
     public function boot()
     {
-        $this->checkCorrectFlow();
+        $this->initialize();
     }
 
     public function mount($subdomain, $eventuniqid)
     {
+        $this->checkCorrectFlow();
         $stripe = new StripeClient(config('app.stripe.secret'));
         $paymentIntent = $stripe->paymentIntents->retrieve($this->tempOrder->payment_intent_id);
         $this->stripeClientSecret = $paymentIntent->client_secret;

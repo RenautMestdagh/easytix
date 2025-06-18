@@ -6,7 +6,6 @@ use App\Models\Ticket;
 use App\Traits\NavigateEventCheckout;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
-use Stripe\StripeClient;
 
 class EventTicketsSelector extends Component
 {
@@ -16,10 +15,11 @@ class EventTicketsSelector extends Component
 
     public function boot()
     {
-        $this->checkCorrectFlow();
+        $this->initialize();
     }
     public function mount($subdomain, $eventuniqid)
     {
+        $this->checkCorrectFlow();
         $this->calculateAllAvailableTickets();
     }
 

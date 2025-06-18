@@ -3,8 +3,6 @@
 namespace App\Livewire\Frontend;
 
 use App\Models\Customer;
-use App\Models\Event;
-use App\Models\TemporaryOrder;
 use App\Traits\NavigateEventCheckout;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
@@ -39,11 +37,12 @@ class EventCheckout extends Component
 
     public function boot()
     {
-        $this->checkCorrectFlow();
+        $this->initialize();
     }
 
     public function mount($subdomain, $eventuniqid)
     {
+        $this->checkCorrectFlow();
         // Only populate fields if customer exists, otherwise leave blank
         if ($this->tempOrder->customer_id) {
             $customer = Customer::withoutGlobalScopes()->find($this->tempOrder->customer_id);

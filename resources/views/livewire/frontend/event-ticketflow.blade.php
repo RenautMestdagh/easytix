@@ -24,7 +24,7 @@
                  wire:poll.{{ $pollInterval }}ms="updateTimeRemaining"
             @endif
         >
-            @if($this->tempOrder->checkout_stage > 0 || collect($this->quantities)->sum('amount') != 0)
+            @if(($this->tempOrder?->checkout_stage > 0 || collect($this->quantities)->sum('amount') != 0) && $this->tempOrder?->checkout_stage < 4)
                 <!-- Floating Countdown Timer -->
                 <div class="sm:fixed sm:top-6 sm:right-6 sm:mb-0 mb-4 z-50 bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-2 rounded-xl shadow-lg flex items-center gap-2">
                     <svg class="w-5 h-5 text-yellow-500" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
@@ -43,8 +43,8 @@
             @include('partials.tenant-event.checkout')
         @elseif($this->tempOrder_checkout_stage === 2 || $this->tempOrder_checkout_stage === 3)
             @include('partials.tenant-event.payment')
-{{--        @elseif($this->tempOrder_checkout_stage === 4)--}}
-{{--            @include('partials.tenant-event.confirmation')--}}
+        @elseif($this->tempOrder_checkout_stage === 4)
+            @include('partials.tenant-event.confirmation')
         @endif
 
     @endif

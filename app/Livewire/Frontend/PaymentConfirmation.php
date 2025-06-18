@@ -2,91 +2,60 @@
 
 namespace App\Livewire\Frontend;
 
+use App\Jobs\CheckTemporaryOrderStatus;
 use App\Models\Event;
 use App\Models\TemporaryOrder;
+use App\Traits\NavigateEventCheckout;
 use Exception;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Livewire\Component;
-use Stripe\StripeClient;
 
 class PaymentConfirmation extends Component
 {
-    public Event $event;
-    public TemporaryOrder $tempOrder;
+    use NavigateEventCheckout;
+
+    public $redirect_status;
 
     public function mount($subdomain, $eventuniqid)
     {
-        $this->event = Event::with(['ticketTypes' => function ($query) {
+        session()->forget("temporary_order_id_{$eventuniqid}");
+
+        // Beetje beveiliging tegen sjoemelaars maar referer header is nog te spoofen
+        if(request()->header('Referer') !== "https://payments.stripe.com/")
+            return redirect('/');
+
+        $this->event = Event::with(['ticketTypes' => function($query) {
             $query->where('is_published', true)->with('tickets');
         }])
             ->where('uniqid', $eventuniqid)
             ->firstOrFail();
 
-        $paymentIntentId = request()->query('payment_intent');
-        $this->tempOrder = TemporaryOrder::where('payment_intent_id', $paymentIntentId)
-            ->firstOrFail();
+        $this->tempOrderId = session("temporary_order_id_{$this->event->uniqid}");
+        $this->tempOrder = TemporaryOrder::find($this->tempOrderId);
 
-        if ($this->tempOrder->checkout_stage === 0) {
-            return $this->backToTickets();
+        if($this->tempOrder) {
+            $this->tempOrder->checkout_stage = 4;
+            $this->tempOrder->save();
+            $this->checkCorrectFlow();
         }
+        $this->tempOrder_checkout_stage = 4;
 
-        $stripe = new StripeClient(config('app.stripe.secret'));
-        $paymentIntent = $stripe->paymentIntents->retrieve($this->tempOrder->payment_intent_id);
+        $pament_intent_id = request('payment_intent');
+        $this->redirect_status = request('redirect_status');
 
-        // https://docs.stripe.com/payments/paymentintents/lifecycle#intent-statuses
-        switch ($paymentIntent->status) {
-            case 'requires_payment_method':
-            case 'requires_confirmation':
-            case 'requires_action':
-            case 'canceled':
-                $this->backToPayment();
-                break;
-            case 'processing':
-
-                break;
-            case 'succeeded':
-
-                break;
-            case 'requires_capture':
-                throw new Exception('Should not happen');
-            default:
-                throw new Exception('Unknown payment intent status: ' . $paymentIntent->status);
-        }
-
-//        $this->orderTickets = $this->tempOrder->tickets
-//            ->groupBy('ticket_type_id')
-//            ->sortBy(function ($tickets, $ticketTypeId) {
-//                return $ticketTypeId;
-//            })
-//            ->map(function ($tickets) {
-//                $firstTicket = $tickets->first();
-//                return (object) [
-//                    'name' => $firstTicket->ticketType->name,
-//                    'price_cents' => $firstTicket->ticketType->price_cents,
-//                    'amount' => $tickets->count(),
-//                ];
-//            })
-//            ->values();
+        CheckTemporaryOrderStatus::dispatch($pament_intent_id);
     }
 
     public function backToPayment()
     {
-        $this->tempOrder->checkout_stage = 2;
-        $this->tempOrder->save();
+        if($this->tempOrder) {
+            $this->tempOrder->checkout_stage = 2;
+            $this->tempOrder->save();
+            session()->put("temporary_order_id_{$this->event->uniqid}", $this->tempOrder->id);
 
-        return redirect()->route('event.payment', [$this->event->organization->subdomain, $this->event->uniqid]);
-    }
-//
-//    public function backToCheckout()
-//    {
-//        return redirect()->route('event.checkout', [$this->event->organization->subdomain, $this->event->uniqid]);
-//    }
-//
-    public function backToTickets()
-    {
-        $this->tempOrder->checkout_stage = 0;
-        $this->tempOrder->save();
-        return redirect()->route('event.tickets', [$this->event->organization->subdomain, $this->event->uniqid]);
+            return redirect()->route('event.payment', [$this->event->organization->subdomain, $this->event->uniqid]);
+        } else {
+            throw new Exception('Order not found');
+        }
     }
 
     public function render()

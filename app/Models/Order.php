@@ -25,4 +25,9 @@ class Order extends Model
     {
         return $this->hasMany(Ticket::class);
     }
+
+    public function getEventAttribute()
+    {
+        return $this->tickets->first()->ticketType->event ?? null;
+    }
 }
