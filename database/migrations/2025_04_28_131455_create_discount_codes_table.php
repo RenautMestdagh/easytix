@@ -15,12 +15,14 @@ return new class extends Migration
             $table->id();
             $table->foreignId('event_id')->nullable()->constrained('events'); // Link to event
             $table->foreignId('organization_id')->constrained('organizations'); // Link to organization in case event is null
-            $table->string('code')->unique(); // Discount code
+            $table->string('code'); // Discount code
             $table->integer('discount_percent')->nullable(); // Percentage discount
             $table->integer('discount_fixed_cents')->nullable(); // Fixed amount discount
             $table->integer('max_uses')->nullable(); // Max uses for the discount code
             $table->timestamps();
             $table->softDeletes();
+
+            $table->unique(['code', 'organization_id']);
         });
 
         DB::statement("

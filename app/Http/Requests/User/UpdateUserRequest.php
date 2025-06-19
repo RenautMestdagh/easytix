@@ -2,18 +2,21 @@
 
 namespace App\Http\Requests\User;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
 class UpdateUserRequest extends UserRequest
 {
     protected $userId;
+    protected $organizationId;
+    protected $userEmail;
 
-    public function __construct($userId = null)
+    public function __construct($userId = null,  $organizationId = null, $userEmail = null)
     {
         parent::__construct();
         $this->userId = $userId;
+        $this->organizationId = $organizationId;
+        $this->userEmail = $userEmail;
     }
     /**
      * Get the validation rules that apply to the request.
@@ -36,7 +39,13 @@ class UpdateUserRequest extends UserRequest
                 'string',
                 'email',
                 'max:255',
-                Rule::unique('users', 'email')->ignore($userId),
+                Rule::unique('users', 'email')
+                    ->where(function ($query) {
+                        return $this->organizationId === null
+                            ? $query->whereNull('organization_id')
+                            : $query->where('organization_id', $this->organizationId);
+                    })
+                    ->ignore($userId),
             ],
         ]);
     }

@@ -53,12 +53,24 @@ class EditUser extends Component
         $this->resetErrorBag($propertyName);
 
         // Validate individual field using UpdateUserRequest
-        $fieldRules = (new UpdateUserRequest($this->user->id))->rules();
+        $fieldRules = (new UpdateUserRequest(
+            $this->user->id,
+            (int)$this->organization_id,
+            $this->userEmail,
+        ))->rules();
         $fieldMessages = (new UpdateUserRequest())->messages();
 
         // Handle password confirmation case
         if ($propertyName === 'userPassword' || $propertyName === 'userPassword_confirmation') {
             $this->validateOnly('userPassword', $fieldRules, $fieldMessages);
+            return;
+        }
+
+        if ($propertyName === 'organization_id') {
+            $this->validate([
+                'userEmail' => $fieldRules['userEmail'],
+                'organization_id' => $fieldRules['organization_id'],
+            ], $fieldMessages);
             return;
         }
 
@@ -74,7 +86,11 @@ class EditUser extends Component
         $this->authorize('users.update', $this->user);
 
         $validatedData = $this->validate(
-            (new UpdateUserRequest($this->user->id))->rules(),
+            (new UpdateUserRequest(
+                $this->user->id,
+                (int)$this->organization_id,
+                $this->userEmail,
+            ))->rules(),
             (new UpdateUserRequest())->messages()
         );
 
@@ -161,7 +177,7 @@ class EditUser extends Component
                 return redirect()->route('users.index');
             });
         } catch (\Exception $e) {
-            session()->flash('message', __('An error occurred while updating the user: ' . $e->getMessage()));
+            session()->flash('message', __('An error occurred while updating the user'));
             session()->flash('message_type', 'error');
         }
     }

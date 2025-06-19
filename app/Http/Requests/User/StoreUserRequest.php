@@ -2,11 +2,22 @@
 
 namespace App\Http\Requests\User;
 
-use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
 class StoreUserRequest extends UserRequest
 {
+
+    protected $organizationId;
+    protected $userEmail;
+    protected $role;
+    public function __construct($organizationId = null, $userEmail = null,  $role = null)
+    {
+        parent::__construct();
+        $this->organizationId = $organizationId;
+        $this->userEmail = $userEmail;
+        $this->role = $role;
+    }
 
     /**
      * Get the validation rules that apply to the request.
@@ -15,7 +26,7 @@ class StoreUserRequest extends UserRequest
      */
     public function rules(): array
     {
-        return array_merge(parent::rules(), [
+        $rules = array_merge(parent::rules(), [
             'userPassword' => [
                 'required',
                 'string',
@@ -27,9 +38,19 @@ class StoreUserRequest extends UserRequest
                 'string',
                 'email',
                 'max:255',
-                'unique:users,email',
             ],
         ]);
+
+        // Only add unique validation if role is not null
+        if (!empty($this->role) || session('organization_id')) {
+            $rules['userEmail'][] = Rule::unique('users', 'email')->where(function ($query) {
+                return $this->organizationId
+                    ? $query->where('organization_id', $this->organizationId)
+                    : $query->whereNull('organization_id');
+            });
+        }
+
+        return $rules;
     }
 
     public function messages(): array

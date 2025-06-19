@@ -108,23 +108,22 @@
                                     </x-ui.forms.select>
                                 </x-ui.forms.group>
 
-{{--                                @role('superadmin')--}}
-                                <x-ui.forms.group label="Organization" for="organization_id" error="organization_id">
-                                    <x-ui.forms.select
-                                        wire:model.lazy="organization_id"
-                                        name="organization_id"
-                                        error="{{ $errors->has('organization_id') }}"
-                                        class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500 {{ $role === 'superadmin' ? 'opacity-50 cursor-not-allowed' : '' }}"
-{{--                                        :disabled="$role === 'superadmin'"--}}
-                                    >
-                                    <option value="">{{ __('No organization') }}</option>
-                                        @foreach($organizations as $id => $name)
-                                            <option value="{{ $id }}">{{ Str::limit($name, 30) }}</option>
-                                        @endforeach
-                                        <option value="2">TestModulair</option>
-                                    </x-ui.forms.select>
-                                </x-ui.forms.group>
-{{--                                @endrole--}}
+                                @role('superadmin')
+                                @if($role && $role !== 'superadmin')
+                                    <x-ui.forms.group label="Organization" for="organization_id" error="organization_id">
+                                        <x-ui.forms.select
+                                            wire:model.lazy="organization_id"
+                                            name="organization_id"
+                                            error="{{ $errors->has('organization_id') }}"
+                                            class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
+                                        >
+                                            @foreach  ($organizations as $id => $name)
+                                                <option value="{{$id}}">{{ Str::limit($name, 30) }}</option>
+                                            @endforeach
+                                        </x-ui.forms.select>
+                                    </x-ui.forms.group>
+                                @endif
+                                @endrole
                             </div>
 
                         </div>

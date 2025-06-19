@@ -44,23 +44,38 @@ class CreateUser extends Component
 
         $this->roles = $roles;
         $this->organizations = Organization::all()->pluck('name', 'id')->toArray();
+        $this->organization_id = session('organization_id');
     }
 
     public function updated($propertyName)
     {
-        // Validate individual field using StoreUserRequest
-        $fieldRules = (new StoreUserRequest())->rules();
-        $fieldMessages = (new StoreUserRequest())->messages();
-
         if ($propertyName === 'role') {
             $this->resetErrorBag('organization_id');
             if($this->role === 'superadmin')
                 $this->organization_id = null;
+            else if($this->organization_id === null)
+                $this->organization_id = array_key_first($this->organizations);
         }
+
+        // Validate individual field using StoreUserRequest
+        $fieldRules = (new StoreUserRequest(
+            (int)$this->organization_id,
+            $this->userEmail,
+            $this->role,
+        ))->rules();
+        $fieldMessages = (new StoreUserRequest())->messages();
 
         // Handle password confirmation case
         if ($propertyName === 'userPassword' || $propertyName === 'userPassword_confirmation') {
             $this->validateOnly('userPassword', $fieldRules, $fieldMessages);
+            return;
+        }
+
+        if ($propertyName === 'role' || $propertyName === 'organization_id') {
+            $this->validate([
+                'userEmail' => $fieldRules['userEmail'],
+                $propertyName => $fieldRules[$propertyName],
+            ], $fieldMessages);
             return;
         }
 
@@ -76,7 +91,10 @@ class CreateUser extends Component
         $this->authorize('users.create');
 
         $validatedData = $this->validate(
-            (new StoreUserRequest)->rules(),
+            (new StoreUserRequest(
+                (int)$this->organization_id,
+                $this->userEmail,
+            ))->rules(),
             (new StoreUserRequest)->messages()
         );
 
@@ -114,7 +132,7 @@ class CreateUser extends Component
 
         } catch (\Exception $e) {
             Log::error('An error occurred while creating the user: ' . $e->getMessage());
-            session()->flash('message', __('An error occurred while creating the user: ' . $e->getMessage()));
+            session()->flash('message', __('An error occurred while creating the user'));
             session()->flash('message_type', 'error');
         }
     }
