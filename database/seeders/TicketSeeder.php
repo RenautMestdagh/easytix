@@ -23,15 +23,9 @@ class TicketSeeder extends Seeder
                 for ($i = 0; $i < $batches; $i++) {
                     $currentBatchSize = min($batchSize, $remainingCapacity - ($i * $batchSize));
 
-                    try {
-                        Ticket::factory($currentBatchSize)->create([
-                            'ticket_type_id' => $ticketType->id,
-                        ]);
-                    } catch (\Exception $e) {
-                        // Log capacity reached and continue
-                        $this->command->info($e->getMessage());
-                        break;
-                    }
+                    Ticket::factory($currentBatchSize)->create([
+                        'ticket_type_id' => $ticketType->id,
+                    ]);
                 }
             }
         }

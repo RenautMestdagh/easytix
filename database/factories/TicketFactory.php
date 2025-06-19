@@ -12,8 +12,8 @@ class TicketFactory extends Factory
     public function definition()
     {
         return [
-            'order_id' => rand(0, 1) ? Order::inRandomOrder()->first()->id : null,
-            'temporary_order_id' => rand(0, 1) ? TemporaryOrder::inRandomOrder()->first()->id : null,
+            'order_id' => Order::inRandomOrder()->first()->id,
+            'temporary_order_id' => null,
             'ticket_type_id' => TicketType::inRandomOrder()->first(),
             'qr_code' => uniqid(),
             'scanned_at' => $this->faker->boolean(20) ? $this->faker->dateTimeThisYear() : null,
