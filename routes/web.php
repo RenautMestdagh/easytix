@@ -7,7 +7,7 @@ use App\Http\Controllers\TicketController;
 use App\Http\Middleware\SubdomainOrganizationMiddleware;
 use App\Livewire\Backend\Discountcodes\CreateDiscountCode;
 use App\Livewire\Backend\Discountcodes\EditDiscountCode;
-use App\Livewire\Backend\DiscountCodes\ShowDiscountCodes;
+use App\Livewire\Backend\Discountcodes\ShowDiscountCodes;
 use App\Livewire\Backend\Events\CreateEvent;
 use App\Livewire\Backend\Events\EditEvent;
 use App\Livewire\Backend\Events\ShowEvents;
