@@ -58,6 +58,7 @@
                                         wire:model.lazy="price_euros"
                                         name="price_euros"
                                         placeholder="Price in € (e.g. 19.99)"
+                                        step="any"
                                         error="{{ $errors->has('price_euros') }}"
                                         class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
                                         :disabled="$priceDisabled"

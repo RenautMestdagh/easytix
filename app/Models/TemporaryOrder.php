@@ -28,6 +28,15 @@ class TemporaryOrder extends Model
         'expires_at' => 'datetime',
     ];
 
+    protected static function booted()
+    {
+        static::deleting(function ($temporaryOrder) {
+            $temporaryOrder->tickets()->delete();
+            $temporaryOrder->discountCodes()->detach();
+        });
+    }
+
+
     public function __construct(array $attributes = [])
     {
         if (!isset($attributes['expires_at'])) {
@@ -40,6 +49,13 @@ class TemporaryOrder extends Model
     public function tickets(): HasMany
     {
         return $this->hasMany(Ticket::class);
+    }
+
+    public function discountCodes()
+    {
+        return $this->belongsToMany(DiscountCode::class, 'discount_code_orders', 'temporary_order_id')
+            ->withPivot(['order_id', 'created_at'])
+            ->wherePivotNotNull('temporary_order_id');
     }
 
     public function customer()

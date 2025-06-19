@@ -19,10 +19,18 @@ return new class extends Migration
             $table->integer('discount_percent')->nullable(); // Percentage discount
             $table->integer('discount_fixed_cents')->nullable(); // Fixed amount discount
             $table->integer('max_uses')->nullable(); // Max uses for the discount code
-            $table->integer('times_used')->default(0); // How many times the code has been used
             $table->timestamps();
             $table->softDeletes();
         });
+
+        DB::statement("
+        ALTER TABLE discount_codes
+        ADD CONSTRAINT discount_percent_or_discount_fixed_cents_check
+        CHECK (
+            (discount_percent IS NOT NULL AND discount_fixed_cents IS NULL) OR
+            (discount_percent IS NULL AND discount_fixed_cents IS NOT NULL)
+        )
+    ");
     }
 
     /**
@@ -30,6 +38,9 @@ return new class extends Migration
      */
     public function down(): void
     {
+        try {
+            DB::statement('ALTER TABLE discount_codes DROP CONSTRAINT discount_percent_or_discount_fixed_cents_check');
+        } catch (\Exception $e) {}
         Schema::dropIfExists('discount_codes');
     }
 };

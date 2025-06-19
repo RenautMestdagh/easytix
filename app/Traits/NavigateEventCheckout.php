@@ -25,7 +25,7 @@ trait NavigateEventCheckout
         if(empty($this->event)) {
             $this->toShowPartial = Str::afterLast(request()->route()->getName(), '.');
             $this->event = Event::with(['ticketTypes' => function($query) {
-                $query->where('is_published', true)->with('tickets');
+                $query->published()->with('tickets');
             }])
                 ->where('uniqid', request()->route('eventuniqid'))
                 ->firstOrFail();
@@ -33,11 +33,18 @@ trait NavigateEventCheckout
             $this->tempOrderId = session("temporary_order_id_{$this->event->uniqid}");
         }
 
+        if (!$this->event->relationLoaded('ticketTypes') || $this->event->ticketTypes->contains('is_published', false)) {
+            // needed because livewire forgets is_published filter and assigns all ticketTypes to $this->>event->ticketTypes
+            $this->event->load(['ticketTypes' => function($query) {
+                $query->published()->with('tickets');
+            }]);
+        }
+
         // $tempOrder = TemporaryOrder::with('tickets.ticketType')->find( session("temporary_order_id_{$eventuniqid}") );
         if($this->tempOrderId && empty($this->tempOrder))
             $this->tempOrder = TemporaryOrder::find($this->tempOrderId);
 
-        if(empty($this->tempOrder))
+        if(empty($this->tempOrder) && $this->timeRemaining !== 'EXPIRED')
             $this->newTemporaryOrder();
         else if($this->tempOrder->isExpired())
             return $this->orderExpired();
@@ -82,15 +89,12 @@ trait NavigateEventCheckout
         return !$redirect;
     }
 
-    public function determineCorrectPartial()
-    {
-
-    }
-
     public function orderExpired()
     {
         session()->forget("temporary_order_id_{$this->event->uniqid}");
         $this->timeRemaining = 'EXPIRED';
+        $this->tempOrder?->delete();
+
     }
 
     public function newTemporaryOrder() {

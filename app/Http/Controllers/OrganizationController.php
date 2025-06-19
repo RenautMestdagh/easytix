@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\TemporaryOrder;
 use Illuminate\Http\Request;
 use App\Models\Organization;
 use App\Models\Event;
-use Illuminate\Support\Facades\Redis;
 
 class OrganizationController extends Controller
 {

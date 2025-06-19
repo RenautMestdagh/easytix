@@ -52,6 +52,15 @@
             >
                 {{ __('Events') }}
             </flux:navlist.item>
+
+            <flux:navlist.item
+                icon="tag"
+                :href="route('discount-codes.index')"
+                :current="request()->routeIs('discount-codes.index')"
+                wire:navigate
+            >
+                {{ __('Discount codes') }}
+            </flux:navlist.item>
             @endunlessrole
 
             @hasanyrole('superadmin|admin')

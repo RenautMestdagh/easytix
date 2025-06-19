@@ -27,6 +27,13 @@ class Order extends Model
         return $this->hasMany(Ticket::class);
     }
 
+    public function discountCodes()
+    {
+        return $this->belongsToMany(DiscountCode::class, 'discount_code_orders', 'order_id')
+            ->withPivot(['temporary_order_id', 'created_at'])
+            ->wherePivotNotNull('order_id');
+    }
+
     public function event()
     {
         return $this->hasOneThrough(

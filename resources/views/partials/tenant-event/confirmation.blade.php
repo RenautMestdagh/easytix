@@ -10,10 +10,10 @@
             <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">Payment Successful!</h2>
             <p class="text-gray-600 dark:text-gray-400 mb-6">Your payment has been processed successfully. You will receive a confirmation email shortly.</p>
             <a
-                href="{{ route('event.tickets', [$this->event->organization->subdomain, $this->event->uniqid]) }}"
+                href="{{ route('organization.home', $this->event->organization->subdomain) }}"
                 class="inline-block bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200"
             >
-                Return to Event
+                Return to Agenda
             </a>
         </div>
 
@@ -29,10 +29,10 @@
             <p class="text-gray-600 dark:text-gray-400 mb-6">We couldn't process your payment. Please try again or use a different payment method.</p>
             <div class="flex justify-center gap-4">
                 <a
-                    href="{{ route('event.tickets', [$this->event->organization->subdomain, $this->event->uniqid]) }}"
+                    href="{{ route('organization.home', $this->event->organization->subdomain) }}"
                     class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded-lg transition-colors duration-200 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200"
                 >
-                    Return to Event
+                    Return to Agenda
                 </a>
                 <button
                     wire:click="backToPayment"
@@ -55,7 +55,7 @@
             <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">Payment Processing</h2>
             <p class="text-gray-600 dark:text-gray-400 mb-6">Your payment is being processed. This may take a few moments. You'll receive an email confirmation once complete.</p>
             <a
-                href="{{ route('event.tickets', [$this->event->organization->subdomain, $this->event->uniqid]) }}"
+                href="{{ route('organization.home', $this->event->organization->subdomain) }}"
                 class="inline-block bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200"
             >
                 Return to Event
@@ -74,10 +74,10 @@
             <p class="text-gray-600 dark:text-gray-400 mb-6">Your payment requires additional verification. Please complete the authentication process.</p>
             <div class="flex justify-center gap-4">
                 <a
-                    href="{{ route('event.tickets', [$this->event->organization->subdomain, $this->event->uniqid]) }}"
+                    href="{{ route('organization.home', $this->event->organization->subdomain) }}"
                     class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded-lg transition-colors duration-200 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200"
                 >
-                    Return to Event
+                    Return to Agenda
                 </a>
                 <button
                     wire:click="backToPayment"
@@ -100,10 +100,10 @@
             <p class="text-gray-600 dark:text-gray-400 mb-6">You canceled the payment process. No charges were made to your account.</p>
             <div class="flex justify-center gap-4">
                 <a
-                    href="{{ route('event.tickets', [$this->event->organization->subdomain, $this->event->uniqid]) }}"
+                    href="{{ route('organization.home', $this->event->organization->subdomain) }}"
                     class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded-lg transition-colors duration-200 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200"
                 >
-                    Return to Event
+                    Return to Agenda
                 </a>
                 <button
                     wire:click="backToPayment"
@@ -138,10 +138,10 @@
             </p>
             <div class="flex justify-center gap-4">
                 <a
-                    href="{{ route('event.tickets', [$this->event->organization->subdomain, $this->event->uniqid]) }}"
+                    href="{{ route('organization.home', $this->event->organization->subdomain) }}"
                     class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded-lg transition-colors duration-200 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200"
                 >
-                    Return to Event
+                    Return to Agenda
                 </a>
                 <button
                     wire:click="backToPayment"

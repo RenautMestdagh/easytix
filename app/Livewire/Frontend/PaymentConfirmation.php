@@ -39,17 +39,16 @@ class PaymentConfirmation extends Component
         session()->forget("temporary_order_id_{$eventuniqid}");
 
         if($this->tempOrder) {
-            $this->tempOrder->checkout_stage = 4;
-            $this->tempOrder->save();
+            if($this->tempOrder->checkout_stage == 3) {
+                $this->tempOrder->checkout_stage = 4;
+                $this->tempOrder->save();
+                CheckTemporaryOrderStatus::dispatch(request('payment_intent'));
+            }
             if(!$this->checkCorrectFlow())
                 return;
         }
         $this->tempOrder_checkout_stage = 4;
-
-        $pament_id = request('payment_intent');
         $this->redirect_status = request('redirect_status');
-
-         CheckTemporaryOrderStatus::dispatch($pament_id);
     }
 
     public function backToPayment()

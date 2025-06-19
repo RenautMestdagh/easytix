@@ -27,7 +27,6 @@ class DiscountCodeFactory extends Factory
             'discount_percent' => $discount_type ? $this->faker->numberBetween(5, 50) : null, // Percent if true
             'discount_fixed_cents' => !$discount_type ? $this->faker->numberBetween(100, 5000) : null, // Fixed amount if false
             'max_uses' => $this->faker->boolean() ? $this->faker->numberBetween(10, 100) : null, // Random max uses
-            'times_used' => $this->faker->numberBetween(0, 10), // Random usage count
         ];
     }
 }

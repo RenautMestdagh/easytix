@@ -73,7 +73,18 @@ class EditEvent extends Component
             'name' => 'required|string|max:255',
             'description' => 'string',
             'location' => 'required|string|max:255',
-            'date' => 'required|date|after:now',
+            'date' => [
+                'required',
+                'date',
+                function ($attribute, $value, $fail) {
+                    // Only validate if date is different from original
+                    if ($value !== $this->event->date->format('Y-m-d\TH:i')) {
+                        if (strtotime($value) <= time()) {
+                            $fail(__('The event date must be in the future.'));
+                        }
+                    }
+                },
+            ],
             'max_capacity' => ['nullable',
                 'integer',
                 'min:1',

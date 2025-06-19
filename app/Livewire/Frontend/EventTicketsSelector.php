@@ -27,6 +27,7 @@ class EventTicketsSelector extends Component
 
     public function calculateAllAvailableTickets()
     {
+
         $counts = Ticket::whereIn('ticket_type_id', $this->event->ticketTypes->pluck('id'))
             ->select([
                 'ticket_type_id',

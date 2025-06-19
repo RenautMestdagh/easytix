@@ -83,8 +83,8 @@ class EditTicketType extends Component
             'publish_with_event' => 'boolean',
         ];
 
-        // Only validate price if ticket type is not published
-        if (!$this->ticketType->is_published) {
+        // Only able to change price if ticket type is not published and no tickets have been bought
+        if (!$this->ticketType->is_published && $this->ticketType->tickets->count() == 0) {
             $rules['price_euros'] = [
                 'required',
                 function ($attribute, $value, $fail) {
@@ -141,6 +141,9 @@ class EditTicketType extends Component
 
     protected function determinePublishStatus()
     {
+        if($this->publish_option === 'with_event' && $this->event->is_published)
+            $this->publish_option = 'publish_now';
+
         return match ($this->publish_option) {
             'publish_now' => ['is_published' => true, 'publish_at' => null, 'publish_with_event' => false],
             'schedule' => ['is_published' => false, 'publish_at' => $this->publish_at, 'publish_with_event' => false],

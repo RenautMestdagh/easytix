@@ -14,7 +14,6 @@ class ShowEvents extends Component
 
     public $includeDeleted = false;
     public $search = '';
-    public $selectedOrganization = '';
     public $startDate;
     public $endDate;
     public $statusFilter = 'all';
@@ -26,14 +25,6 @@ class ShowEvents extends Component
     {
         $this->authorize('events.read');
         $this->startDate = now()->format('Y-m-d');
-
-        // Set default organization for superadmin if none selected
-        if (auth()->user()->hasRole('superadmin') && empty($this->selectedOrganization)) {
-            $firstOrg = Organization::first();
-            if ($firstOrg) {
-                $this->selectedOrganization = $firstOrg->id;
-            }
-        }
     }
 
     public function getEventsProperty()
@@ -46,9 +37,6 @@ class ShowEvents extends Component
                         ->orWhere('description', 'like', '%' . $this->search . '%')
                         ->orWhere('location', 'like', '%' . $this->search . '%');
                 });
-            })
-            ->when($this->selectedOrganization && $this->selectedOrganization !== 'all', function ($query) {
-                $query->where('organization_id', $this->selectedOrganization);
             })
             ->when($this->startDate, function ($query) {
                 $query->where('date', '>=', $this->startDate);
@@ -83,11 +71,6 @@ class ShowEvents extends Component
     }
 
     public function updatedSearch()
-    {
-        $this->resetPage();
-    }
-
-    public function updatedSelectedOrganization()
     {
         $this->resetPage();
     }

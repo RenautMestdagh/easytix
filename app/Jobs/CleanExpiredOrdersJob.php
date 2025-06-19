@@ -36,8 +36,7 @@ class CleanExpiredOrdersJob implements ShouldQueue
 
         foreach($expiredOrders as $expiredOrder) {
             $customer = Customer::find($expiredOrder->customer_id);
-            $expiredOrder->tickets()->delete();
-            $expiredOrder->delete();
+            $expiredOrder->delete();    // tickets and discount codes will be deleted in model event listener
             if($customer?->orders->isEmpty() && $customer?->temporaryOrders->isEmpty()) {
                 Customer::withoutGlobalScopes()->where('id', $customer->id)->delete();
             }

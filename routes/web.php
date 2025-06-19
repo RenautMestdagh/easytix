@@ -5,6 +5,9 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\TicketController;
 use App\Http\Middleware\SubdomainOrganizationMiddleware;
+use App\Livewire\Backend\Discountcodes\CreateDiscountCode;
+use App\Livewire\Backend\Discountcodes\EditDiscountCode;
+use App\Livewire\Backend\DiscountCodes\ShowDiscountCodes;
 use App\Livewire\Backend\Events\CreateEvent;
 use App\Livewire\Backend\Events\EditEvent;
 use App\Livewire\Backend\Events\ShowEvents;
@@ -84,6 +87,10 @@ Route::middleware(['auth', 'verified', SubdomainOrganizationMiddleware::class])-
     Route::get('/events/{event}/tickets', ShowTypes::class)->name('tickettypes.show');
     Route::get('/events/{event}/tickets/create', CreateTicketType::class)->name('tickettypes.create');
     Route::get('/events/{event}/ticket-types/{ticketType}/edit', EditTicketType::class)->name('tickettypes.edit');
+
+    Route::get('/discount-codes', ShowDiscountCodes::class)->name('discount-codes.index');
+    Route::get('/discount-codes/create', CreateDiscountCode::class)->name('discount-codes.create');
+    Route::get('/discount-codes/{discountCode}/edit', EditDiscountCode::class)->name('discount-codes.edit');
 });
 
 require __DIR__ . '/auth.php';
