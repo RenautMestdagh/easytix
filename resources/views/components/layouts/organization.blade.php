@@ -20,6 +20,8 @@
                      class="h-full object-contain">
             </div>
         </div>
+    @else
+        <div class="h-20"></div>
     @endif
 
     <!-- Main Content -->

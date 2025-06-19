@@ -1,5 +1,5 @@
 <div>
-    @include('partials.tenant-event.order-summary')
+
     <div class="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-lg p-8">
         <h1 class="mb-6 text-2xl">Personal Information</h1>
         <p class="text-sm text-gray-500 mb-4">* Indicates required field</p>
@@ -97,34 +97,43 @@
                     </x-ui.forms.select>
                 </x-ui.forms.group>
             </div>
+        </div>
+    </div>
 
-            <div class="flex justify-between mt-6">
-                <div>
-                    <x-ui.button
-                        variant="secondary"
-                        wire:click="backToTickets"
-                        wire:loading.attr="disabled"
-                    >
-                        Back to tickets
-                    </x-ui.button>
-                </div>
+    {{-- Discount section--}}
+    <div class="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-lg p-8 my-8">
+        <h1 class="mb-6 text-2xl">Discount</h1>
 
-                <div>
-                    <x-ui.button
-                        variant="primary"
-                        wire:click="proceedToPayment"
-                        wire:loading.attr="disabled"
-                        wire:target="proceedToPayment"
-                    >
+    </div>
+
+    @include('partials.tenant-event.order-summary')
+
+    <div class="flex justify-between mt-6">
+        <div>
+            <x-ui.button
+                variant="secondary"
+                wire:click="backToTickets"
+                wire:loading.attr="disabled"
+            >
+                Back to tickets
+            </x-ui.button>
+        </div>
+
+        <div>
+            <x-ui.button
+                variant="primary"
+                wire:click="proceedToPayment"
+                wire:loading.attr="disabled"
+                wire:target="proceedToPayment"
+            >
                         <span wire:loading.remove wire:target="proceedToPayment">
                             Proceed to payment
                         </span>
-                        <span wire:loading wire:target="proceedToPayment">
+                <span wire:loading wire:target="proceedToPayment">
                             Processing...
                         </span>
-                    </x-ui.button>
-                </div>
-            </div>
+            </x-ui.button>
         </div>
     </div>
+
 </div>
