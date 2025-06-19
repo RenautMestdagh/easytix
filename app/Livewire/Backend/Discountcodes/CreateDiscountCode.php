@@ -29,7 +29,15 @@ class CreateDiscountCode extends Component
                 'required',
                 'string',
                 'max:50',
-                'unique:discount_codes,code',
+                function ($attribute, $value, $fail) {
+                    $exists = DiscountCode::where('organization_id', session('organization_id'))
+                        ->where('code', strtoupper($value))
+                        ->exists();
+
+                    if ($exists) {
+                        $fail(__('This discount code already exists.'));
+                    }
+                },
             ],
             'event_id' => 'nullable|exists:events,id',
             'discount_percent' => [
