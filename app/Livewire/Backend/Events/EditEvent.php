@@ -34,6 +34,8 @@ class EditEvent extends Component
     {
         $this->authorize('events.update', $event);
 
+        session()->put('events.edit.referrer', request('referrer', url()->previous()));
+
         $this->event = $event;
         $this->name = $event->name;
         $this->description = $event->description;
@@ -177,8 +179,7 @@ class EditEvent extends Component
             session()->flash('message', __('Event successfully updated.'));
             session()->flash('message_type', 'success');
 
-            return redirect()->route('events.index');
-
+            return redirect(session()->pull('events.edit.referrer', route('events.index')));
         } catch (\Exception $e) {
             Log::error($e);
             session()->flash('message', __('An error occurred while updating the event.'));

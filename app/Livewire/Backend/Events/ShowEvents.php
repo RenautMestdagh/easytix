@@ -120,8 +120,8 @@ class ShowEvents extends Component
         $ticketTypes = $event->ticketTypes;
 
         foreach ($ticketTypes as $ticketType) {
-            if($ticketType->tickets->count() > 0) {
-                session()->flash('message', __('Cannot permanently delete event with tickets.'));
+            if($ticketType->tickets->count() + $ticketType->reservedTickets->count() > 0) {
+                session()->flash('message', __('Cannot permanently delete event with (reserved) tickets.'));
                 session()->flash('message_type', __('error'));
                 $this->dispatch('flash-message');
                 return;
