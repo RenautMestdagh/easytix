@@ -14,6 +14,8 @@ trait NavigateEventCheckout
     public $tempOrder_checkout_stage;
     private $tempOrder;
     public $quantities = [];
+    public $appliedDiscounts = [];
+    public $discountAmount;
     public $orderTotal;
 
     public $timeRemaining;
@@ -46,7 +48,11 @@ trait NavigateEventCheckout
 
         if(empty($this->tempOrder) && $this->timeRemaining !== 'EXPIRED')
             $this->newTemporaryOrder();
-        else if($this->tempOrder->isExpired())
+
+        if(empty($this->tempOrder))
+            return;
+
+        if($this->tempOrder->isExpired())
             return $this->orderExpired();
 
         $this->tempOrder_checkout_stage = $this->tempOrder->checkout_stage;
@@ -64,9 +70,10 @@ trait NavigateEventCheckout
                 ];
             })->all();
 
-            $this->orderTotal = collect($this->quantities)->sum(function($ticket) {
-                return $ticket->price_cents * $ticket->amount;
-            });
+            if($this->tempOrder->checkout_stage > 0) {
+                $this->loadAppliedDiscounts();
+                $this->calculateOrderTotal();
+            }
         }
 
         if($this->tempOrder->checkout_stage < 3)
@@ -138,6 +145,38 @@ trait NavigateEventCheckout
             }
             $this->pollInterval = 1000; // 1 second
         }
+    }
+
+    protected function calculateOrderTotal()
+    {
+        $subtotal = collect($this->quantities)->sum(function($ticket) {
+            return $ticket->price_cents * $ticket->amount;
+        });
+
+        if (!$this->appliedDiscounts->isEmpty()) {
+            // Check that all discounts are of the same type
+            $sum_percentage = $this->appliedDiscounts->sum('discount_percent');
+            $sum_fixed = $this->appliedDiscounts->sum('discount_fixed_cents');
+
+            if (!empty($sum_percentage) && !empty($sum_fixed)) {
+                throw new \Exception('All discounts in an order must be of the same type');
+            }
+
+            if (!empty($sum_percentage)) {
+                $this->discountAmount = $subtotal * ($sum_percentage / 100);
+            } else if (!empty($sum_fixed)) {
+                $this->discountAmount = $sum_fixed;
+            }
+        } else {
+            $this->discountAmount = 0;
+        }
+
+        $this->orderTotal = max(0, $subtotal - $this->discountAmount);
+    }
+
+    protected function loadAppliedDiscounts()
+    {
+        $this->appliedDiscounts = $this->tempOrder->discountCodes()->get();
     }
 
     /**

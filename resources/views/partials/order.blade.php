@@ -6,7 +6,7 @@
         <div class="bg-white dark:bg-zinc-700 rounded-2xl shadow-xl overflow-hidden">
             <!-- Header -->
             <div class="bg-gray-800 dark:bg-zinc-800 px-6 py-8 text-center relative">
-                <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JhaW4iIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSIxIiBmaWxsPSJ3aGl0ZSIgb3BhY2l0eT0iMC4xIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0idXJsKCNncmFpbikiLz48L3N2Zz4=')] opacity-10"></div>
+                <div class="absolute inset-0 opacity-10"></div>
                 <div class="relative z-10">
                     <div class="text-5xl mb-4">🎉</div>
                     <h1 class="text-3xl font-bold text-white">Order Confirmation</h1>
@@ -61,15 +61,37 @@
                             </thead>
                             <tbody class="bg-white dark:bg-zinc-600 divide-y divide-gray-200 dark:divide-zinc-500">
                             @foreach($quantities as $id => $ticketType)
+                                @if($ticketType->amount == 0) @continue @endif
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{{ $ticketType->name }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{{ $ticketType->amount }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">€{{ number_format($ticketType->price_cents / 100, 2) }}</td>
                                 </tr>
                             @endforeach
+
+                            @if(count($appliedDiscounts) > 0)
+                                <tr class="bg-gray-50 dark:bg-zinc-700 font-semibold">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100" colspan="2">Subtotal</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                                        €{{ number_format($subtotal / 100, 2) }}
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td colspan="2" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                        Discounts
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-red-500 dark:text-red-400">
+                                        -€{{ number_format( $discountAmount / 100, 2) }}
+                                    </td>
+                                </tr>
+                            @endif
+
                             <tr class="bg-gray-50 dark:bg-zinc-700 font-bold">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100" colspan="2">Total</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">€{{ number_format($orderTotal / 100, 2) }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                                    €{{ number_format($orderTotal / 100, 2) }}
+                                </td>
                             </tr>
                             </tbody>
                         </table>

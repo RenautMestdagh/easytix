@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 #[ScopedBy([DiscountCodeOrganizationScope::class])]
 class DiscountCode extends Model
@@ -41,12 +42,24 @@ class DiscountCode extends Model
     {
         return $this->belongsToMany(Order::class, 'discount_code_orders', 'discount_code_id', 'order_id')
             ->wherePivotNotNull('order_id')
-            ->withPivot(['temporary_order_id', 'created_at']);
+            ->withPivot(['temporary_order_id']);
     }
 
-    public function allOrders()
+    public function temporaryOrders()
     {
-        return $this->belongsToMany(Order::class, 'discount_code_orders')
-            ->withPivot(['temporary_order_id', 'created_at']);
+        return $this->belongsToMany(Order::class, 'discount_code_orders', 'discount_code_id', 'temporary_order_id')
+            ->wherePivotNotNull('temporary_order_id')
+            ->withPivot(['order_id']);
+    }
+
+    public function getAllUsesCount()
+    {
+        return DB::table('discount_code_orders')
+            ->where('discount_code_id', $this->id)
+            ->where(function($query) {
+                $query->whereNotNull('order_id')
+                    ->orWhereNotNull('temporary_order_id');
+            })
+            ->count();
     }
 }

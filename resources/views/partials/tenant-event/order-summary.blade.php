@@ -29,6 +29,24 @@
         @endforeach
     </div>
 
+    @if(count($appliedDiscounts) > 0)
+        <div class="mt-4 border-b dark:border-gray-700">
+            <div class="flex flex-wrap items-center mb-2 mt-2 text-gray-800 dark:text-gray-200">
+                <h3 class="font-bold text-lg w-full sm:w-auto sm:flex-1">
+                    Discounts
+                </h3>
+
+                <div class="flex items-center justify-between w-full sm:w-auto mt-2 sm:mt-0">
+                    <div class="flex items-center">
+                        <span class="px-4 py-2 text-red-500 dark:text-red-400 tabular-nums">
+                            -€{{ number_format(($discountAmount) / 100, 2) }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <div class="mt-8">
         <div class="flex flex-wrap items-center mb-2 mt-2 text-gray-800 dark:text-gray-200">
             <h3 class="font-bold text-lg w-full sm:w-auto sm:flex-1">

@@ -325,6 +325,6 @@ class EditEvent extends Component
 
     public function cancel()
     {
-        return redirect()->route('events.index');
+        return redirect(session()->pull('events.edit.referrer', route('events.index')));
     }
 }

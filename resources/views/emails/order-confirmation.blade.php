@@ -390,18 +390,32 @@
             </tr>
             </thead>
             <tbody>
-            @foreach($quantities as $id => $ticketType)
-                @if($ticketType->amount == 0) @continue @endif
-                <tr>
-                    <td>{{ $ticketType->name }}</td>
-                    <td>{{ $ticketType->amount }}</td>
-                    <td>€ {{ number_format($ticketType->price_cents / 100, 2) }} EUR</td>
+
+                @foreach($quantities as $id => $ticketType)
+                    @if($ticketType->amount == 0) @continue @endif
+                    <tr>
+                        <td>{{ $ticketType->name }}</td>
+                        <td>{{ $ticketType->amount }}</td>
+                        <td>€ {{ number_format($ticketType->price_cents / 100, 2) }} EUR</td>
+                    </tr>
+                @endforeach
+
+                @if(count($appliedDiscounts) > 0)
+                    <tr class="total-row">
+                        <td colspan="2"><strong>Subtotal</strong></td>
+                        <td><strong>€ {{ number_format($subtotal / 100, 2) }} EUR</strong></td>
+                    </tr>
+
+                    <tr>
+                        <td colspan="2">Discount</td>
+                        <td>-€{{ number_format($discountAmount / 100, 2) }}</td>
+                    </tr>
+               @endif
+                <tr class="total-row">
+                    <td colspan="2"><strong>Total</strong></td>
+                    <td><strong>€ {{ number_format($orderTotal / 100, 2) }} EUR</strong></td>
                 </tr>
-            @endforeach
-            <tr class="total-row">
-                <td colspan="2"><strong>Total</strong></td>
-                <td><strong>€ {{ number_format($orderTotal / 100, 2) }} EUR</strong></td>
-            </tr>
+
             </tbody>
         </table>
 

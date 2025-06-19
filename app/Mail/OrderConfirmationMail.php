@@ -17,6 +17,9 @@ class OrderConfirmationMail extends Mailable
     public $event;
     public $quantities;
     public $orderTotal;
+    public $discountAmount;
+    public $appliedDiscounts;
+    public $subtotal;
 
     /**
      * Create a new message instance.
@@ -24,7 +27,9 @@ class OrderConfirmationMail extends Mailable
     public function __construct(Order $order)
     {
         $this->order = $order;
-        $this->event = $order->event; // Assuming all tickets are for same event
+        $this->event = $order->event;
+        $this->appliedDiscounts = $order->discountCodes()->get();
+
         $this->quantities = $this->event->ticketTypes->mapWithKeys(function ($ticket) {
             return [
                 $ticket->id => (object) [
@@ -37,9 +42,24 @@ class OrderConfirmationMail extends Mailable
             ];
         })->all();
 
-        $this->orderTotal = collect($this->quantities)->sum(function($ticket) {
+        $this->subtotal = collect($this->quantities)->sum(function($ticket) {
             return $ticket->price_cents * $ticket->amount;
         });
+
+        // Calculate discount amount
+        $this->discountAmount = 0;
+        if (!$this->appliedDiscounts->isEmpty()) {
+            $sum_percentage = $this->appliedDiscounts->sum('discount_percent');
+            $sum_fixed = $this->appliedDiscounts->sum('discount_fixed_cents');
+
+            if (!empty($sum_percentage)) {
+                $this->discountAmount = $this->subtotal * ($sum_percentage / 100);
+            } else if (!empty($sum_fixed)) {
+                $this->discountAmount = $sum_fixed;
+            }
+        }
+
+        $this->orderTotal = max(0, $this->subtotal - $this->discountAmount);
     }
 
     /**

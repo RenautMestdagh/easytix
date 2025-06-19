@@ -10,7 +10,7 @@ class OrderController extends Controller
 {
     public function show(Request $request, $subdomain, $orderUniqid)
     {
-        $order = Order::with(['tickets.ticketType.event'])
+        $order = Order::with(['tickets.ticketType.event', 'discountCodes'])
             ->where('uniqid', $orderUniqid)
             ->firstOrFail();
 
@@ -33,19 +33,37 @@ class OrderController extends Controller
             $quantities[$ticketTypeId]->amount++;
         }
 
-        $orderTotal = collect($quantities)->sum(function($ticket) {
+        $subtotal = collect($quantities)->sum(function($ticket) {
             return $ticket->price_cents * $ticket->amount;
         });
+
+        // Calculate discount amount
+        $discountAmount = 0;
+        if ($order->discountCodes->isNotEmpty()) {
+            $sumPercentage = $order->discountCodes->sum('discount_percent');
+            $sumFixed = $order->discountCodes->sum('discount_fixed_cents');
+
+            if ($sumPercentage > 0) {
+                $discountAmount = $subtotal * ($sumPercentage / 100);
+            } elseif ($sumFixed > 0) {
+                $discountAmount = $sumFixed;
+            }
+        }
+
+        $orderTotal = max(0, $subtotal - $discountAmount);
 
         return view('partials.order', [
             'order' => $order,
             'event' => $order->event,
             'quantities' => $quantities,
+            'subtotal' => $subtotal,
+            'discountAmount' => $discountAmount,
             'orderTotal' => $orderTotal,
+            'appliedDiscounts' => $order->discountCodes,
         ])->layout('components.layouts.organization', [
             'backgroundOverride' => $order->event->background_image_url ?? null,
             'logoOverride' => $order->event->header_image_url ?? null,
-            'organization' => $order->event->organization // Make sure to pass the organization
+            'organization' => $order->event->organization
         ]);
     }
 }

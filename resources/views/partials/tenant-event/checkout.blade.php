@@ -104,6 +104,58 @@
     <div class="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-lg p-8 my-8">
         <h1 class="mb-6 text-2xl">Discount</h1>
 
+        <div class="flex flex-col sm:flex-row gap-4 mb-6">
+            <div class="flex-1">
+                <x-ui.forms.group label="Discount Code" for="discountCode" error="discountError">
+                    <x-ui.forms.input
+                        name="discountCode"
+                        id="discountCode"
+                        wire:model="discountCode"
+                        placeholder="Enter discount code"
+                    />
+                </x-ui.forms.group>
+            </div>
+
+            <div class="sm:mt-7">
+                <x-ui.button
+                    variant="primary"
+                    wire:click="applyDiscount"
+                    wire:loading.attr="disabled"
+                >
+                    Apply
+                </x-ui.button>
+            </div>
+        </div>
+
+        @if(count($appliedDiscounts) > 0)
+            <div class="space-y-2">
+                <h3 class="font-medium">Applied Discounts:</h3>
+                <div>
+                    @foreach($appliedDiscounts as $discount)
+                        <div class="flex justify-between items-center py-2 border-b last:border-b-0 dark:border-gray-700">
+                        <span>
+                            {{ $discount->code }}
+                        </span>
+                            <div class="flex gap-8">
+                            <span class="opacity-65">
+                            {{ !empty($discount->discount_percent) ? $discount->discount_percent.'%' : '€'.number_format($discount->discount_fixed_cents/100, 2) }}
+                            </span>
+                                <button
+                                    type="button"
+                                    wire:click="removeDiscount({{ $discount->id }})"
+                                    class="text-red-500 hover:text-red-700 hover:cursor-pointer"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+            </div>
+        @endif
     </div>
 
     @include('partials.tenant-event.order-summary')

@@ -48,7 +48,8 @@ class EditDiscountCode extends Component
                 'max:50',
                 function ($attribute, $value, $fail) {
                     $exists = DiscountCode::where('organization_id', session('organization_id'))
-                        ->where('code', strtoupper($value))
+                        ->where('code', $value)
+                        ->where('id', '!=', $this->discountCode->id) // Exclude current discount code
                         ->exists();
 
                     if ($exists) {
@@ -103,7 +104,7 @@ class EditDiscountCode extends Component
 
         $updateData = [
             'event_id' => $this->event_id,
-            'code' => strtoupper($this->code),
+            'code' => $this->code,
             'discount_percent' => $this->discount_type === 'percent' ? $this->discount_percent : null,
             'discount_fixed_cents' => $this->discount_type === 'fixed' ? $discountFixedCents : null,
             'max_uses' => $this->max_uses,

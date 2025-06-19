@@ -65,6 +65,7 @@ class TemporaryOrder extends Model
 
     public function resetExpiry()
     {
+        $this->discountCodes()->detach();
         $this->update([
             'expires_at' => now()->addMinutes(self::TEMPORARY_EXPIRATION_MINUTES)
         ]);

@@ -3,6 +3,7 @@
 namespace App\Livewire\Frontend;
 
 use App\Models\Customer;
+use App\Models\DiscountCode;
 use App\Traits\NavigateEventCheckout;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
@@ -22,6 +23,9 @@ class EventCheckout extends Component
     public $address;
     public $city;
     public $country;
+
+    public $discountCode = '';
+    public $discountError = '';
 
     protected $rules = [
         'first_name' => 'required|string|max:255',
@@ -112,6 +116,78 @@ class EventCheckout extends Component
         }
     }
 
+    public function applyDiscount()
+    {
+        if($this->tempOrder->checkout_stage !== 1) return;
+
+        $this->resetErrorBag('discountError');
+        if (empty($this->discountCode)) {
+            $this->addError('discountError', 'Please enter a discount code');
+            return;
+        }
+        // Validate the discount code is not empty
+        $this->validate([
+            'discountCode' => 'required|string'
+        ], [
+            'discountCode.required' => 'Please enter a discount code'
+        ]);
+
+        // cant do it with normal where because thats case insensitive
+        $discount = DiscountCode::whereRaw('BINARY code = ?', [$this->discountCode])
+            ->where(function($query) {
+                $query->where('event_id', $this->event->id)
+                    ->orWhere('organization_id', $this->event->organization_id);
+            })
+            ->first();
+
+        if (!$discount) {
+            $this->addError('discountError', 'Invalid discount code');
+            return;
+        }
+
+        // Check if code is already applied
+        if ($this->tempOrder->discountCodes()->where('code', $this->discountCode)->exists()) {
+            $this->addError('discountError', 'Discount code already applied');
+            return;
+        }
+
+        // Check if new discount type conflicts with existing discounts
+        $newDiscountType = $discount->discount_percent ? 'percent' : 'fixed';
+        $existingDiscounts = $this->tempOrder->discountCodes()->get();
+
+        if ($existingDiscounts->isNotEmpty()) {
+            $existingType = $existingDiscounts->first()->discount_percent ? 'percent' : 'fixed';
+            if ($existingType !== $newDiscountType) {
+                $this->addError('discountError', 'This discount cannot be combined with already applied discounts.');
+                return;
+            }
+        }
+
+        // Apply discount
+        $this->tempOrder->discountCodes()->attach($discount->id);
+
+        // Check max uses
+        if ($discount->max_uses && $discount->getAllUsesCount() > $discount->max_uses) {
+            $this->tempOrder->discountCodes()->detach($discount->id);
+            $this->addError('discountError', 'Discount code has reached maximum uses');
+            return;
+        }
+
+        $this->discountCode = '';
+        $this->loadAppliedDiscounts();
+        $this->calculateOrderTotal();
+    }
+
+    public function removeDiscount($discountId)
+    {
+        if($this->tempOrder->checkout_stage !== 1) return;
+
+        $this->tempOrder->discountCodes()->detach($discountId);
+        $this->loadAppliedDiscounts();
+        $this->calculateOrderTotal();
+    }
+
+
     public function backToTickets()
     {
         try {
@@ -127,20 +203,13 @@ class EventCheckout extends Component
     {
         $this->saveCustomerData();
 
-        $orderTotal = $this->tempOrder->tickets()
-            ->with('ticketType') // Eager load the ticketType relationship
-            ->get()
-            ->groupBy('ticket_type_id')
-            ->sum(function ($tickets) {
-                $firstTicket = $tickets->first();
-                return $firstTicket->ticketType->price_cents * $tickets->count();
-            });
+        $this->calculateOrderTotal();
 
         if(!$this->tempOrder->payment_id) {
             // Create Stripe payment intent
             $stripe = new StripeClient(config('app.stripe.secret'));
             $paymentIntent = $stripe->paymentIntents->create([
-                'amount' => $orderTotal,
+                'amount' => $this->orderTotal,
                 'currency' => 'eur',
                 'automatic_payment_methods' => ['enabled' => true],
             ]);

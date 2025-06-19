@@ -68,12 +68,16 @@ class CheckTemporaryOrderStatus implements ShouldQueue
                         'order_id' => $order->id,
                         'temporary_order_id' => null
                     ]);
+                    $tempOrder->discountCodes()->update([
+                        'order_id' => $order->id,
+                        'temporary_order_id' => null
+                    ]);
+                    $tempOrder->delete();
 
                     // Send confirmation email
-                    Mail::to($tempOrder->customer->email)
+                    Mail::to($order->customer->email)
                         ->send(new OrderConfirmationMail($order->fresh()->load('tickets')));
 
-                    $tempOrder->delete();
                     break;
                 case 'processing':
                 case 'requires_action':
