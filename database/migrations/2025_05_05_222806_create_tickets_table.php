@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('ticket_type_id')->constrained('ticket_types');
             $table->string('qr_code')->unique();
             $table->timestamp('scanned_at')->nullable();
+            $table->foreignId('scanned_by')->nullable()->constrained('users');
             $table->timestamps();
         });
 

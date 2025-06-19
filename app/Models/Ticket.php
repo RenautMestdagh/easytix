@@ -20,6 +20,7 @@ class Ticket extends Model
         'ticket_type_id',
         'qr_code',
         'scanned_at',
+        'scanned_by',
     ];
 
     public function order()

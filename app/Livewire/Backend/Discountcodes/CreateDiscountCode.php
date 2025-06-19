@@ -19,7 +19,7 @@ class CreateDiscountCode extends Component
 
     public function mount()
     {
-        $this->authorize('discount codes.create');
+        $this->authorize('discount-codes.create');
     }
 
     protected function rules()
@@ -75,7 +75,7 @@ class CreateDiscountCode extends Component
 
     public function store()
     {
-        $this->authorize('discount codes.create');
+        $this->authorize('discount-codes.create');
         $validatedData = $this->validate();
 
         // Convert euros to cents if fixed discount

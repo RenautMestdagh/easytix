@@ -3,6 +3,7 @@
 namespace App\Livewire\Backend\Events;
 
 use App\Models\Event;
+use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -43,12 +44,12 @@ class CreateEvent extends Component
 
         // Handle file upload validation separately
         if (in_array($propertyName, ['event_image', 'header_image', 'background_image'])) {
-            $this->validateOnly($propertyName, $this->fileRules());
+            $this->validateOnly($propertyName, $this->fileRules(), $this->fileMessages());
             return;
         }
 
         // Handle other field validation
-        $this->validateOnly($propertyName, $this->rules());
+        $this->validateOnly($propertyName, $this->rules(), $this->messages());
     }
 
     protected function rules()
@@ -74,6 +75,37 @@ class CreateEvent extends Component
         ];
     }
 
+    protected function messages()
+    {
+        return [
+            'name.required' => 'The event name is required.',
+            'name.string' => 'The event name must be a string.',
+            'name.max' => 'The event name may not be greater than :max characters.',
+
+            'description.string' => 'The description must be a string.',
+
+            'location.required' => 'The event location is required.',
+            'location.string' => 'The event location must be a string.',
+            'location.max' => 'The event location may not be greater than :max characters.',
+
+            'date.required' => 'The event date is required.',
+            'date.date' => 'The event date must be a valid date.',
+            'date.after' => 'The event date must be a date in the future.',
+
+            'max_capacity.integer' => 'The maximum capacity must be an integer.',
+            'max_capacity.min' => 'The maximum capacity must be at least :min.',
+
+            'publish_option.required' => 'The publish option is required.',
+            'publish_option.in' => 'The selected publish option is invalid.',
+
+            'publish_at.required_if' => 'The publish date is required when the publish option is "schedule".',
+            'publish_at.date' => 'The publish date must be a valid date.',
+            'publish_at.after' => 'The publish date must be a date in the future.',
+            // The custom closure message is already handled within the rule itself,
+            // so you don't define a key for it here.
+        ];
+    }
+
     protected function fileRules()
     {
         return [
@@ -83,15 +115,33 @@ class CreateEvent extends Component
         ];
     }
 
+    protected function fileMessages()
+    {
+        return [
+            'event_image.image' => 'The event image must be a valid image file (jpeg, png, bmp, gif, svg, webp).',
+            'event_image.max' => 'The event image may not be larger than 2 MB.',
+            'header_image.image' => 'The header image must be a valid image file (jpeg, png, bmp, gif, svg, webp).',
+            'header_image.max' => 'The header image may not be larger than 2 MB.',
+            'background_image.image' => 'The background image must be a valid image file (jpeg, png, bmp, gif, svg, webp).',
+            'background_image.max' => 'The background image may not be larger than 5 MB.',
+        ];
+    }
+
     public function store()
     {
         $this->authorize('events.create');
 
         // Validate all fields
-        $validatedData = $this->validate(array_merge(
-            $this->rules(),
-            $this->fileRules()
-        ));
+        $validatedData = $this->validate(
+            array_merge(
+                $this->rules(),
+                $this->fileRules()
+            ),
+            array_merge(
+                $this->messages(),
+                $this->fileMessages()
+            )
+        );
 
         try {
             // Determine publish status
@@ -114,7 +164,8 @@ class CreateEvent extends Component
                         'user_id' => Auth::id(),
                     ]);
                     break;
-                } catch (QueryException $e) {}
+                } catch (QueryException $e) {
+                }
             }
 
             // Handle file uploads
@@ -135,7 +186,7 @@ class CreateEvent extends Component
 
             return redirect()->route('tickettypes.show', $event);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error($e);
             session()->flash('message', __('An error occurred while creating the event.'));
             session()->flash('message_type', 'error');

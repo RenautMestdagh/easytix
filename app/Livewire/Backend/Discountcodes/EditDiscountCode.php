@@ -36,7 +36,7 @@ class EditDiscountCode extends Component
             $this->discount_fixed_euros = number_format($discountCode->discount_fixed_cents / 100, 2);
         }
 
-        $this->authorize('discount codes.update', $discountCode);
+        $this->authorize('discount-codes.update', $discountCode);
     }
 
     protected function rules()
@@ -93,7 +93,7 @@ class EditDiscountCode extends Component
 
     public function update()
     {
-        $this->authorize('discount codes.update', $this->discountCode);
+        $this->authorize('discount-codes.update', $this->discountCode);
         $validatedData = $this->validate();
 
         // Convert euros to cents if fixed discount

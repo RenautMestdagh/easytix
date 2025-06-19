@@ -19,7 +19,7 @@ class ShowTypes extends Component
                     ->withCount('reservedTickets');
             },
         ]);
-        $this->authorize('ticket types.read');
+        $this->authorize('ticket-types.read');
     }
 
     public function deleteTicketType($ticketTypeId)

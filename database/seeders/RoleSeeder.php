@@ -19,7 +19,7 @@ class RoleSeeder extends Seeder
         ],
         'organizations' => [
             'superadmin' => ['create', 'read', 'update', 'delete'],
-            'admin' => ['update'],
+            'admin' => ['update', 'update-media'],
             'organizer' => [],
         ],
         'events' => [
@@ -27,12 +27,12 @@ class RoleSeeder extends Seeder
             'admin' => ['create', 'read', 'update', 'delete'],
             'organizer' => ['create', 'read', 'update', 'delete'],
         ],
-        'discount codes' => [
+        'discount-codes' => [
             'superadmin' => [],
             'admin' => ['create', 'read', 'update', 'delete'],
             'organizer' => ['create', 'read', 'update', 'delete'],
         ],
-        'ticket types' => [
+        'ticket-types' => [
             'superadmin' => [],
             'admin' => ['create', 'read', 'update', 'delete'],
             'organizer' => ['create', 'read', 'update', 'delete'],
@@ -41,6 +41,11 @@ class RoleSeeder extends Seeder
             'superadmin' => [],
             'admin' => ['create', 'read', 'update', 'delete'],
             'organizer' => ['read'],
+        ],
+        'scan' => [
+            'superadmin' => [],
+            'admin' => ['use'],
+            'organizer' => ['use'],
         ],
         'login-as' => [
             'superadmin' => ['use'],

@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrganizationController;
+use App\Http\Controllers\ScanController;
 use App\Http\Controllers\TicketController;
 use App\Http\Middleware\SubdomainOrganizationMiddleware;
 use App\Livewire\Backend\Discountcodes\CreateDiscountCode;
@@ -91,6 +92,9 @@ Route::middleware(['auth', 'verified', SubdomainOrganizationMiddleware::class])-
     Route::get('/discount-codes', ShowDiscountCodes::class)->name('discount-codes.index');
     Route::get('/discount-codes/create', CreateDiscountCode::class)->name('discount-codes.create');
     Route::get('/discount-codes/{discountCode}/edit', EditDiscountCode::class)->name('discount-codes.edit');
+
+    Route::get('/ticketscanner', [ScanController::class, 'show'])->name('scanner.show');
+    Route::post('/scan-ticket', [ScanController::class, 'scan'])->name('scanner.use');
 });
 
 require __DIR__ . '/auth.php';

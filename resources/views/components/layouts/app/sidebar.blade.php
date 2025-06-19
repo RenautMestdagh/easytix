@@ -43,7 +43,7 @@
                 </flux:navlist.group>
             </flux:navlist>
 
-            @unlessrole('superadmin')
+            @can('events.read')
             <flux:navlist.item
                 icon="calendar"
                 :href="route('events.index')"
@@ -52,7 +52,9 @@
             >
                 {{ __('Events') }}
             </flux:navlist.item>
+            @endcan
 
+            @can('discount-codes.read')
             <flux:navlist.item
                 icon="tag"
                 :href="route('discount-codes.index')"
@@ -61,9 +63,20 @@
             >
                 {{ __('Discount codes') }}
             </flux:navlist.item>
-            @endunlessrole
+            @endcan
 
-            @hasanyrole('superadmin|admin')
+            @can('scan.use')
+                <flux:navlist.item
+                    icon="camera"
+                    :href="route('scanner.show')"
+                    :current="request()->routeIs('scanner.show')"
+                    wire:navigate
+                >
+                    {{ __('Scan tickets') }}
+                </flux:navlist.item>
+            @endcan
+
+            @can('users.read')
                 <flux:navlist.item
                     icon="users"
                     :href="route('users.index')"
@@ -72,9 +85,9 @@
                 >
                     {{ __('Users') }}
                 </flux:navlist.item>
-            @endhasanyrole
+            @endcan
 
-            @role('superadmin')
+            @can('organizations.read')
             <flux:navlist.item
                 icon="briefcase"
                 :href="route('organizations.index')"
@@ -83,11 +96,11 @@
             >
                 {{ __('Organizations') }}
             </flux:navlist.item>
-            @endrole
+            @endcan
 
             <flux:spacer />
 
-            @role('admin')
+            @can('organizations.update-media')
             <flux:navlist.item
                 icon="paint-brush"
                 :href="route('organizations.media', $organization)"
@@ -96,7 +109,10 @@
             >
                 {{ __('Personalization') }}
             </flux:navlist.item>
+            @endcan
 
+            @role('admin')
+            @can('organizations.update')
             <flux:navlist.item
                 icon="cog-6-tooth"
                 :href="route('organizations.edit', $organization->id)"
@@ -105,6 +121,7 @@
             >
                 {{ __('Organization Settings') }}
             </flux:navlist.item>
+            @endcan
             @endrole
 
 {{--            <flux:navlist variant="outline">--}}

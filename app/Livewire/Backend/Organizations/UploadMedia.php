@@ -20,11 +20,13 @@ class UploadMedia extends Component
 
     public function mount(Organization $organization)
     {
+        $this->authorize('organizations.update-media');
         $this->organization = $organization;
     }
 
     public function save()
     {
+        $this->authorize('organizations.update-media');
         $this->validateRequest();
 
         $updated = false;
@@ -131,6 +133,7 @@ class UploadMedia extends Component
 
     public function removeFavicon()
     {
+        $this->authorize('organizations.update-media');
         $this->deleteExistingFavicon();
         $this->organization->update(['favicon' => null]);
         $this->dispatch('notify',
@@ -141,6 +144,7 @@ class UploadMedia extends Component
 
     public function removeLogo()
     {
+        $this->authorize('organizations.update-media');
         $this->deleteExistingLogo();
         $this->organization->update(['logo' => null]);
         $this->dispatch('notify',
@@ -151,6 +155,7 @@ class UploadMedia extends Component
 
     public function removeBackground()
     {
+        $this->authorize('organizations.update-media');
         $this->deleteExistingBackground();
         $this->organization->update(['background_image' => null]);
         $this->dispatch('notify',
