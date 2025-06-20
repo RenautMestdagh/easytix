@@ -94,7 +94,7 @@ Route::middleware(['auth', 'verified', CheckPermissionMiddleware::class, Subdoma
     Route::get('/discount-codes/create', CreateDiscountCode::class)->name('discount-codes.create');
     Route::get('/discount-codes/{discountCode}/edit', EditDiscountCode::class)->name('discount-codes.update');
 
-    Route::get('/ticketscanner', [ScanController::class, 'show'])->name('scanner.use');
+    Route::get('/ticketscanner', [ScanController::class, 'show'])->name('scanner.show');
     Route::post('/scan-ticket', [ScanController::class, 'scan'])->name('scanner.use');
     // to here should go with CheckPermissionMiddleware
 });

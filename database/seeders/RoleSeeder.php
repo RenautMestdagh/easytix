@@ -39,8 +39,8 @@ class RoleSeeder extends Seeder
         ],
         'scanner' => [
             'superadmin' => [],
-            'admin' => ['use'],
-            'organizer' => ['use'],
+            'admin' => ['show', 'use'],
+            'organizer' => ['show', 'use'],
         ],
         'login-as' => [
             'superadmin' => ['use'],
