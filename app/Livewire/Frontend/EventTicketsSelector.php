@@ -68,34 +68,58 @@ class EventTicketsSelector extends Component
     {
         $soldTickets = $this->event->tickets->count();
         $reservedTickets = $this->event->reserved_tickets->count();
+        $ticketTypeMaxQuantity = $ticketType->available_quantity;
 
-        $ticketType_max_quantity = $ticketType->available_quantity;
+        // Initialize availability variables
+        $availability = [
+            'ticketsLeft' => null,
+            'plusDisabledFrom' => null,
+            'soldout' => false,
+        ];
 
-        // If tickettype has unlimited quantity
-        $ticketsLeft = $this->event->max_capacity - $soldTickets - $reservedTickets;
-        $plusDisabledFrom = $this->event->max_capacity - $soldTickets;
-        $soldout = $soldTickets >= $this->event->max_capacity;
-
-        if($ticketType_max_quantity !== null) {
-            // If tickettype doesnt have unlimited quantity
-            $ticketsLeft = min($ticketsLeft, $ticketType_max_quantity - $reserved - $sold);
-            $plusDisabledFrom = min($plusDisabledFrom, $ticketType_max_quantity - $sold);
-            $soldout |= $sold >= $ticketType_max_quantity;
+        // Calculate based on event capacity if it exists
+        if ($this->event->max_capacity !== null) {
+            $availability['ticketsLeft'] = $this->event->max_capacity - $soldTickets - $reservedTickets;
+            $availability['plusDisabledFrom'] = $this->event->max_capacity - $soldTickets;
+            $availability['soldout'] = $soldTickets >= $this->event->max_capacity;
         }
 
-        if($soldout) {
-            // This case should only happen if the organizer changes ticket quantity or event capacity
-            $this->quantities[$ticketType->id]->amount = 0;
-            $this->tempOrder->tickets->where('ticket_type_id', $ticketType->id)->each(function($ticket) {
+        // Handle ticket type specific limits
+        if ($ticketTypeMaxQuantity !== null) {
+            $ticketTypeAvailable = $ticketTypeMaxQuantity - $reserved - $sold;
+
+            if ($this->event->max_capacity !== null) {
+                // When both event capacity and ticket quantity are set, use the more restrictive value
+                $availability['ticketsLeft'] = min($availability['ticketsLeft'], $ticketTypeAvailable);
+                $availability['plusDisabledFrom'] = min(
+                    $availability['plusDisabledFrom'],
+                    $ticketTypeMaxQuantity - $sold
+                );
+            } else {
+                // When only ticket quantity is set
+                $availability['ticketsLeft'] = $ticketTypeAvailable;
+                $availability['plusDisabledFrom'] = $ticketTypeMaxQuantity - $sold;
+            }
+
+            $availability['soldout'] = $availability['soldout'] || ($sold >= $ticketTypeMaxQuantity);
+        }
+
+        if($availability['soldout'] && $this->quantities[$ticketType->id]->amount) {
+            $this->handleSoldOutTicketType($ticketType);
+        }
+
+        return (object) $availability;
+
+    }
+
+    protected function handleSoldOutTicketType($ticketType)
+    {
+        $this->quantities[$ticketType->id]->amount = 0;
+        $this->tempOrder->tickets
+            ->where('ticket_type_id', $ticketType->id)
+            ->each(function($ticket) {
                 $ticket->delete();
             });
-        }
-
-        return (object)[
-            'ticketsLeft' => $ticketsLeft,
-            'plusDisabledFrom' => $plusDisabledFrom,
-            'soldout' => $soldout,
-        ];
     }
 
     public function increment($ticketTypeId)

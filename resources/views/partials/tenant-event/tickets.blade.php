@@ -53,17 +53,23 @@
                                         {{ $quantities[$ticketType->id]->amount }}
                                     </span>
                                     @php
-                                        $allRemainingTicketsInBasket = $this->event->tickets->count() + collect($this->quantities)->sum('amount') >= $this->event->max_capacity
+                                        // Calculate if all tickets in basket would exceed event capacity
+                                        $basketExceedsCapacity = $this->event->max_capacity && ($this->event->tickets->count() + collect($this->quantities)->sum('amount') >= $this->event->max_capacity);
+
+                                        // Determine if this specific increment button should be disabled
+                                        $disableIncrement = ($remainingQuantities[$ticketType->id]->plusDisabledFrom !== null && $quantities[$ticketType->id]->amount >= $remainingQuantities[$ticketType->id]->plusDisabledFrom) || $basketExceedsCapacity;
                                     @endphp
+
                                     <button
                                         wire:click="increment({{ $ticketType->id }})"
-                                        class="bg-gray-200 text-gray-800 hover:bg-gray-300 disabled:hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 dark:disabled:hover:bg-gray-700 font-bold py-2 px-4 rounded-r disabled:opacity-50  aspect-square h-10 flex items-center justify-center"
-                                        @disabled($quantities[$ticketType->id]->amount >= $remainingQuantities[$ticketType->id]->plusDisabledFrom || $allRemainingTicketsInBasket)
+                                        class="bg-gray-200 text-gray-800 hover:bg-gray-300 disabled:hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 dark:disabled:hover:bg-gray-700 font-bold py-2 px-4 rounded-r disabled:opacity-50  aspect-square h-10 flex items-center justify-center"                                        @disabled($disableIncrement)
                                         wire:loading.attr="disabled"
                                         wire:target="increment({{ $ticketType->id }})"
                                     >
                                         <span class="inline-flex items-center justify-center w-4 h-4">
-                                            <span wire:loading.remove wire:target="increment({{ $ticketType->id }})">+</span>
+                                            <span wire:loading.remove wire:target="increment({{ $ticketType->id }})">
+                                                +
+                                            </span>
                                             <span wire:loading wire:target="increment({{ $ticketType->id }})">
                                                 <svg width="12" height="12" class="stroke-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><style>.spinner_V8m1{transform-origin:center;animation:spinner_zKoa 2s linear infinite}.spinner_V8m1 circle{stroke-linecap:round;animation:spinner_YpZS 1.5s ease-in-out infinite}@keyframes spinner_zKoa{100%{transform:rotate(360deg)}}@keyframes spinner_YpZS{0%{stroke-dasharray:0 150;stroke-dashoffset:0}47.5%{stroke-dasharray:42 150;stroke-dashoffset:-16}95%,100%{stroke-dasharray:42 150;stroke-dashoffset:-59}}</style><g class="spinner_V8m1"><circle cx="12" cy="12" r="9.5" fill="none" stroke-width="3"></circle></g></svg>
                                             </span>

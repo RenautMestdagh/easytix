@@ -3,6 +3,7 @@
 namespace App\Livewire\Frontend;
 
 use App\Traits\NavigateEventCheckout;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Stripe\StripeClient;
 
@@ -37,9 +38,15 @@ class EventPayment extends Component
     {
         if($this->tempOrder->payment_id) {
             $stripe = new StripeClient(config('app.stripe.secret'));
-            $paymentIntent = $stripe->paymentIntents->cancel($this->tempOrder->payment_id, [
-                'cancellation_reason' => 'requested_by_customer'
-            ]);
+            try {
+                $paymentIntent = $stripe->paymentIntents->cancel($this->tempOrder->payment_id, [
+                    'cancellation_reason' => 'requested_by_customer'
+                ]);
+            } catch (\Exception $e) {
+                Log::error($e->getMessage());
+                return;
+            }
+
             $this->tempOrder->payment_id = null;
         }
 

@@ -94,7 +94,7 @@
             <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-300">{{ __('Tickets Remaining') }}</p>
                 <p class="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">
-                    {{ $totalRemaining }}
+                    {{ !$event->max_capacity&&$hasUnlimited ? '∞' : $totalRemaining }}
                 </p>
             </div>
             <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
