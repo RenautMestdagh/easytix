@@ -3,7 +3,6 @@
 namespace App\Livewire\Backend\Tickettypes;
 
 use App\Models\Event;
-use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 
 class ShowTypes extends Component
@@ -19,16 +18,24 @@ class ShowTypes extends Component
                     ->withCount('reservedTickets');
             },
         ]);
-        $this->authorize('ticket-types.read');
+    }
+
+    public function editEvent(Event $event)
+    {
+        session(['events.edit.referrer' => url()->current()]);
+        return redirect()->route('events.update', $event);
     }
 
     public function deleteTicketType($ticketTypeId)
     {
+        $this->authorize('ticket-types.delete');
         $ticketType = $this->event->ticketTypes()->findOrFail($ticketTypeId);
-        if($ticketType->tickets->count() > 0)
-            return false;
-
-        Gate::authorize('tickets.delete', $ticketType);
+        if($ticketType->tickets->count() > 0) {
+            session()->flash('message', __('Cannot delete ticket type with (reserved) tickets.'));
+            session()->flash('message_type', __('error'));
+            $this->dispatch('flash-message');
+            return;
+        }
 
         $ticketType->delete();
 

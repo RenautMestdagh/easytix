@@ -5,6 +5,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\ScanController;
 use App\Http\Controllers\TicketController;
+use App\Http\Middleware\CheckPermissionMiddleware;
 use App\Http\Middleware\SubdomainOrganizationMiddleware;
 use App\Livewire\Backend\Discountcodes\CreateDiscountCode;
 use App\Livewire\Backend\Discountcodes\EditDiscountCode;
@@ -63,7 +64,7 @@ Route::middleware(['guest', SubdomainOrganizationMiddleware::class])->group(func
 });
 
 // Main domain auth routes
-Route::middleware(['auth', 'verified', SubdomainOrganizationMiddleware::class])->group(function () {
+Route::middleware(['auth', 'verified', CheckPermissionMiddleware::class, SubdomainOrganizationMiddleware::class])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::redirect('settings', 'settings/profile');
@@ -73,32 +74,34 @@ Route::middleware(['auth', 'verified', SubdomainOrganizationMiddleware::class])-
 
     Route::get('/organizations', ShowOrganizations::class)->name('organizations.index');
     Route::get('/organizations/create', CreateOrganization::class)->name('organizations.create');
-    Route::get('/organizations/{organization}/edit', EditOrganization::class)->name('organizations.edit');
+    Route::get('/organizations/{organization}/edit', EditOrganization::class)->name('organizations.update');
     Route::get('/organizations/{organization}/media', UploadMedia::class)->name('organizations.media');
 
     Route::get('/users', ShowUsers::class)->name('users.index');
     Route::get('/users/create', CreateUser::class)->name('users.create');
-    Route::get('/users/{user}/edit', EditUser::class)->name('users.edit');
-    Route::post('/switch-back', [ShowUsers::class, 'switchBackToOriginalUser'])->name('switch-back');
+    Route::get('/users/{user}/edit', EditUser::class)->name('users.update');
+    Route::post('/switch-back', [ShowUsers::class, 'switchBackToOriginalUser'])->name('login-as.use');
 
     Route::get('/events', ShowEvents::class)->name('events.index');
     Route::get('/events/create', CreateEvent::class)->name('events.create');
-    Route::get('/events/{event}/edit', EditEvent::class)->name('events.edit');
+    Route::get('/events/{event}/edit', EditEvent::class)->name('events.update');
 
-    Route::get('/events/{event}/tickets', ShowTypes::class)->name('tickettypes.show');
-    Route::get('/events/{event}/tickets/create', CreateTicketType::class)->name('tickettypes.create');
-    Route::get('/events/{event}/ticket-types/{ticketType}/edit', EditTicketType::class)->name('tickettypes.edit');
+    Route::get('/events/{event}/tickets', ShowTypes::class)->name('ticket-types.index');
+    Route::get('/events/{event}/tickets/create', CreateTicketType::class)->name('ticket-types.create');
+    Route::get('/events/{event}/ticket-types/{ticketType}/edit', EditTicketType::class)->name('ticket-types.update');
 
     Route::get('/discount-codes', ShowDiscountCodes::class)->name('discount-codes.index');
     Route::get('/discount-codes/create', CreateDiscountCode::class)->name('discount-codes.create');
-    Route::get('/discount-codes/{discountCode}/edit', EditDiscountCode::class)->name('discount-codes.edit');
+    Route::get('/discount-codes/{discountCode}/edit', EditDiscountCode::class)->name('discount-codes.update');
 
-    Route::get('/ticketscanner', [ScanController::class, 'show'])->name('scanner.show');
+    Route::get('/ticketscanner', [ScanController::class, 'show'])->name('scanner.use');
     Route::post('/scan-ticket', [ScanController::class, 'scan'])->name('scanner.use');
+    // to here should go with CheckPermissionMiddleware
 });
 
 require __DIR__ . '/auth.php';
 
-Route::fallback(function () {
-    return redirect('/');
-});
+if(!app()->environment('local'))
+    Route::fallback(function () {
+        return redirect('/');
+    });

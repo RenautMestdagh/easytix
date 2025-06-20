@@ -17,6 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions) {
+        if(app()->environment('local'))
+            return;
+
         // Handle 404 - Not Found
         $exceptions->render(function (NotFoundHttpException $e, $request) {
             // Try to find the matched route by the request path

@@ -2,19 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use App\Models\Ticket;
-use Illuminate\Support\Facades\Auth;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class ScanController extends Controller
 {
+    use AuthorizesRequests;
     public function show()
     {
-        if (!Auth::user()->can('scan.use')) {
-            throw new AccessDeniedHttpException('Unauthorized action.');
-        }
-
         return view('partials.show-scanner');
     }
 

@@ -32,8 +32,6 @@ class CreateUser extends Component
 
     public function mount()
     {
-        $this->authorize('users.create');
-
         // Get all roles
         $roles = Role::all()->pluck('name', 'name')->toArray();
 
@@ -88,8 +86,6 @@ class CreateUser extends Component
 
     public function save()
     {
-        $this->authorize('users.create');
-
         $validatedData = $this->validate(
             (new StoreUserRequest(
                 (int)$this->organization_id,

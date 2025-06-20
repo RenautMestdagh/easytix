@@ -20,7 +20,6 @@ class CreateTicketType extends Component
     public function mount(Event $event)
     {
         $this->event = $event;
-        $this->authorize('tickets.create');
     }
 
     protected function rules()
@@ -85,7 +84,6 @@ class CreateTicketType extends Component
 
     public function store()
     {
-        $this->authorize('tickets.create');
         $validatedData = $this->validate();
 
         $publishStatus = $this->determinePublishStatus();
@@ -108,7 +106,7 @@ class CreateTicketType extends Component
         session()->flash('message', __('Ticket type created successfully.'));
         session()->flash('message_type', 'success');
 
-        return redirect()->route('tickettypes.show', $this->event);
+        return redirect()->route('ticket-types.index', $this->event);
     }
 
     protected function determinePublishStatus()

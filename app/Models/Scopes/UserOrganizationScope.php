@@ -13,7 +13,7 @@ class UserOrganizationScope implements Scope
      */
     public function apply(Builder $builder, Model $model): void
     {
-        if (request()->routeIs('switch-back')) {
+        if (request()->routeIs('login-as.use')) {
             return;
         }
 

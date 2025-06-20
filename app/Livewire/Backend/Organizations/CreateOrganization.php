@@ -24,7 +24,6 @@ class CreateOrganization extends Component
 
     public function mount()
     {
-        $this->authorize('organizations.create');
     }
 
     /**
@@ -58,7 +57,6 @@ class CreateOrganization extends Component
      */
     public function save()
     {
-        $this->authorize('organizations.create');
 
         // Validate all fields using the FormRequest rules
         $validatedData = $this->validate(

@@ -13,42 +13,39 @@ class RoleSeeder extends Seeder
     // Define the permission matrix
     private array $permissionMatrix = [
         'users' => [
-            'superadmin' => ['create', 'read', 'update', 'delete'],
-            'admin' => ['create', 'read', 'update', 'delete'],
-            'organizer' => ['read'],
+            'superadmin' => [ 'index', 'create', 'update', 'delete'],
+            'admin' => ['index', 'create', 'update', 'delete'],
+            'organizer' => [],
         ],
         'organizations' => [
-            'superadmin' => ['create', 'read', 'update', 'delete'],
-            'admin' => ['update', 'update-media'],
+            'superadmin' => ['index', 'create', 'update', 'delete'],
+            'admin' => ['update', 'media'],
             'organizer' => [],
         ],
         'events' => [
             'superadmin' => [],
-            'admin' => ['create', 'read', 'update', 'delete'],
-            'organizer' => ['create', 'read', 'update', 'delete'],
-        ],
-        'discount-codes' => [
-            'superadmin' => [],
-            'admin' => ['create', 'read', 'update', 'delete'],
-            'organizer' => ['create', 'read', 'update', 'delete'],
+            'admin' => ['index', 'create', 'update', 'delete'],
+            'organizer' => ['index', 'create', 'update'],
         ],
         'ticket-types' => [
             'superadmin' => [],
-            'admin' => ['create', 'read', 'update', 'delete'],
-            'organizer' => ['create', 'read', 'update', 'delete'],
+            'admin' => ['index', 'create', 'update', 'delete'],
+            'organizer' => ['index','create', 'update'],
         ],
-        'tickets' => [
+        'discount-codes' => [
             'superadmin' => [],
-            'admin' => ['create', 'read', 'update', 'delete'],
-            'organizer' => ['read'],
+            'admin' => ['index', 'create', 'update', 'delete'],
+            'organizer' => ['index', 'create', 'update'],
         ],
-        'scan' => [
+        'scanner' => [
             'superadmin' => [],
             'admin' => ['use'],
             'organizer' => ['use'],
         ],
         'login-as' => [
             'superadmin' => ['use'],
+            'admin' => [],
+            'organizer' => [],
         ],
     ];
 

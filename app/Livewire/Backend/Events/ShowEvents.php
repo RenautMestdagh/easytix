@@ -23,7 +23,6 @@ class ShowEvents extends Component
 
     public function mount()
     {
-        $this->authorize('events.read');
         $this->startDate = now()->format('Y-m-d');
     }
 
@@ -100,6 +99,12 @@ class ShowEvents extends Component
         $this->resetPage();
     }
 
+    public function editEvent(Event $event)
+    {
+        session(['events.edit.referrer' => url()->current()]);
+        return redirect()->route('events.update', $event);
+    }
+
     public function deleteEvent($id)
     {
         $this->authorize('events.delete');
@@ -116,7 +121,9 @@ class ShowEvents extends Component
     public function forceDeleteEvent($id)
     {
         $this->authorize('events.delete');
+
         $event = Event::withTrashed()->findOrFail($id);
+
         $ticketTypes = $event->ticketTypes;
 
         foreach ($ticketTypes as $ticketType) {
@@ -141,6 +148,7 @@ class ShowEvents extends Component
     public function restoreEvent($id)
     {
         $this->authorize('events.delete');
+
         $event = Event::withTrashed()->findOrFail($id);
         $event->restore();
 

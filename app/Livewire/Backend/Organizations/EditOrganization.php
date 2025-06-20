@@ -30,8 +30,6 @@ class EditOrganization extends Component
 
     public function mount(Organization $organization)
     {
-        $this->authorize('organizations.update', $organization);
-
         $this->organization = $organization;
 
         $this->organizationName = $organization->name;
@@ -58,8 +56,6 @@ class EditOrganization extends Component
 
     public function save()
     {
-        $this->authorize('organizations.update', $this->organization);
-
         // Skip validation for subdomain if it's unchanged
         $rules = (new UpdateOrganizationRequest($this->organization->id))->rules();
         $messages = (new UpdateOrganizationRequest())->messages();
@@ -93,7 +89,7 @@ class EditOrganization extends Component
                 $newHost = $newSubdomain . '.' . $domain;
 
                 // Build relative path to edit page
-                $path = route('organizations.edit', $this->organization->id, false);
+                $path = route('organizations.update', $this->organization->id, false);
 
                 // Full new URL with port if present
                 $newUrl = $scheme . '://' . $newHost . $port . $path;
@@ -162,7 +158,6 @@ class EditOrganization extends Component
 
     public function removeUser($id)
     {
-        $this->authorize('users.delete', $this->organization);
         DB::transaction(function () use ($id) {
             $user = User::findOrFail($id);
             $organization = Organization::findOrFail($user->organization_id);
@@ -188,7 +183,6 @@ class EditOrganization extends Component
 
     public function forceDeleteUser($id)
     {
-        $this->authorize('users.delete', $this->organization);
         $user = User::withTrashed()->findOrFail($id);
         $user->forceDelete();
 
@@ -198,7 +192,6 @@ class EditOrganization extends Component
 
     public function restoreUser($id)
     {
-        $this->authorize('users.delete', $this->organization);
         $user = User::withTrashed()->findOrFail($id);
         $user->restore();
 

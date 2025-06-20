@@ -28,39 +28,37 @@
         @include('partials.tenant-home.events-list', ['events' => $events])
     </div>
 
-    @push('scripts')
-        <!-- Search Functionality -->
-        <script>
-            document.getElementById('eventSearch').addEventListener('input', function(e) {
-                const searchTerm = e.target.value.toLowerCase();
-                const eventItems = document.querySelectorAll('.event-item');
-                const dayCards = document.querySelectorAll('.event-day-card');
+    <!-- Search Functionality -->
+    <script>
+        document.getElementById('eventSearch').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const eventItems = document.querySelectorAll('.event-item');
+            const dayCards = document.querySelectorAll('.event-day-card');
 
-                // First hide all events
-                eventItems.forEach(item => {
-                    const eventName = item.getAttribute('data-event-name');
-                    const eventDescription = item.getAttribute('data-event-description');
-                    const eventLocation = item.getAttribute('data-event-location');
+            // First hide all events
+            eventItems.forEach(item => {
+                const eventName = item.getAttribute('data-event-name');
+                const eventDescription = item.getAttribute('data-event-description');
+                const eventLocation = item.getAttribute('data-event-location');
 
-                    if (eventName.includes(searchTerm) || eventLocation.includes(searchTerm) || eventDescription.includes(searchTerm)) {
-                        item.style.display = 'block';
-                    } else {
-                        item.style.display = 'none';
-                    }
-                });
-
-                // Then hide empty day cards
-                dayCards.forEach(card => {
-                    const visibleEvents = card.querySelectorAll('.event-item[style="display: block;"]').length;
-                    const allEvents = card.querySelectorAll('.event-item').length;
-
-                    if (visibleEvents === 0 && allEvents > 0) {
-                        card.style.display = 'none';
-                    } else {
-                        card.style.display = 'block';
-                    }
-                });
+                if (eventName.includes(searchTerm) || eventLocation.includes(searchTerm) || eventDescription.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
             });
-        </script>
-    @endpush
+
+            // Then hide empty day cards
+            dayCards.forEach(card => {
+                const visibleEvents = card.querySelectorAll('.event-item[style="display: block;"]').length;
+                const allEvents = card.querySelectorAll('.event-item').length;
+
+                if (visibleEvents === 0 && allEvents > 0) {
+                    card.style.display = 'none';
+                } else {
+                    card.style.display = 'block';
+                }
+            });
+        });
+    </script>
 </x-layouts.organization>

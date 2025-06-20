@@ -134,9 +134,10 @@ class EventCheckout extends Component
 
         // cant do it with normal where because thats case insensitive
         $discount = DiscountCode::whereRaw('BINARY code = ?', [$this->discountCode])
+            ->where('organization_id', $this->event->organization_id)
             ->where(function($query) {
-                $query->where('event_id', $this->event->id)
-                    ->orWhere('organization_id', $this->event->organization_id);
+                $query->whereNull('event_id')
+                    ->orWhere('event_id', $this->event->id);
             })
             ->first();
 

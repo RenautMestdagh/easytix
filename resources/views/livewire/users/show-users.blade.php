@@ -147,7 +147,7 @@
                                                             <!-- Restore Button -->
                                                             <button type="button"
                                                                     wire:click="restoreUser({{ $user->id }})"
-                                                                    class="p-1 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                                                                    class="p-1 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors hover:cursor-pointer"
                                                                     title="{{ __('Restore') }}"
                                                             >
                                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -155,16 +155,13 @@
                                                                 </svg>
                                                             </button>
 
-                                                            <!-- Force Delete Button -->
-                                                            <button type="button"
-                                                                    onclick="confirmForceDelete({{ $user->id }}, '{{ addslashes($user->name) }}')"
-                                                                    class="p-1 bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 text-white rounded transition-colors"
-                                                                    title="{{ __('Delete permanently') }}"
-                                                            >
-                                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/>
-                                                                </svg>
-                                                            </button>
+                                                            <x-ui.delete-button
+                                                                type="forcedelete"
+                                                                method="forceDeleteUser"
+                                                                :args="[$user->id]"
+                                                                confirmation="⚠️ Are you sure you want to permanently delete this user?"
+                                                                title="{{ __('Delete permanently') }}"
+                                                            />
                                                         @endcan
                                                     @else
                                                         @role('superadmin')
@@ -181,7 +178,7 @@
                                                         @endrole
                                                         @can('users.update')
                                                             <!-- Edit Button -->
-                                                            <a href="{{ route('users.edit', $user) }}"
+                                                            <a href="{{ route('users.update', $user) }}"
                                                                wire:navigate
                                                                class="p-1 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
                                                                title="{{ __('Edit') }}"
@@ -198,24 +195,16 @@
                                                                 $isOwnUser = $user->id === auth()->id();
                                                                 $orgId = optional($user->organization)->id; // safe access
                                                                 $isLastAdmin = $orgId && in_array($orgId, $singleAdminOrgIds) && $user->getRoleNames()->first() === 'admin';
-                                                                $isDeletionDisabled = $isLastAdmin || $isOwnUser;
                                                             @endphp
-                                                            <button type="button"
-                                                                    @if($isDeletionDisabled) disabled @endif
-                                                                    onclick="@unless($isDeletionDisabled) confirmSoftDelete({{ $user->id }}, '{{ addslashes($user->name) }}') @endunless"
-                                                                    class="p-1 rounded-full transition-colors
-                                                                    @if($isDeletionDisabled)
-                                                                        text-gray-400 dark:text-gray-500 cursor-not-allowed
-                                                                    @else
-                                                                        text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 hover:bg-gray-100 dark:hover:bg-gray-700
-                                                                    @endif"
-                                                                    title="{{ $isLastAdmin ? __('Cannot delete the last admin') : ($isOwnUser ? __('Cannot delete yourself') : __('Delete')) }}">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                                     stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                                          d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/>
-                                                                </svg>
-                                                            </button>
+                                                            <x-ui.delete-button
+                                                                type="delete"
+                                                                method="deleteUser"
+                                                                :args="[$user->id]"
+                                                                confirmation="Are you sure you want to delete this user?"
+                                                                title="{{ __('Delete') }}"
+                                                                disabledTitle="{{ $isLastAdmin ? __('Cannot delete the last admin') : __('Cannot delete yourself') }}"
+                                                                :disabled="$isLastAdmin || $isOwnUser"
+                                                            />
                                                         @endcan
                                                     @endif
                                                 </div>
@@ -247,21 +236,5 @@
         </div>
 
     </div>
-
-    <script>
-        function confirmSoftDelete(id, name) {
-            if (confirm(`Are you sure you want to delete the user: ${name}?`)) {
-                @this.
-                call('deleteUser', id);
-            }
-        }
-
-        function confirmForceDelete(id, name) {
-            if (confirm(`⚠️ Are you sure you want to permanently delete the user: ${name}?\n\nThis action cannot be undone.`)) {
-                @this.
-                call('forceDeleteUser', id);
-            }
-        }
-    </script>
 
 </div>

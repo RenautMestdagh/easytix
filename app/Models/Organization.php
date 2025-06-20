@@ -38,6 +38,18 @@ class Organization extends Model
         return $this->hasMany(Event::class);
     }
 
+    public function discountCodes()
+    {
+        return $this->hasMany(DiscountCode::class);
+    }
+
+    public function getTicketCountAttribute()
+    {
+        return Ticket::whereHas('ticketType.event', function($query) {
+            $query->where('organization_id', $this->id);
+        })->count();
+    }
+
     /**
      * Get the favicon URL.
      */

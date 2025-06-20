@@ -35,7 +35,6 @@ class CreateEvent extends Component
 
     public function mount()
     {
-        $this->authorize('events.create');
     }
 
     public function updated($propertyName): void
@@ -129,8 +128,6 @@ class CreateEvent extends Component
 
     public function store()
     {
-        $this->authorize('events.create');
-
         // Validate all fields
         $validatedData = $this->validate(
             array_merge(
@@ -184,7 +181,7 @@ class CreateEvent extends Component
             session()->flash('message', __('Event successfully created.'));
             session()->flash('message_type', 'success');
 
-            return redirect()->route('tickettypes.show', $event);
+            return redirect()->route('ticket-types.index', $event);
 
         } catch (Exception $e) {
             Log::error($e);

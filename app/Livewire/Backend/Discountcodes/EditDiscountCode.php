@@ -20,6 +20,9 @@ class EditDiscountCode extends Component
 
     public function mount(DiscountCode $discountCode)
     {
+        if($discountCode->getAllUsesCount() > 0)
+            redirect()->route('discount-codes.index');
+
         $this->discountCode = $discountCode;
 
         // Initialize form fields
@@ -35,8 +38,6 @@ class EditDiscountCode extends Component
             $this->discount_type = 'fixed';
             $this->discount_fixed_euros = number_format($discountCode->discount_fixed_cents / 100, 2);
         }
-
-        $this->authorize('discount-codes.update', $discountCode);
     }
 
     protected function rules()
@@ -93,21 +94,27 @@ class EditDiscountCode extends Component
 
     public function update()
     {
-        $this->authorize('discount-codes.update', $this->discountCode);
+        if($this->discountCode->getAllUsesCount() > 0) {
+            session()->flash('message', __('Cannot edit used discount code'));
+            session()->flash('message_type', 'error');
+            return redirect()->route('discount-codes.index');
+        }
+
+
         $validatedData = $this->validate();
 
         // Convert euros to cents if fixed discount
         $discountFixedCents = null;
-        if ($this->discount_type === 'fixed' && $this->discount_fixed_euros) {
-            $discountFixedCents = (int) round(str_replace(',', '.', $this->discount_fixed_euros) * 100);
+        if ($validatedData['discount_type'] === 'fixed' && $validatedData['discount_fixed_euros']) {
+            $discountFixedCents = (int) round(str_replace(',', '.', $validatedData['discount_fixed_euros']) * 100);
         }
 
         $updateData = [
-            'event_id' => $this->event_id,
-            'code' => $this->code,
-            'discount_percent' => $this->discount_type === 'percent' ? $this->discount_percent : null,
-            'discount_fixed_cents' => $this->discount_type === 'fixed' ? $discountFixedCents : null,
-            'max_uses' => $this->max_uses,
+            'event_id' => $validatedData['event_id'],
+            'code' => $validatedData['code'],
+            'discount_percent' => $validatedData['discount_type'] === 'percent' ? $validatedData['discount_percent'] : null,
+            'discount_fixed_cents' => $validatedData['discount_type'] === 'fixed' ? $discountFixedCents : null,
+            'max_uses' => $validatedData['max_uses'],
         ];
 
         $this->discountCode->update($updateData);

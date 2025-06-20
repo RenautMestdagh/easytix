@@ -41,8 +41,6 @@ class EditTicketType extends Component
         } else {
             $this->publish_option = 'draft';
         }
-
-        $this->authorize('tickets.update', $ticketType);
     }
 
     protected function rules()
@@ -112,7 +110,6 @@ class EditTicketType extends Component
 
     public function update()
     {
-        $this->authorize('tickets.update', $this->ticketType);
         $validatedData = $this->validate();
 
         $publishStatus = $this->determinePublishStatus();
@@ -136,7 +133,7 @@ class EditTicketType extends Component
         session()->flash('message', __('Ticket type updated successfully.'));
         session()->flash('message_type', 'success');
 
-        return redirect()->route('tickettypes.show', $this->event);
+        return redirect()->route('ticket-types.index', $this->event);
     }
 
     protected function determinePublishStatus()

@@ -3,6 +3,7 @@
 namespace App\Livewire\Backend\Organizations;
 
 use App\Models\Organization;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -19,7 +20,6 @@ class ShowOrganizations extends Component
 
     public function mount()
     {
-        $this->authorize('organizations.read');
     }
 
     public function render()
@@ -70,15 +70,10 @@ class ShowOrganizations extends Component
     }
 
 
-    public function edit($id)
-    {
-        return redirect()->route('organizations.edit', $id);
-    }
-
-
     public function deleteOrganization($id)
     {
         $this->authorize('organizations.delete');
+
         $organization = Organization::findOrFail($id);
 
         // Delete the organization
@@ -92,6 +87,7 @@ class ShowOrganizations extends Component
     public function restoreOrganization($id)
     {
         $this->authorize('organizations.delete');
+
         $organization = Organization::withTrashed()->findOrFail($id);
         $organization->restore(); // Restore the soft-deleted organization
 
@@ -102,10 +98,45 @@ class ShowOrganizations extends Component
     public function forceDeleteOrganization($id)
     {
         $this->authorize('organizations.delete');
-        $organization = Organization::withTrashed()->findOrFail($id);
-        $organization->forceDelete();
 
-        session()->flash('message', 'Organization permanently deleted.');
+        $organization = Organization::withTrashed()
+            ->with([
+                'events.ticketTypes.tickets', // Eager load all necessary relationships
+                'events.discountCodes',
+                'discountCodes',
+                'users'
+            ])
+            ->findOrFail($id);
+
+        if($organization->ticket_count > 0) {
+            session()->flash('message', __('Cannot permanently delete organization that has tickets.'));
+            session()->flash('message_type', __('error'));
+            $this->dispatch('flash-message');
+            return;
+        }
+
+        // Delete all related data in the correct order
+        DB::transaction(function () use ($organization) {
+            // Delete discount codes (including those not tied to specific events)
+            $organization->discountCodes()->forceDelete();
+
+            // Get all events and their relationships
+            $organization->events()->with(['ticketTypes.tickets', 'discountCodes'])->each(function ($event) {
+                // Delete all ticket types
+                $event->ticketTypes()->forceDelete();
+
+                // Delete the event itself
+                $event->forceDelete();
+            });
+
+            // Delete all users (if needed)
+            $organization->users()->forceDelete();
+
+            // Finally, delete the organization
+            $organization->forceDelete();
+        });
+
+        session()->flash('message', 'Organization permanently deleted with all related data.');
         $this->dispatch('flash-message');
     }
 }

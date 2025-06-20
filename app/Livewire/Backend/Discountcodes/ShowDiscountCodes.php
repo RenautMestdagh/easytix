@@ -23,7 +23,6 @@ class ShowDiscountCodes extends Component
 
     public function mount()
     {
-        $this->authorize('discount-codes.read');
     }
 
     public function getDiscountCodesProperty()
@@ -127,7 +126,6 @@ class ShowDiscountCodes extends Component
     public function deleteDiscountCode($id)
     {
         $this->authorize('discount-codes.delete');
-
         DB::transaction(function () use ($id) {
             $discountCode = DiscountCode::findOrFail($id);
             $discountCode->delete();
@@ -140,6 +138,7 @@ class ShowDiscountCodes extends Component
     public function forceDeleteDiscountCode($id)
     {
         $this->authorize('discount-codes.delete');
+
         $discountCode = DiscountCode::withTrashed()->findOrFail($id);
 
         if ($discountCode->orders()->count() > 0) {
@@ -158,6 +157,7 @@ class ShowDiscountCodes extends Component
     public function restoreDiscountCode($id)
     {
         $this->authorize('discount-codes.delete');
+
         $discountCode = DiscountCode::withTrashed()->findOrFail($id);
         $discountCode->restore();
 

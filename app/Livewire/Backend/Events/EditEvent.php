@@ -32,8 +32,6 @@ class EditEvent extends Component
 
     public function mount(Event $event)
     {
-        $this->authorize('events.update', $event);
-
         session()->put('events.edit.referrer', request('referrer', url()->previous()));
 
         $this->event = $event;
@@ -125,8 +123,6 @@ class EditEvent extends Component
 
     public function update()
     {
-        $this->authorize('events.update', $this->event);
-
         // Validate all fields
         $validatedData = $this->validate(array_merge(
             $this->rules(),

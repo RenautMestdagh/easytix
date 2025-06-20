@@ -30,7 +30,6 @@ class EditUser extends Component
     public function mount(User $user)
     {
         $this->user = $user;
-        $this->authorize('users.update', $this->user);
 
         $this->userName = $user->name;
         $this->userEmail = $user->email;
@@ -83,8 +82,6 @@ class EditUser extends Component
 
     public function update()
     {
-        $this->authorize('users.update', $this->user);
-
         $validatedData = $this->validate(
             (new UpdateUserRequest(
                 $this->user->id,

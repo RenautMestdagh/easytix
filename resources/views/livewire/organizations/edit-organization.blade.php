@@ -228,7 +228,7 @@
                                                             @else
                                                                 @can('users.update')
                                                                     <!-- Edit Button -->
-                                                                    <a href="{{ route('users.edit', $user) }}"
+                                                                    <a href="{{ route('users.update', $user) }}"
                                                                        wire:navigate
                                                                        class="p-1 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
                                                                        title="{{ __('Edit') }}"

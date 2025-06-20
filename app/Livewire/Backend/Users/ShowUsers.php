@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Spatie\Permission\Models\Role;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class ShowUsers extends Component
 {
@@ -24,8 +25,6 @@ class ShowUsers extends Component
 
     public function mount()
     {
-        $this->authorize('users.read');
-
         // Get all roles
         $roles = Role::all()->pluck('name', 'name')->toArray();
 
@@ -41,7 +40,10 @@ class ShowUsers extends Component
     {
         return User::query()
             ->with(['roles', 'organization'])
-            ->leftJoin('organizations', 'users.organization_id', '=', 'organizations.id')
+            ->join('organizations', function($join) {
+                $join->on('users.organization_id', '=', 'organizations.id')
+                    ->whereNull('organizations.deleted_at'); // Only join non-deleted orgs
+            })
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('users.name', 'like', '%' . $this->search . '%')
@@ -200,7 +202,7 @@ class ShowUsers extends Component
 
     public function loginAsUser($userId)
     {
-        $this->authorize('login-as.use'); // This checks for the specific permission
+        $this->authorize('login-as.use');
 
         $targetUser = User::findOrFail($userId);
 
@@ -234,10 +236,7 @@ class ShowUsers extends Component
     public function switchBackToOriginalUser()
     {
         if (!session()->has('original_user_id')) {
-            session()->flash('message_type', 'error');
-            session()->flash('message', __('No original user to switch back to.'));
-            $this->dispatch('flash-message');
-            return;
+            throw new AccessDeniedHttpException;
         }
 
         $originalUser = User::findOrFail(session('original_user_id'));

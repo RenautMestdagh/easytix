@@ -9,7 +9,7 @@
                     {{ __('Add a new ticket type for: ') }} <span class="font-medium">{{ $event->name }}</span>
                 </p>
             </div>
-            <a href="{{ route('tickettypes.show', $event) }}" class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center transition-all duration-300">
+            <a href="{{ route('ticket-types.index', $event) }}" class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center transition-all duration-300">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                 </svg>
@@ -174,7 +174,7 @@
                         </div>
 
                         <div class="flex items-center justify-end pt-8 space-x-4">
-                            <x-ui.button type="button" variant="gray" href="{{ route('tickettypes.show', $event) }}">
+                            <x-ui.button type="button" variant="gray" href="{{ route('ticket-types.index', $event) }}">
                                 {{ __('Cancel') }}
                             </x-ui.button>
                             <x-ui.button type="submit" variant="indigo">

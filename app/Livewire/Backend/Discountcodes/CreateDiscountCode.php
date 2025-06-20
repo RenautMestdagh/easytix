@@ -19,7 +19,6 @@ class CreateDiscountCode extends Component
 
     public function mount()
     {
-        $this->authorize('discount-codes.create');
     }
 
     protected function rules()
@@ -75,22 +74,21 @@ class CreateDiscountCode extends Component
 
     public function store()
     {
-        $this->authorize('discount-codes.create');
         $validatedData = $this->validate();
 
         // Convert euros to cents if fixed discount
         $discountFixedCents = null;
-        if ($this->discount_type === 'fixed' && $this->discount_fixed_euros) {
-            $discountFixedCents = (int) round(str_replace(',', '.', $this->discount_fixed_euros) * 100);
+        if ($validatedData['discount_type'] === 'fixed' && $validatedData['discount_fixed_euros']) {
+            $discountFixedCents = (int) round(str_replace(',', '.', $validatedData['discount_fixed_euros']) * 100);
         }
 
         $discountCode = new DiscountCode([
             'organization_id' => session('organization_id'),
-            'event_id' => $this->event_id,
-            'code' => $this->code,
-            'discount_percent' => $this->discount_type === 'percent' ? $this->discount_percent : null,
-            'discount_fixed_cents' => $this->discount_type === 'fixed' ? $discountFixedCents : null,
-            'max_uses' => $this->max_uses,
+            'event_id' => $validatedData['event_id'],
+            'code' => $validatedData['code'],
+            'discount_percent' => $validatedData['discount_type'] === 'percent' ? $validatedData['discount_percent'] : null,
+            'discount_fixed_cents' => $validatedData['discount_type'] === 'fixed' ? $discountFixedCents : null,
+            'max_uses' => $validatedData['max_uses'],
         ]);
 
         $discountCode->save();
