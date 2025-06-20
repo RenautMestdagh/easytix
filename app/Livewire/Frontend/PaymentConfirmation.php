@@ -24,8 +24,14 @@ class PaymentConfirmation extends Component
     public function mount($subdomain, $eventuniqid)
     {
         // Beetje beveiliging tegen sjoemelaars maar referer header is nog te spoofen
-        if(request()->header('Referer') !== "https://payments.stripe.com/")
+        if(
+            request()->header('Referer') !== route('event.payment', [$subdomain, $eventuniqid]) &&
+            request()->header('Referer') !== "https://payments.stripe.com/" &&
+            !session()->pull('payment_succeeded', false)
+        ) {
             return redirect('/');
+        }
+
 
         $this->toShowPartial = Str::afterLast(request()->route()->getName(), '.');
         $this->event = Event::with(['ticketTypes' => function($query) {

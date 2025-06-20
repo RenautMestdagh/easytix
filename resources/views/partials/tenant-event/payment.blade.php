@@ -129,6 +129,7 @@
                         return_url: '{{ route("stripe.payment.confirmation", [$this->event->organization->subdomain, $this->event->uniqid]) }}',
                     },
                 });
+                return console.log(result);
 
                 if (result.error) {
                     handleError(result.error);

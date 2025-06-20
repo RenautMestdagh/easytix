@@ -24,6 +24,12 @@ class EventPayment extends Component
             return;
         $stripe = new StripeClient(config('app.stripe.secret'));
         $paymentIntent = $stripe->paymentIntents->retrieve($this->tempOrder->payment_id);
+        if($paymentIntent->status === 'succeeded'){
+            session()->put('payment_succeeded', true);
+            return redirect()->route('stripe.payment.confirmation', [$subdomain, $eventuniqid]);
+        }
+
+
         $this->stripeClientSecret = $paymentIntent->client_secret;
     }
 
