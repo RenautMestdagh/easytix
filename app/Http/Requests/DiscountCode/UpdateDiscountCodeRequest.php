@@ -5,10 +5,10 @@ namespace App\Http\Requests\DiscountCode;
 class UpdateDiscountCodeRequest extends DiscountCodeRequest
 {
 
-    public function __construct($ignoreId = null)
+    public function __construct($start_date = null, $ignoreId = null)
     {
         $this->authorizePermission();
-        parent::__construct($ignoreId);
+        parent::__construct($start_date, $ignoreId);
     }
 
     /**

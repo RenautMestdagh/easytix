@@ -10,11 +10,13 @@ class DiscountCodeRequest extends FormRequest
 {
     use AuthorizesWithPermission;
 
+    protected $start_date = null;
     protected $ignoreId = null;
 
-    public function __construct($ignoreId = null)
+    public function __construct($start_date = null, $ignoreId = null)
     {
         parent::__construct();
+        $this->start_date = $start_date;
         $this->ignoreId = $ignoreId;
     }
 
@@ -43,8 +45,15 @@ class DiscountCodeRequest extends FormRequest
                 }),
             ],
             'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
-            'max_uses' => 'nullable|integer|min:1',
+            'end_date' => [
+                'nullable',
+                'date',
+                Rule::when(
+                    $this->start_date !== null,
+                    'after_or_equal:start_date'
+                ),
+            ],
+            'max_uses' => 'nullable|integer|min:0',
             'discount_type' => 'required|in:percent,fixed',
             'discount_percent' => [
                 'nullable',

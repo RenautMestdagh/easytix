@@ -5,7 +5,6 @@ namespace App\Livewire\Backend\DiscountCodes;
 use App\Http\Requests\DiscountCode\UpdateDiscountCodeRequest;
 use App\Models\DiscountCode;
 use App\Models\Event;
-use DateTime;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
@@ -14,8 +13,8 @@ class EditDiscountCode extends Component
     public DiscountCode $discountCode;
     public ?string $code = null;
     public ?int $event_id = null;
-    public ?Datetime $start_date = null;
-    public ?Datetime $end_date = null;
+    public $start_date = null;
+    public $end_date = null;
     public ?int $max_uses = null;
     public string $discount_type = 'percent';
     public ?int $discount_percent = null;
@@ -31,8 +30,8 @@ class EditDiscountCode extends Component
         // Initialize form fields
         $this->code = $discountCode->code;
         $this->event_id = $discountCode->event_id;
-        $this->start_date = $discountCode->start_date;
-        $this->end_date = $discountCode->end_date;
+        $this->start_date = $discountCode->start_date?->format('Y-m-d') ?? null;
+        $this->end_date = $discountCode->end_date?->format('Y-m-d') ?? null;
         $this->max_uses = $discountCode->max_uses;
 
         // Set discount type and values
@@ -53,6 +52,7 @@ class EditDiscountCode extends Component
             : $this->discount_percent = null);
 
         $fieldRules = (new UpdateDiscountCodeRequest(
+            $this->start_date,
             $this->discountCode->id
         ))->rules();
         $fieldMessages = (new UpdateDiscountCodeRequest())->messages();
@@ -75,6 +75,7 @@ class EditDiscountCode extends Component
 
         $validatedData = $this->validate(
             (new UpdateDiscountCodeRequest(
+                $this->start_date,
                 $this->discountCode->id,
             ))->rules(),
             (new UpdateDiscountCodeRequest())->messages()
@@ -86,15 +87,15 @@ class EditDiscountCode extends Component
             $discountFixedCents = (int) round($validatedData['discount_fixed_euros'] * 100);
         }
 
-        $updateData = [
-            'event_id' => $validatedData['event_id'],
+        $this->discountCode->update([
             'code' => $validatedData['code'],
+            'event_id' => $validatedData['event_id'],
+            'start_date' => $validatedData['start_date'],
+            'end_date' => $validatedData['end_date'],
+            'max_uses' => $validatedData['max_uses'],
             'discount_percent' => $validatedData['discount_type'] === 'percent' ? $validatedData['discount_percent'] : null,
             'discount_fixed_cents' => $validatedData['discount_type'] === 'fixed' ? $discountFixedCents : null,
-            'max_uses' => $validatedData['max_uses'],
-        ];
-
-        $this->discountCode->update($updateData);
+        ]);
 
         session()->flash('message', __('Discount code updated successfully.'));
         session()->flash('message_type', 'success');
@@ -105,7 +106,14 @@ class EditDiscountCode extends Component
     public function generateCode()
     {
         $this->code = strtoupper(str()->random(8));
-        $this->validateOnly('code');
+        $this->validateOnly(
+            'code',
+            (new UpdateDiscountCodeRequest(
+                $this->start_date,
+                $this->discountCode->id,
+            ))->rules(),
+            (new UpdateDiscountCodeRequest())->messages(),
+        );
     }
 
     public function getEventsProperty()

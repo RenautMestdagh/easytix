@@ -20,7 +20,7 @@ class CreateEvent extends Component
     // Event fields
     public $name = '';
     public $description = '';
-//    public $location = '';
+    public $venue_id = '';
     public $date = '';
     public $max_capacity = null;
 
@@ -80,7 +80,7 @@ class CreateEvent extends Component
                         'organization_id' => Auth::user()->organization_id,
                         'name' => $validatedData['name'],
                         'description' => $validatedData['description'],
-//                        'location' => $validatedData['location'], TODO
+                        'venue_id' => $validatedData['venue_id'],
                         'date' => $validatedData['date'],
                         'max_capacity' => $validatedData['max_capacity'],
                         'is_published' => $publishStatus['is_published'],

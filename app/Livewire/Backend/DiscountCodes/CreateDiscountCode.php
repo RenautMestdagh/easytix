@@ -5,7 +5,6 @@ namespace App\Livewire\Backend\DiscountCodes;
 use App\Http\Requests\DiscountCode\StoreDiscountCodeRequest;
 use App\Models\DiscountCode;
 use App\Models\Event;
-use DateTime;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
@@ -13,8 +12,8 @@ class CreateDiscountCode extends Component
 {
     public ?string $code = null;
     public ?int $event_id = null;
-    public ?Datetime $start_date = null;
-    public ?Datetime $end_date = null;
+    public $start_date = null;
+    public $end_date = null;
     public ?int $max_uses = null;
     public string $discount_type = 'percent';
     public ?int $discount_percent = null;
@@ -27,8 +26,16 @@ class CreateDiscountCode extends Component
             ? $this->discount_fixed_euros = null
             : $this->discount_percent = null);
 
-        $fieldRules = (new StoreDiscountCodeRequest())->rules();
+        $fieldRules = (new StoreDiscountCodeRequest(
+            $this->start_date,
+        ))->rules();
         $fieldMessages = (new StoreDiscountCodeRequest())->messages();
+
+        if ($propertyName === 'start_date' || $propertyName === 'end_date') {
+            $this->validateOnly('start_date', $fieldRules, $fieldMessages);
+            $this->validateOnly('end_date', $fieldRules, $fieldMessages);
+            return;
+        }
 
         if (!array_key_exists($propertyName, $fieldRules)) {
             return; // skip validation if no rule is defined
@@ -40,8 +47,10 @@ class CreateDiscountCode extends Component
     public function store()
     {
         $validatedData = $this->validate(
-            (new StoreDiscountCodeRequest())->rules(),
-            (new StoreDiscountCodeRequest())->messages()
+            (new StoreDiscountCodeRequest(
+                $this->start_date,
+            ))->rules(),
+            (new StoreDiscountCodeRequest())->messages(),
         );
 
         // Convert euros to cents if fixed discount
@@ -72,7 +81,11 @@ class CreateDiscountCode extends Component
     public function generateCode()
     {
         $this->code = strtoupper(str()->random(8));
-        $this->validateOnly('code');
+        $this->validateOnly(
+            'code',
+            (new StoreDiscountCodeRequest())->rules(),
+            (new StoreDiscountCodeRequest())->messages(),
+        );
     }
 
     public function getEventsProperty()

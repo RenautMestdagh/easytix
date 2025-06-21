@@ -101,7 +101,7 @@
                                         wire:model.lazy="max_uses"
                                         name="max_uses"
                                         placeholder="Leave empty for unlimited uses"
-                                        min="1"
+                                        min="0"
                                         error="{{ $errors->has('max_uses') }}"
                                         class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
                                     />

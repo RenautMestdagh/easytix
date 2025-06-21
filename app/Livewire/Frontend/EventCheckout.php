@@ -79,7 +79,10 @@ class EventCheckout extends Component
         if($field == 'gender' && empty($this->gender))
             $this->gender = null;
 
-        $validatedData = $this->validateOnly($field, (new CustomerRequest)->rules());
+        $validatedData = $this->validateOnly($field,
+            (new CustomerRequest)->rules(),
+            (new CustomerRequest)->messages(),
+        );
 
         $customer = Customer::withoutGlobalScopes()->find($this->tempOrder->customer_id);
 
@@ -95,7 +98,10 @@ class EventCheckout extends Component
     {
         if (!$this->tempOrder) return;
 
-        $validatedData = $this->validate((new CustomerRequest)->rules());
+        $validatedData = $this->validate(
+            (new CustomerRequest)->rules(),
+            (new CustomerRequest)->messages(),
+        );
 
         $customer = Customer::withoutGlobalScopes()->find($this->tempOrder->customer_id);
 
@@ -117,11 +123,10 @@ class EventCheckout extends Component
             return;
         }
         // Validate the discount code is not empty
-        $this->validate([
-            'discountCode' => 'required|string'
-        ], [
-            'discountCode.required' => 'Please enter a discount code'
-        ]);
+        $this->validate(
+            ['discountCode' => 'required|string'],
+            ['discountCode.required' => 'Please enter a discount code']
+        );
 
         // cant do it with normal where because thats case insensitive
         $discount = DiscountCode::whereRaw('BINARY code = ?', [$this->discountCode])

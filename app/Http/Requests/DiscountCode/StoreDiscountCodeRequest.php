@@ -5,10 +5,10 @@ namespace App\Http\Requests\DiscountCode;
 class StoreDiscountCodeRequest extends DiscountCodeRequest
 {
 
-    public function __construct()
+    public function __construct($start_date = null)
     {
         $this->authorizePermission();
-        parent::__construct();
+        parent::__construct($start_date);
     }
 
     /**

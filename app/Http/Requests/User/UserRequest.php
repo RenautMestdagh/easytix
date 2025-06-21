@@ -32,9 +32,16 @@ class UserRequest extends FormRequest
             'userName' => ['required', 'string', 'max:255'],
             'role' => ['required', 'string', 'exists:roles,name'],
             'organization_id' => [
-                'nullable',
-                Rule::when(session('organization_id'), [
-                    'in:' . session('organization_id'),
+                Rule::when(request('role') !== 'superadmin', [
+                    'required',
+                    Rule::exists('organizations', 'id'),
+                    Rule::when(session('organization_id'), [
+                        'in:' . session('organization_id'),
+                    ]),
+                ]),
+                Rule::when(request('role') === 'superadmin', [
+                    'nullable',
+                    'prohibited',
                 ]),
             ],
             'userPassword' => [

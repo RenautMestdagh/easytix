@@ -1,7 +1,7 @@
 <div class="p-6 event-item"
      data-event-name="{{ strtolower($event->name) }}"
      data-event-description="{{ strtolower($event->description) }}"
-     data-event-location="{{ strtolower($event->venue->name) }}">
+     data-event-location="{{ strtolower($event->venue?->name) }}">
     <div class="flex items-start justify-between gap-5">
         <div class="flex items-start space-x-4">
             <!-- Event Image -->

@@ -17,8 +17,8 @@ class ShowDiscountCodes extends Component
     public $search = '';
     public $selectedEvent = '';
     public $statusFilter = 'all';
-    public $sortField = 'created_at';
-    public $sortDirection = 'desc';
+    public $sortField = 'code';
+    public $sortDirection = 'asc';
     public $perPage = 10;
 
     public function mount()
@@ -33,7 +33,7 @@ class ShowDiscountCodes extends Component
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('code', 'like', '%' . $this->search . '%')
-                        ->orWhereHas('event', function($q) {
+                        ->orWhereHas('event', function ($q) {
                             $q->where('name', 'like', '%' . $this->search . '%');
                         });
                 });
@@ -43,17 +43,27 @@ class ShowDiscountCodes extends Component
             })
             ->when($this->statusFilter === 'active', function ($query) {
                 $query->whereNull('deleted_at')
-                    ->where(function($q) {
-                        $q->where(function($subQ) {
+                    ->where(function ($q) {
+                        $q->where(function ($subQ) {
                             $subQ->whereNull('max_uses')
-                                ->orWhere(function($q) {
+                                ->orWhere(function ($q) {
                                     $q->whereNotNull('max_uses')
                                         ->havingRaw('orders_count < max_uses');
                                 });
                         })
-                            ->where(function($subQ) {
+                            ->where(function ($subQ) {
+                                $subQ->where(function ($q) {
+                                    $q->whereNull('start_date')
+                                        ->orWhere('start_date', '<=', now());
+                                })
+                                    ->where(function ($q) {
+                                        $q->whereNull('end_date')
+                                            ->orWhere('end_date', '>=', now());
+                                    });
+                            })
+                            ->where(function ($subQ) {
                                 $subQ->whereNull('event_id')
-                                    ->orWhereHas('event', function($q) {
+                                    ->orWhereHas('event', function ($q) {
                                         $q->where('date', '>=', now()->format('Y-m-d'));
                                     });
                             });
@@ -62,9 +72,21 @@ class ShowDiscountCodes extends Component
                     ->groupBy('discount_codes.id');
             })
             ->when($this->statusFilter === 'event_past', function ($query) {
-                $query->whereHas('event', function($q) {
+                $query->whereHas('event', function ($q) {
                     $q->where('date', '<', now()->format('Y-m-d'));
                 })->whereNull('deleted_at');
+            })
+            ->when($this->statusFilter === 'expired', function ($query) {
+                $query->whereNull('deleted_at')
+                    ->where(function ($q) {
+                        $q->whereNotNull('end_date')
+                            ->where('end_date', '<', now());
+                    });
+            })
+            ->when($this->statusFilter === 'upcoming', function ($query) {
+                $query->whereNull('deleted_at')
+                    ->whereNotNull('start_date')
+                    ->where('start_date', '>', now());
             })
             ->when($this->statusFilter === 'limit_reached', function ($query) {
                 $query->whereNotNull('max_uses')

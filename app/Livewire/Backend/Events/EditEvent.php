@@ -18,7 +18,7 @@ class EditEvent extends Component
     // Event fields
     public $name;
     public $description;
-//    public $location;
+    public $venue_id;
     public $date;
     public ?int $max_capacity;
 
@@ -35,7 +35,7 @@ class EditEvent extends Component
         $this->event = $event;
         $this->name = $event->name;
         $this->description = $event->description;
-//        $this->location = $event->location;
+        $this->venue_id = $event->venue_id;
         $this->date = $event->date->format('Y-m-d\TH:i');
         $this->max_capacity = $event->max_capacity;
         $this->is_published = $event->is_published;
@@ -96,7 +96,7 @@ class EditEvent extends Component
             $this->event->update([
                 'name' => $validatedData['name'],
                 'description' => $validatedData['description'],
-//                'location' => $validatedData['location'], TODO
+                'venue_id' => $validatedData['venue_id'],
                 'date' => $validatedData['date'],
                 'max_capacity' => $validatedData['max_capacity'],
                 'is_published' => $publishStatus['is_published'],

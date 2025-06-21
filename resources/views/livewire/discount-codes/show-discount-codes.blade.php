@@ -53,18 +53,14 @@
         <x-ui.forms.select wire:model.live="statusFilter">
             <option value="all">{{ __('All Statuses') }}</option>
             <option value="active">{{ __('Active') }}</option>
+            <option value="upcoming">{{ __('Upcoming') }}</option>
+            <option value="expired">{{ __('Expired') }}</option>
             <option value="event_past">{{ __('Event Past') }}</option>
             <option value="limit_reached">{{ __('Limit Reached') }}</option>
             @if($includeDeleted)
                 <option value="deleted">{{ __('Deleted') }}</option>
             @endif
         </x-ui.forms.select>
-
-        <!-- Include deleted -->
-        <label class="flex items-center ml-auto">
-            <input type="checkbox" wire:model.live="includeDeleted" class="form-checkbox text-indigo-600">
-            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ __('Include deleted') }}</span>
-        </label>
 
         <!-- Include deleted -->
         <label class="flex items-center ml-auto">
@@ -102,12 +98,20 @@
                 <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
                     {{ __('Usage') }}
                 </th>
-                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" wire:click="sortBy('created_at')">
+                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" wire:click="sortBy('start_date')">
                     <div class="flex items-center">
-                        {{ __('Created') }}
-                        <span class="ml-1 text-xs" style="visibility: {{ $sortField == 'created_at' ? 'visible' : 'hidden' }};">
-                            {{ $sortDirection == 'asc' ? '↑' : '↓' }}
-                        </span>
+                        {{ __('Start Date') }}
+                        <span class="ml-1 text-xs" style="visibility: {{ $sortField == 'start_date' ? 'visible' : 'hidden' }};">
+            {{ $sortDirection == 'asc' ? '↑' : '↓' }}
+        </span>
+                    </div>
+                </th>
+                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" wire:click="sortBy('end_date')">
+                    <div class="flex items-center">
+                        {{ __('End Date') }}
+                        <span class="ml-1 text-xs" style="visibility: {{ $sortField == 'end_date' ? 'visible' : 'hidden' }};">
+            {{ $sortDirection == 'asc' ? '↑' : '↓' }}
+        </span>
                     </div>
                 </th>
                 <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
@@ -167,25 +171,36 @@
                         </div>
                     </td>
                     <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
-                        {{ $discountCode->created_at->format('M j, Y') }}
+                        {{ $discountCode->start_date ? $discountCode->start_date->format('M j, Y') : '-' }}
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
+                        {{ $discountCode->end_date ? $discountCode->end_date->format('M j, Y') : '-' }}
                     </td>
                     <td class="px-4 py-4 whitespace-nowrap">
                         @if($discountCode->trashed())
                             <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400">
-                                {{ __('Deleted') }}
-                            </span>
+        {{ __('Deleted') }}
+    </span>
                         @elseif($discountCode->event && $discountCode->event->date->format('Y-m-d') < now()->format('Y-m-d'))
                             <span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400">
-                                {{ __('Event Past') }}
-                            </span>
+        {{ __('Event Past') }}
+    </span>
                         @elseif($discountCode->max_uses && $discountCode->orders_count >= $discountCode->max_uses)
                             <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400">
-                                {{ __('Limit Reached') }}
-                            </span>
+        {{ __('Limit Reached') }}
+    </span>
+                        @elseif($discountCode->end_date && $discountCode->end_date->format('Y-m-d') < now()->format('Y-m-d'))
+                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400">
+        {{ __('Expired') }}
+    </span>
+                        @elseif($discountCode->start_date && $discountCode->start_date->format('Y-m-d') > now()->format('Y-m-d'))
+                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
+        {{ __('Upcoming') }}
+    </span>
                         @else
                             <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400">
-                                {{ __('Active') }}
-                            </span>
+        {{ __('Active') }}
+    </span>
                         @endif
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

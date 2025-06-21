@@ -27,6 +27,11 @@ class DiscountCode extends Model
         'discount_fixed_cents',
     ];
 
+    protected $casts = [
+        'start_date' => 'datetime',
+        'end_date' => 'datetime',
+    ];
+
     /**
      * Get the event that owns the discount code.
      */
