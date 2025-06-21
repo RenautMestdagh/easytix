@@ -31,7 +31,12 @@ class UserRequest extends FormRequest
         return [
             'userName' => ['required', 'string', 'max:255'],
             'role' => ['required', 'string', 'exists:roles,name'],
-            'organization_id' => ['nullable', 'exists:organizations,id'],
+            'organization_id' => [
+                'nullable',
+                Rule::when(session('organization_id'), [
+                    'in:' . session('organization_id'),
+                ]),
+            ],
             'userPassword' => [
                 'string',
                 Password::defaults(),

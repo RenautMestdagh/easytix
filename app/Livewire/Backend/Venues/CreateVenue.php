@@ -3,7 +3,6 @@
 namespace App\Livewire\Backend\Venues;
 
 use App\Http\Requests\Venue\StoreVenueRequest;
-use App\Models\Organization;
 use App\Models\Venue;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
@@ -13,15 +12,6 @@ class CreateVenue extends Component
     public $name = '';
     public $latitude = '';
     public $longitude = '';
-    public $organization_id = null;
-
-    public $organizations = [];
-
-    public function mount()
-    {
-        $this->organizations = Organization::all()->pluck('name', 'id')->toArray();
-        $this->organization_id = session('organization_id');
-    }
 
     public function updated($propertyName)
     {
@@ -50,7 +40,7 @@ class CreateVenue extends Component
             Venue::create([
                 'name' => $validatedData['name'],
                 'coordinates' => $coordinates,
-                'organization_id' => $validatedData['organization_id'],
+                'organization_id' => session('organization_id'),
             ]);
 
             session()->flash('message', __('Venue successfully created.'));
@@ -67,8 +57,6 @@ class CreateVenue extends Component
 
     public function render()
     {
-        return view('livewire.venues.create-venue', [
-            'organizations' => $this->organizations,
-        ]);
+        return view('livewire.venues.create-venue');
     }
 }

@@ -32,7 +32,7 @@ class DiscountCodeRequest extends FormRequest
                 'max:50',
                 Rule::unique('discount_codes')
                     ->where(function ($query) {
-                        return $query->where('organization_id', 2);
+                        return $query->where('organization_id', session('organization_id'));
                     })
                     ->ignore($this->ignoreId),
             ],

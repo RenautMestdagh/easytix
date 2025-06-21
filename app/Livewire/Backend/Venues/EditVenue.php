@@ -3,7 +3,6 @@
 namespace App\Livewire\Backend\Venues;
 
 use App\Http\Requests\Venue\UpdateVenueRequest;
-use App\Models\Organization;
 use App\Models\Venue;
 use Livewire\Component;
 
@@ -14,9 +13,6 @@ class EditVenue extends Component
     public $name = '';
     public $latitude = '';
     public $longitude = '';
-    public $organization_id = null;
-
-    public $organizations = [];
 
     public function mount(Venue $venue)
     {
@@ -28,9 +24,6 @@ class EditVenue extends Component
             $this->latitude = $coords[0] ?? '';
             $this->longitude = $coords[1] ?? '';
         }
-
-        $this->organization_id = $venue->organization_id;
-        $this->organizations = Organization::pluck('name', 'id');
     }
 
     public function updated($propertyName)
@@ -59,7 +52,6 @@ class EditVenue extends Component
             $this->venue->update([
                 'name' => $validatedData['name'],
                 'coordinates' => $coordinates,
-                'organization_id' => $validatedData['organization_id'] ?? null,
             ]);
 
             session()->flash('message', __('Venue successfully updated.'));
@@ -80,8 +72,6 @@ class EditVenue extends Component
 
     public function render()
     {
-        return view('livewire.venues.edit-venue', [
-            'organizations' => $this->organizations,
-        ]);
+        return view('livewire.venues.edit-venue');
     }
 }
