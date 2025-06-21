@@ -15,13 +15,24 @@ class Venue extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'name',
         'organization_id',
+        'name',
+        'max_capacity',
         'coordinates',
     ];
 
     public function organization()
     {
         return $this->belongsTo(Organization::class);
+    }
+
+    // Venue.php
+    public function getGoogleMapsUrl(): string
+    {
+        if (empty($this->coordinates)) {
+            return '';
+        }
+
+        return "https://www.google.com/maps/search/?api=1&query={$this->coordinates}";
     }
 }

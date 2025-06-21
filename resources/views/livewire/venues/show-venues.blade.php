@@ -72,6 +72,13 @@
                                             {{ $sortDirection == 'asc' ? '↑' : '↓' }}
                                         </span>
                                     </th>
+                                    <th scope="col" class="py-3.5 pl-3 pr-4 text-left text-sm font-semibold text-gray-900 dark:text-white sm:pl-6 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700" wire:click="sortBy('max_capacity')">
+                                        {{ __('Capacity') }}
+                                        <span class="text-xs ml-1" style="visibility: {{ $sortField == 'max_capacity' ? 'visible' : 'hidden' }};">
+                                            {{ $sortDirection == 'asc' ? '↑' : '↓' }}
+                                        </span>
+                                    </th>
+                                    php
                                     @if(auth()->user()->can('venues.update') || auth()->user()->can('venues.delete'))
                                         <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
                                             <span class="sr-only">{{ __('Actions') }}</span>
@@ -92,9 +99,24 @@
                                                 @endif
                                             </div>
                                         </td>
+                                        <td class="whitespace-nowrap py-4 pl-3 pr-4 text-sm text-gray-500 dark:text-gray-300">
+                                            {{ $venue->max_capacity }}
+                                        </td>
                                         @if(auth()->user()->can('venues.update') || auth()->user()->can('venues.delete'))
                                             <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                                                 <div class="flex justify-end gap-2">
+                                                    @if(!empty($venue->coordinates))
+                                                        <a href="{{ $venue->getGoogleMapsUrl() }}"
+                                                           target="_blank"
+                                                           class="p-1 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                                                           title="{{ __('View on Google Maps') }}"
+                                                        >
+                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                                                            </svg>
+                                                        </a>
+                                                    @endif
                                                     @if ($venue->trashed())
                                                         @can('venues.delete')
                                                             <!-- Restore Button -->

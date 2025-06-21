@@ -17,13 +17,15 @@ class ShowVenues extends Component
     public $sortDirection = 'asc';
     public $perPage = 10;
 
+    // ShowVenues.php - update the getVenuesProperty method
     public function getVenuesProperty()
     {
         return Venue::query()
             ->with(['organization'])
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('venues.name', 'like', '%' . $this->search . '%');
+                    $q->where('venues.name', 'like', '%' . $this->search . '%')
+                        ->orWhere('venues.max_capacity', 'like', '%' . $this->search . '%');
                 });
             })
             ->when($this->includeDeleted, function ($query) {

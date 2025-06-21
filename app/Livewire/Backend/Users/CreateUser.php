@@ -112,10 +112,10 @@ class CreateUser extends Component
         try {
             // Create the user
             $user = User::create([
+                'organization_id' => $validatedData['organization_id'],
                 'name' => $validatedData['userName'],
                 'email' => $validatedData['userEmail'],
                 'password' => Hash::make($validatedData['userPassword']),
-                'organization_id' => $validatedData['organization_id'],
             ]);
 
             // Assign the selected role

@@ -13,16 +13,16 @@ return new class extends Migration
     {
         Schema::create('events', function (Blueprint $table) {
             $table->id();
-            $table->string('uniqid')->unique();
             $table->foreignId('organization_id')->constrained('organizations')->onDelete('cascade');
+            $table->string('uniqid')->unique();
             $table->string('name');
             $table->text('description')->nullable();
             $table->foreignId('venue_id')->nullable()->constrained('venues')->onDelete('set null');
+            $table->integer('max_capacity')->nullable();
             $table->dateTime('date')->index();
             $table->string('event_image')->nullable(); // For line-up, date, location display
             $table->string('header_image')->nullable(); // For purchasing page header
             $table->string('background_image')->nullable(); // Event background image
-            $table->integer('max_capacity')->nullable();
             $table->boolean('is_published')->default(false)->index();
             $table->timestamp('publish_at')->nullable();
             $table->timestamps();

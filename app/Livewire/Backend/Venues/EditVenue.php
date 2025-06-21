@@ -11,6 +11,7 @@ class EditVenue extends Component
     public Venue $venue;
 
     public $name = '';
+    public $max_capacity = '';
     public $latitude = '';
     public $longitude = '';
 
@@ -18,6 +19,7 @@ class EditVenue extends Component
     {
         $this->venue = $venue;
         $this->name = $venue->name;
+        $this->max_capacity = $venue->max_capacity;
 
         if ($venue->coordinates) {
             $coords = explode(',', $venue->coordinates);
@@ -47,10 +49,12 @@ class EditVenue extends Component
         );
 
         try {
-            $coordinates = $validatedData['latitude'] . ',' . $validatedData['longitude'];
+            $coordinates = (!empty($validatedData['latitude']) && !empty($validatedData['longitude'])) ?
+                $validatedData['latitude'] . ',' . $validatedData['longitude'] : null;
 
             $this->venue->update([
                 'name' => $validatedData['name'],
+                'max_capacity' => $validatedData['max_capacity'],
                 'coordinates' => $coordinates,
             ]);
 

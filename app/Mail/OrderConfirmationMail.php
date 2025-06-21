@@ -67,8 +67,14 @@ class OrderConfirmationMail extends Mailable
      */
     public function envelope(): Envelope
     {
+        $subject = "Order confirmation for {$this->order->event->name}";
+
+        if (!empty($this->event->venue)) {
+            $subject .= " - {$this->event->venue->name}";
+        }
+
         return new Envelope(
-            subject: "Order confirmation for {$this->order->event->name} - {$this->event->venue->name}",
+            subject: $subject
         );
     }
 

@@ -143,25 +143,4 @@
         });
     </script>
 
-    <style>
-        /*#qr-reader {*/
-        /*    width: 100%;*/
-        /*}*/
-        /*#qr-reader__dashboard_section_csr {*/
-        /*    display: flex;*/
-        /*    justify-content: center;*/
-        /*}*/
-        /*#qr-reader__dashboard_section_csr button {*/
-        /*    margin: 0 4px;*/
-        /*    padding: 8px 12px;*/
-        /*    background: #3b82f6;*/
-        /*    color: white;*/
-        /*    border: none;*/
-        /*    border-radius: 4px;*/
-        /*    cursor: pointer;*/
-        /*}*/
-        /*#qr-reader__dashboard_section_csr button:hover {*/
-        /*    background: #2563eb;*/
-        /*}*/
-    </style>
 </x-layouts.app>

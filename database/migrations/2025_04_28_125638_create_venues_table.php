@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('venues', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
             $table->foreignId('organization_id')->constrained()->onDelete('cascade');
+            $table->string('name');
+            $table->integer('max_capacity')->nullable();
             $table->string('coordinates')->nullable(); // For spatial data
             $table->timestamps();
             $table->softDeletes();

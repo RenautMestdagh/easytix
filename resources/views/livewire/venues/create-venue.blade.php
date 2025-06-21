@@ -38,22 +38,35 @@
                                 {{ __('Venue Details') }}
                             </div>
 
-                            <x-ui.forms.group label="Venue Name" for="name" error="name">
-                                <x-ui.forms.input
-                                    wire:model.lazy="name"
-                                    name="name"
-                                    placeholder="Enter venue name"
-                                    error="{{ $errors->has('name') }}"
-                                    class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
-                                />
-                            </x-ui.forms.group>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <x-ui.forms.group label="Venue Name" for="name" error="name">
+                                    <x-ui.forms.input
+                                        wire:model.lazy="name"
+                                        name="name"
+                                        placeholder="Enter venue name"
+                                        error="{{ $errors->has('name') }}"
+                                        class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
+                                    />
+                                </x-ui.forms.group>
+
+                                <x-ui.forms.group label="Venue Capacity" for="max_capacity" error="max_capacity">
+                                    <x-ui.forms.input
+                                        wire:model.lazy="max_capacity"
+                                        name="max_capacity"
+                                        placeholder="Enter venue capacity"
+                                        error="{{ $errors->has('max_capacity') }}"
+                                        class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
+                                    />
+                                </x-ui.forms.group>
+                            </div>
+
 
                             <x-ui.forms.group label="Location Coordinates" for="latitude">
                                 <div class="flex flex-col space-y-2">
                                     <div class="flex gap-4">
                                         <!-- Latitude Input -->
                                         <div class="flex-1">
-                                            <div class="flex rounded-xl border overflow-hidden shadow-md @if($errors->has('longitude')) border-red-500 @endif">
+                                            <div class="flex rounded-xl border overflow-hidden shadow-md @if($errors->has('latitude')) border-red-500 @endif">
                                                 <div class="flex items-center justify-center px-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600">
                                                     N
                                                 </div>

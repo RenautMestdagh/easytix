@@ -87,7 +87,7 @@ Route::middleware(['auth', 'verified', CheckPermissionMiddleware::class, Subdoma
 
     Route::get('/venues', ShowVenues::class)->name('venues.index');
     Route::get('/venues/create', CreateVenue::class)->name('venues.create');
-    Route::get('/venues/{user}/edit', EditVenue::class)->name('venues.update');
+    Route::get('/venues/{venue}/edit', EditVenue::class)->name('venues.update');
 
     Route::get('/events', ShowEvents::class)->name('events.index');
     Route::get('/events/create', CreateEvent::class)->name('events.create');

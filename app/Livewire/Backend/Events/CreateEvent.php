@@ -76,8 +76,8 @@ class CreateEvent extends Component
             while (true) {
                 try {
                     $event = Event::create([
-                        'uniqid' => str_replace('-', '', Str::uuid()),
                         'organization_id' => Auth::user()->organization_id,
+                        'uniqid' => str_replace('-', '', Str::uuid()),
                         'name' => $validatedData['name'],
                         'description' => $validatedData['description'],
                         'venue_id' => $validatedData['venue_id'],

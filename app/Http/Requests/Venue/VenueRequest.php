@@ -23,8 +23,9 @@ class VenueRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'latitude' => 'required|numeric|between:-90,90',
-            'longitude' => 'required|numeric|between:-180,180',
+            'max_capacity' => 'nullable|integer|min:1',
+            'latitude' => 'required_with:longitude|numeric|between:-90,90',
+            'longitude' => 'required_with:latitude|numeric|between:-180,180',
         ];
     }
 
@@ -35,11 +36,14 @@ class VenueRequest extends FormRequest
             'name.string' => 'The venue name must be a string.',
             'name.max' => 'The venue name may not be greater than 255 characters.',
 
-            'latitude.required' => 'The latitude coordinate is required.',
+            'max_capacity.integer' => 'The maximum capacity must be an integer.',
+            'max_capacity.min' => 'The maximum capacity must be at least 1.',
+
+            'latitude.required_with' => 'The latitude is required when longitude is present.',
             'latitude.numeric' => 'The latitude must be a number.',
             'latitude.between' => 'The latitude must be between -90 and 90 degrees.',
 
-            'longitude.required' => 'The longitude coordinate is required.',
+            'longitude.required_with' => 'The longitude is required when latitude is present.',
             'longitude.numeric' => 'The longitude must be a number.',
             'longitude.between' => 'The longitude must be between -180 and 180 degrees.',
         ];

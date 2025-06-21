@@ -10,6 +10,7 @@ use Livewire\Component;
 class CreateVenue extends Component
 {
     public $name = '';
+    public $max_capacity = '';
     public $latitude = '';
     public $longitude = '';
 
@@ -34,13 +35,14 @@ class CreateVenue extends Component
         );
 
         try {
-            // Create the venue
-            $coordinates = $validatedData['latitude'] . ',' . $validatedData['longitude'];
+            $coordinates = (!empty($validatedData['latitude']) && !empty($validatedData['longitude'])) ?
+                $validatedData['latitude'] . ',' . $validatedData['longitude'] : null;
 
             Venue::create([
-                'name' => $validatedData['name'],
-                'coordinates' => $coordinates,
                 'organization_id' => session('organization_id'),
+                'name' => $validatedData['name'],
+                'max_capacity' => $validatedData['max_capacity'],
+                'coordinates' => $coordinates,
             ]);
 
             session()->flash('message', __('Venue successfully created.'));

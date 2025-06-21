@@ -29,8 +29,6 @@ class UserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'userName' => ['required', 'string', 'max:255'],
-            'role' => ['required', 'string', 'exists:roles,name'],
             'organization_id' => [
                 Rule::when(request('role') !== 'superadmin', [
                     'required',
@@ -44,6 +42,8 @@ class UserRequest extends FormRequest
                     'prohibited',
                 ]),
             ],
+            'userName' => ['required', 'string', 'max:255'],
+            'role' => ['required', 'string', 'exists:roles,name'],
             'userPassword' => [
                 'string',
                 Password::defaults(),

@@ -414,9 +414,11 @@
                 </div>
 
                 <h1>{{ $order->event->name }}</h1>
+                @if($order->event->venue)
                 <div class="event-date-location">
                     {{ $order->event->date->format('F j, Y') }} • {{ $order->event->venue->name }}
                 </div>
+                @endif
             </div>
         </div>
 
