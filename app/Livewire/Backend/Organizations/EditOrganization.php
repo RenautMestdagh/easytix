@@ -55,10 +55,10 @@ class EditOrganization extends Component
     public function save()
     {
         // Skip validation for subdomain if it's unchanged
-        $rules = (new UpdateOrganizationRequest($this->organization->id))->rules();
-        $messages = (new UpdateOrganizationRequest())->messages();
-
-        $validated = $this->validate($rules, $messages);
+        $validated = $this->validate(
+            (new UpdateOrganizationRequest($this->organization->id))->rules(),
+            (new UpdateOrganizationRequest())->messages(),
+        );
 
         $oldSubdomain = $this->organization->subdomain;
         $newSubdomain = $validated['organizationSubdomain'];

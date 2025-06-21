@@ -37,7 +37,7 @@ class EventFactory extends Factory
             'uniqid' => str_replace('-', '', Str::uuid()),
             'name' => $this->faker->words(3, true),
             'description' => $this->faker->paragraph,
-            'venue_id' => $organization->venues()->inRandomOrder()->first()->id,
+            'venue_id' => $organization->venues()->inRandomOrder()->first()?->id ?? null,
             'date' => $date,
             'event_image' => null,
             'header_image' => null,
