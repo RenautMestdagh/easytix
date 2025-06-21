@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use App\Models\Ticket;
@@ -20,7 +21,7 @@ class ScanController extends Controller
             'ticket_code' => 'required|string|max:255',
         ]);
 
-        $ticket = Ticket::where('code', $validated['ticket_code'])->first();
+        $ticket = Ticket::where('qr_code', $validated['ticket_code'])->first();
 
         if (!$ticket) {
             return response()->json([
@@ -30,12 +31,13 @@ class ScanController extends Controller
         }
 
         // Check if ticket is already scanned
-        if ($ticket->is_scanned) {
+        if ($ticket->scanned_at) {
             return response()->json([
                 'success' => false,
                 'message' => 'Ticket already scanned',
-                'scanned_at' => $ticket->scanned_at
-            ], 400);
+                'scanned_at' => $ticket->scanned_at,
+                'scanned_by' => User::find($ticket->scanned_by)->name
+            ]);
         }
 
         // Process the scan

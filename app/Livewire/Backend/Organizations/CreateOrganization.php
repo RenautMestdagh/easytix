@@ -33,8 +33,6 @@ class CreateOrganization extends Component
 
     public function updated($propertyName): void
     {
-        $this->resetErrorBag($propertyName);
-
         $fieldRules = (new StoreOrganizationRequest())->rules();
         $fieldMessages = (new StoreOrganizationRequest())->messages();
 
@@ -97,15 +95,6 @@ class CreateOrganization extends Component
             session()->flash('message', __('Er is een fout opgetreden bij het aanmaken van de organisatie.'));
             session()->flash('message_type', 'error');
         }
-    }
-
-    /**
-     * Reset form fields and error messages
-     */
-    public function resetForm(): void
-    {
-        $this->reset(['organization', 'user']);
-        $this->resetErrorBag();
     }
 
     public function render()

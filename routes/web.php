@@ -7,9 +7,9 @@ use App\Http\Controllers\ScanController;
 use App\Http\Controllers\TicketController;
 use App\Http\Middleware\CheckPermissionMiddleware;
 use App\Http\Middleware\SubdomainOrganizationMiddleware;
-use App\Livewire\Backend\Discountcodes\CreateDiscountCode;
-use App\Livewire\Backend\Discountcodes\EditDiscountCode;
-use App\Livewire\Backend\Discountcodes\ShowDiscountCodes;
+use App\Livewire\Backend\DiscountCodes\CreateDiscountCode;
+use App\Livewire\Backend\DiscountCodes\EditDiscountCode;
+use App\Livewire\Backend\DiscountCodes\ShowDiscountCodes;
 use App\Livewire\Backend\Events\CreateEvent;
 use App\Livewire\Backend\Events\EditEvent;
 use App\Livewire\Backend\Events\ShowEvents;
@@ -17,12 +17,15 @@ use App\Livewire\Backend\Organizations\CreateOrganization;
 use App\Livewire\Backend\Organizations\EditOrganization;
 use App\Livewire\Backend\Organizations\ShowOrganizations;
 use App\Livewire\Backend\Organizations\UploadMedia;
-use App\Livewire\Backend\Tickettypes\CreateTicketType;
-use App\Livewire\Backend\Tickettypes\EditTicketType;
-use App\Livewire\Backend\Tickettypes\ShowTypes;
+use App\Livewire\Backend\TicketTypes\CreateTicketType;
+use App\Livewire\Backend\TicketTypes\EditTicketType;
+use App\Livewire\Backend\TicketTypes\ShowTypes;
 use App\Livewire\Backend\Users\CreateUser;
 use App\Livewire\Backend\Users\EditUser;
 use App\Livewire\Backend\Users\ShowUsers;
+use App\Livewire\Backend\Venues\CreateVenue;
+use App\Livewire\Backend\Venues\EditVenue;
+use App\Livewire\Backend\Venues\ShowVenues;
 use App\Livewire\Frontend\EventCheckout;
 use App\Livewire\Frontend\EventPayment;
 use App\Livewire\Frontend\EventTicketsSelector;
@@ -82,6 +85,10 @@ Route::middleware(['auth', 'verified', CheckPermissionMiddleware::class, Subdoma
     Route::get('/users/{user}/edit', EditUser::class)->name('users.update');
     Route::post('/switch-back', [ShowUsers::class, 'switchBackToOriginalUser'])->name('login-as.use');
 
+    Route::get('/venues', ShowVenues::class)->name('venues.index');
+    Route::get('/venues/create', CreateVenue::class)->name('venues.create');
+    Route::get('/venues/{user}/edit', EditVenue::class)->name('venues.update');
+
     Route::get('/events', ShowEvents::class)->name('events.index');
     Route::get('/events/create', CreateEvent::class)->name('events.create');
     Route::get('/events/{event}/edit', EditEvent::class)->name('events.update');
@@ -96,7 +103,6 @@ Route::middleware(['auth', 'verified', CheckPermissionMiddleware::class, Subdoma
 
     Route::get('/ticketscanner', [ScanController::class, 'show'])->name('scanner.show');
     Route::post('/scan-ticket', [ScanController::class, 'scan'])->name('scanner.use');
-    // to here should go with CheckPermissionMiddleware
 });
 
 require __DIR__ . '/auth.php';

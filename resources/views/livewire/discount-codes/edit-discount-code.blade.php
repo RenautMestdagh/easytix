@@ -27,7 +27,6 @@
         <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm rounded-xl transition-all duration-300 hover:border-indigo-800">
             <div class="p-8">
                 <form wire:submit.prevent="update">
-                    @csrf
                     <div class="space-y-8">
                         <!-- Discount Code Information -->
                         <div>
@@ -50,7 +49,7 @@
                                         />
                                         <x-ui.button
                                             type="button"
-                                            variant="gray"
+                                            variant="secondary"
                                             wire:click="generateCode"
                                             class="whitespace-nowrap"
                                         >
@@ -68,10 +67,32 @@
                                         <option value=""></option>
                                         @foreach($this->events as $event)
                                             <option value="{{ $event->id }}" @selected($event->id == $event_id)>
-                                                {{ $event->name }} ({{ $event->date->format('M j, Y') }})
+                                                {{ Str::limit($event->name, 30) }} ({{ $event->date->format('M j, Y') }})
                                             </option>
                                         @endforeach
                                     </select>
+                                </x-ui.forms.group>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
+                                <x-ui.forms.group label="Start Date (Optional)" for="start_date" error="start_date">
+                                    <x-ui.forms.input
+                                        type="date"
+                                        wire:model.lazy="start_date"
+                                        name="start_date"
+                                        error="{{ $errors->has('start_date') }}"
+                                        class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
+                                    />
+                                </x-ui.forms.group>
+
+                                <x-ui.forms.group label="End Date (Optional)" for="end_date" error="end_date">
+                                    <x-ui.forms.input
+                                        type="date"
+                                        wire:model.lazy="end_date"
+                                        name="end_date"
+                                        error="{{ $errors->has('end_date') }}"
+                                        class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
+                                    />
                                 </x-ui.forms.group>
                             </div>
 
@@ -155,7 +176,7 @@
                         </div>
 
                         <div class="flex items-center justify-end pt-8 space-x-4">
-                            <x-ui.button type="button" variant="gray" href="{{ route('discount-codes.index') }}">
+                            <x-ui.button type="button" variant="secondary" href="{{ route('discount-codes.index') }}">
                                 {{ __('Cancel') }}
                             </x-ui.button>
                             <x-ui.button type="submit" variant="indigo">

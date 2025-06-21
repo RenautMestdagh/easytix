@@ -2,23 +2,23 @@
 
 namespace App\Livewire\Backend\Events;
 
+use App\Http\Requests\Event\UpdateEventRequest;
 use App\Models\Event;
+use App\Traits\EventManagementUtilities;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
 class EditEvent extends Component
 {
-    use WithFileUploads;
+    use WithFileUploads, EventManagementUtilities;
 
     public Event $event;
 
     // Event fields
     public $name;
     public $description;
-    public $location;
+//    public $location;
     public $date;
     public ?int $max_capacity;
 
@@ -32,12 +32,10 @@ class EditEvent extends Component
 
     public function mount(Event $event)
     {
-        session()->put('events.edit.referrer', request('referrer', url()->previous()));
-
         $this->event = $event;
         $this->name = $event->name;
         $this->description = $event->description;
-        $this->location = $event->location;
+//        $this->location = $event->location;
         $this->date = $event->date->format('Y-m-d\TH:i');
         $this->max_capacity = $event->max_capacity;
         $this->is_published = $event->is_published;
@@ -55,79 +53,40 @@ class EditEvent extends Component
 
     public function updated($propertyName): void
     {
-        $this->resetErrorBag($propertyName);
-
-        // Handle file upload validation separately
-        if (in_array($propertyName, ['event_image', 'background_image'])) {
-            $this->validateOnly($propertyName, $this->fileRules());
-            return;
+        if($propertyName === 'publish_option') {
+            $this->resetErrorBag('publish_at');
+            if($this->publish_option !== 'schedule')
+                $this->publish_at = null;
         }
 
-        // Handle other field validation
-        $this->validateOnly($propertyName, $this->rules());
-    }
+        $fieldRules = (new UpdateEventRequest(
+            $this->publish_option,
+            $this->date,
+            $this->event,
+        ))->rules();
+        $fieldMessages = (new UpdateEventRequest())->messages();
 
-    protected function rules()
-    {
-        $rules = [
-            'name' => 'required|string|max:255',
-            'description' => 'string',
-            'location' => 'required|string|max:255',
-            'date' => [
-                'required',
-                'date',
-                function ($attribute, $value, $fail) {
-                    // Only validate if date is different from original
-                    if ($value !== $this->event->date->format('Y-m-d\TH:i')) {
-                        if (strtotime($value) <= time()) {
-                            $fail(__('The event date must be in the future.'));
-                        }
-                    }
-                },
-            ],
-            'max_capacity' => ['nullable',
-                'integer',
-                'min:1',
-                function ($attribute, $value, $fail) {
-                    $publishedTickets = $this->event->ticketTypes->sum('available_quantity');
-                    if ($value < $publishedTickets) {
-                        $fail(__("The maximum capacity must be greater than or equal to the number of published tickets ($publishedTickets)."));
-                    }
-                },
-            ],
-            'publish_option' => 'required|in:publish_now,schedule,unlisted',
-            'publish_at' => [
-                'nullable',
-                'required_if:publish_option,schedule',
-                'date',
-                'after:now',
-                function ($attribute, $value, $fail) {
-                    if ($this->publish_option === 'schedule' && $value >= $this->date) {
-                        $fail(__('The publish date must be before the event date.'));
-                    }
-                },
-            ],
-        ];
+        if (!array_key_exists($propertyName, $fieldRules)) {
+            return; // skip validation if no rule is defined
+        }
 
-        return $rules;
-    }
-
-    protected function fileRules()
-    {
-        return [
-            'event_image' => 'nullable|image|max:2048', // 2MB
-            'header_image' => 'nullable|image|max:2048', // 2MB
-            'background_image' => 'nullable|image|max:5120', // 5MB
-        ];
+        $this->validateOnly($propertyName, $fieldRules, $fieldMessages);
     }
 
     public function update()
     {
+        if($this->publish_option !== 'schedule')
+            $this->publish_at = null;
+
         // Validate all fields
-        $validatedData = $this->validate(array_merge(
-            $this->rules(),
-            $this->fileRules()
-        ));
+        $validatedData = $this->validate(
+            (new UpdateEventRequest(
+                $this->publish_option,
+                $this->date,
+                $this->event,
+            ))->rules(),
+            (new UpdateEventRequest())->messages()
+        );
 
         try {
             // Determine publish status
@@ -137,7 +96,7 @@ class EditEvent extends Component
             $this->event->update([
                 'name' => $validatedData['name'],
                 'description' => $validatedData['description'],
-                'location' => $validatedData['location'],
+//                'location' => $validatedData['location'], TODO
                 'date' => $validatedData['date'],
                 'max_capacity' => $validatedData['max_capacity'],
                 'is_published' => $publishStatus['is_published'],
@@ -161,15 +120,15 @@ class EditEvent extends Component
 
             // Handle file uploads
             if ($this->event_image) {
-                $this->uploadEventImage();
+                $this->uploadImage($this->event, 'event_image');
             }
 
             if ($this->header_image) {
-                $this->uploadHeaderImage();
+                $this->uploadImage($this->event, 'header_image');
             }
 
             if ($this->background_image) {
-                $this->uploadBackgroundImage();
+                $this->uploadImage($this->event, 'background_image');
             }
 
             session()->flash('message', __('Event successfully updated.'));
@@ -181,137 +140,6 @@ class EditEvent extends Component
             session()->flash('message', __('An error occurred while updating the event.'));
             session()->flash('message_type', 'error');
         }
-    }
-
-    protected function determinePublishStatus()
-    {
-        return match ($this->publish_option) {
-            'publish_now' => ['is_published' => true, 'publish_at' => null],
-            'schedule' => ['is_published' => false, 'publish_at' => $this->publish_at],
-            'unlisted' => ['is_published' => false, 'publish_at' => null],
-            default => ['is_published' => false, 'publish_at' => null],
-        };
-    }
-
-    protected function uploadEventImage()
-    {
-        // Delete old image if exists
-        if ($this->event->event_image) {
-            Storage::disk('public')->delete("events/{$this->event->id}/{$this->event->event_image}");
-        }
-
-        $filename = $this->generateUniqueFilename('event', $this->event_image->extension(), $this->event->id);
-
-        $this->event_image->storeAs(
-            "events/{$this->event->id}",
-            $filename,
-            'public'
-        );
-
-        $this->event->update(['event_image' => $filename]);
-    }
-
-    protected function uploadHeaderImage()
-    {
-        // Delete old image if exists
-        if ($this->event->header_image) {
-            Storage::disk('public')->delete("events/{$this->event->id}/{$this->event->header_image}");
-        }
-
-        $filename = $this->generateUniqueFilename('header', $this->header_image->extension(), $this->event->id);
-
-        $this->header_image->storeAs(
-            "events/{$this->event->id}",
-            $filename,
-            'public'
-        );
-
-        $this->event->update(['header_image' => $filename]);
-    }
-
-    protected function uploadBackgroundImage()
-    {
-        // Delete old image if exists
-        if ($this->event->background_image) {
-            Storage::disk('public')->delete("events/{$this->event->id}/{$this->event->background_image}");
-        }
-
-        $filename = $this->generateUniqueFilename('background', $this->background_image->extension(), $this->event->id);
-
-        $this->background_image->storeAs(
-            "events/{$this->event->id}",
-            $filename,
-            'public'
-        );
-
-        $this->event->update(['background_image' => $filename]);
-    }
-
-    protected function generateUniqueFilename($prefix, $extension, $eventId)
-    {
-        $filename = "{$prefix}.{$extension}";
-
-        // If file exists, append a random string
-        if (Storage::disk('public')->exists("events/{$eventId}/{$filename}")) {
-            $random = Str::random(8);
-            $filename = "{$prefix}_{$random}.{$extension}";
-        }
-
-        return $filename;
-    }
-
-    public function removeEventImage()
-    {
-        // Delete the file from storage if it exists
-        if ($this->event->event_image) {
-            Storage::disk('public')->delete("events/{$this->event->id}/{$this->event->event_image}");
-        }
-
-        // Update the event to remove the image reference
-        $this->event->update(['event_image' => null]);
-
-        // Reset the file input
-        $this->reset('event_image');
-
-        // Show success message
-        session()->flash('message', __('Event image removed successfully.'));
-        session()->flash('message_type', 'success');
-    }
-
-    public function removeHeaderImage()
-    {
-        // Delete the file from storage if it exists
-        if ($this->event->header_image) {
-            Storage::disk('public')->delete("events/{$this->event->id}/{$this->event->header_image}");
-        }
-
-        // Update the event to remove the image reference
-        $this->event->update(['header_image' => null]);
-
-        // Reset the file input
-        $this->reset('header_image');
-
-        // Show success message
-        session()->flash('message', __('Header image removed successfully.'));
-        session()->flash('message_type', 'success');
-    }
-
-    public function removeBackgroundImage()
-    {
-        // Delete the file from storage if it exists
-        if ($this->event->background_image) {
-            Storage::disk('public')->delete("events/{$this->event->id}/{$this->event->background_image}");
-        }
-
-        // Update the event to remove the image reference
-        $this->event->update(['background_image' => null]);
-
-        // Reset the file input
-        $this->reset('background_image');
-
-        // Show success message
-        session()->flash('message', __('Background image removed successfully.'));
-        session()->flash('message_type', 'success');
     }
 
     public function render()

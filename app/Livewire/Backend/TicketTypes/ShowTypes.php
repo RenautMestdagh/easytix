@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Backend\Tickettypes;
+namespace App\Livewire\Backend\TicketTypes;
 
 use App\Models\Event;
 use Livewire\Component;
@@ -22,7 +22,7 @@ class ShowTypes extends Component
 
     public function editEvent(Event $event)
     {
-        session(['events.edit.referrer' => url()->current()]);
+        session(['events.edit.referrer' => request()->headers->get('referer')]);
         return redirect()->route('events.update', $event);
     }
 

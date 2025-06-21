@@ -12,12 +12,14 @@
             </p>
         </div>
         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+            @can('discount-codes.create')
             <x-ui.button href="{{ route('discount-codes.create') }}">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
                 {{ __('New Discount Code') }}
             </x-ui.button>
+            @endcan
         </div>
     </div>
 
@@ -41,7 +43,9 @@
         <x-ui.forms.select wire:model.live="selectedEvent">
             <option value="">{{ __('All Events') }}</option>
             @foreach($events as $event)
-                <option value="{{ $event->id }}">{{ Str::limit($event->name, 30) }}</option>
+                <option value="{{ $event->id }}">
+                    {{ Str::limit($event->name, 30) }} ({{ $event->date->format('M j, Y') }})
+                </option>
             @endforeach
         </x-ui.forms.select>
 
@@ -55,6 +59,12 @@
                 <option value="deleted">{{ __('Deleted') }}</option>
             @endif
         </x-ui.forms.select>
+
+        <!-- Include deleted -->
+        <label class="flex items-center ml-auto">
+            <input type="checkbox" wire:model.live="includeDeleted" class="form-checkbox text-indigo-600">
+            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ __('Include deleted') }}</span>
+        </label>
 
         <!-- Include deleted -->
         <label class="flex items-center ml-auto">
@@ -181,6 +191,7 @@
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div class="flex justify-end gap-2">
                             @if($discountCode->trashed())
+                                @can('discount-codes.delete')
                                 <button wire:click="restoreDiscountCode({{ $discountCode->id }})"
                                         class="p-1 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors hover:cursor-pointer"
                                         title="{{ __('Restore') }}">
@@ -188,7 +199,6 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/>
                                     </svg>
                                 </button>
-                                @can('discount-codes.delete')
                                 <x-ui.delete-button
                                     type="forcedelete"
                                     method="forceDeleteDiscountCode"
@@ -200,6 +210,7 @@
                                 />
                                 @endcan
                             @else
+                                @can('discount-codes.update')
                                 <button
                                     @if($discountCode->getAllUsesCount() === 0)
                                         wire:navigate
@@ -219,6 +230,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"/>
                                     </svg>
                                 </button>
+                                @endcan
                                 @can('discount-codes.delete')
                                 <x-ui.delete-button
                                     type="delete"

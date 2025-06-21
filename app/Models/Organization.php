@@ -33,6 +33,11 @@ class Organization extends Model
         return $this->hasMany(User::class)->role('admin');
     }
 
+    public function venues()
+    {
+        return $this->hasMany(Venue::class);
+    }
+
     public function events()
     {
         return $this->hasMany(Event::class);

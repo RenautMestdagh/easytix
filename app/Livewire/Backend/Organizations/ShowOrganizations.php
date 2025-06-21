@@ -115,26 +115,7 @@ class ShowOrganizations extends Component
             return;
         }
 
-        // Delete all related data in the correct order
-        DB::transaction(function () use ($organization) {
-            // Delete discount codes (including those not tied to specific events)
-            $organization->discountCodes()->forceDelete();
-
-            // Get all events and their relationships
-            $organization->events()->with(['ticketTypes.tickets', 'discountCodes'])->each(function ($event) {
-                // Delete all ticket types
-                $event->ticketTypes()->forceDelete();
-
-                // Delete the event itself
-                $event->forceDelete();
-            });
-
-            // Delete all users (if needed)
-            $organization->users()->forceDelete();
-
-            // Finally, delete the organization
-            $organization->forceDelete();
-        });
+        $organization->forceDelete();
 
         session()->flash('message', 'Organization permanently deleted with all related data.');
         $this->dispatch('flash-message');

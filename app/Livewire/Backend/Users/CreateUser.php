@@ -7,6 +7,7 @@ use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rules\Unique;
 use Livewire\Component;
 use Spatie\Permission\Models\Role;
 
@@ -55,12 +56,7 @@ class CreateUser extends Component
                 $this->organization_id = array_key_first($this->organizations);
         }
 
-        // Validate individual field using StoreUserRequest
-        $fieldRules = (new StoreUserRequest(
-            (int)$this->organization_id,
-            $this->userEmail,
-            $this->role,
-        ))->rules();
+        $fieldRules = (new StoreUserRequest($this->organization_id))->rules();
         $fieldMessages = (new StoreUserRequest())->messages();
 
         // Handle password confirmation case
@@ -77,6 +73,13 @@ class CreateUser extends Component
             return;
         }
 
+        if ($propertyName === 'userEmail' && !$this->role) {
+            // If no role is selected, dont check on email uniqueness
+            $fieldRules = array_filter($fieldRules, function ($rule) {
+                return !($rule instanceof Unique);
+            });
+        }
+
         if (!array_key_exists($propertyName, $fieldRules)) {
             return; // skip validation if no rule is defined
         }
@@ -87,10 +90,7 @@ class CreateUser extends Component
     public function save()
     {
         $validatedData = $this->validate(
-            (new StoreUserRequest(
-                (int)$this->organization_id,
-                $this->userEmail,
-            ))->rules(),
+            (new StoreUserRequest($this->organization_id))->rules(),
             (new StoreUserRequest)->messages()
         );
 

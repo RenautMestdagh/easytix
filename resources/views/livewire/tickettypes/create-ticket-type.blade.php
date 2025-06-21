@@ -27,7 +27,6 @@
         <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm rounded-xl transition-all duration-300 hover:border-indigo-800">
             <div class="p-8">
                 <form wire:submit.prevent="store">
-                    @csrf
                     <div class="space-y-8">
                         <!-- Ticket Type Information -->
                         <div>
@@ -99,7 +98,7 @@
                                         {{ __('Control when this ticket type will be visible to attendees') }}
                                     </p>
 
-                                    <x-ui.forms.group label="Publish Option" for="publish_option" error="publish_at">
+                                    <x-ui.forms.group label="Publish Option" for="publish_option" :error="$publish_option !== 'schedule' ? 'publish_at' : null">
                                         <select wire:model.live="publish_option" id="publish_option" class="block w-full rounded-md p-2 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600">
                                             <option value="publish_now">{{ __('Publish Immediately') }}</option>
                                             @if(!$event->is_published)
@@ -174,7 +173,7 @@
                         </div>
 
                         <div class="flex items-center justify-end pt-8 space-x-4">
-                            <x-ui.button type="button" variant="gray" href="{{ route('ticket-types.index', $event) }}">
+                            <x-ui.button type="button" variant="secondary" href="{{ route('ticket-types.index', $event) }}">
                                 {{ __('Cancel') }}
                             </x-ui.button>
                             <x-ui.button type="submit" variant="indigo">

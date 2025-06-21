@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('temporary_orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('event_id')->constrained('events');
+            $table->foreignId('event_id')->constrained('events')->onDelete('cascade');
             $table->foreignId('customer_id')->nullable()->constrained('customers');
             $table->timestamp('expires_at');
             $table->tinyInteger('checkout_stage')->default(0);

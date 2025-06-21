@@ -49,13 +49,10 @@ class EditUser extends Component
 
     public function updated($propertyName)
     {
-        $this->resetErrorBag($propertyName);
-
         // Validate individual field using UpdateUserRequest
         $fieldRules = (new UpdateUserRequest(
+            $this->organization_id,
             $this->user->id,
-            (int)$this->organization_id,
-            $this->userEmail,
         ))->rules();
         $fieldMessages = (new UpdateUserRequest())->messages();
 
@@ -84,9 +81,8 @@ class EditUser extends Component
     {
         $validatedData = $this->validate(
             (new UpdateUserRequest(
+                $this->organization_id,
                 $this->user->id,
-                (int)$this->organization_id,
-                $this->userEmail,
             ))->rules(),
             (new UpdateUserRequest())->messages()
         );

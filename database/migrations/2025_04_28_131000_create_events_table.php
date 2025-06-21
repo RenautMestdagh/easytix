@@ -9,17 +9,15 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    // 2025_04_28_131000_create_events_table.php
-    // 2025_04_28_131000_create_events_table.php
     public function up(): void
     {
         Schema::create('events', function (Blueprint $table) {
             $table->id();
             $table->string('uniqid')->unique();
-            $table->foreignId('organization_id')->constrained('organizations');
+            $table->foreignId('organization_id')->constrained('organizations')->onDelete('cascade');
             $table->string('name');
             $table->text('description')->nullable();
-            $table->string('location')->nullable();
+            $table->foreignId('venue_id')->nullable()->constrained('venues')->onDelete('set null');
             $table->dateTime('date')->index();
             $table->string('event_image')->nullable(); // For line-up, date, location display
             $table->string('header_image')->nullable(); // For purchasing page header

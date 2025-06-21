@@ -13,6 +13,7 @@
                 </p>
             </div>
             <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+                @can('users.create')
                 <x-ui.button
                     href="{{ route('users.create') }}"
                 >
@@ -21,6 +22,7 @@
                     </svg>
                     {{ __('New User') }}
                 </x-ui.button>
+                @endcan
             </div>
         </div>
 
@@ -164,7 +166,7 @@
                                                             />
                                                         @endcan
                                                     @else
-                                                        @role('superadmin')
+                                                        @can('login-as.use')
                                                             @if(!$user->isSuperadmin())
                                                                 <button type="button"
                                                                         wire:click.prevent="loginAsUser({{ $user->id }})"
@@ -175,7 +177,7 @@
                                                                     </svg>
                                                                 </button>
                                                            @endif
-                                                        @endrole
+                                                        @endcan
                                                         @can('users.update')
                                                             <!-- Edit Button -->
                                                             <a href="{{ route('users.update', $user) }}"

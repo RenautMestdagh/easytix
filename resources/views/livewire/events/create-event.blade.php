@@ -28,7 +28,6 @@
         <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm rounded-xl transition-all duration-300 hover:border-indigo-800">
             <div class="p-8">
                 <form wire:submit.prevent="store">
-                    @csrf
                     <div class="space-y-8">
                         <!-- Event Information -->
                         <div>
@@ -61,15 +60,16 @@
                             </x-ui.forms.group>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <x-ui.forms.group label="Location" for="location" error="location">
-                                    <x-ui.forms.input
-                                        wire:model.lazy="location"
-                                        name="location"
-                                        placeholder="Enter event location"
-                                        error="{{ $errors->has('location') }}"
-                                        class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
-                                    />
-                                </x-ui.forms.group>
+{{--                                TODO--}}
+{{--                                <x-ui.forms.group label="Location" for="location" error="location">--}}
+{{--                                    <x-ui.forms.input--}}
+{{--                                        wire:model.lazy="location"--}}
+{{--                                        name="location"--}}
+{{--                                        placeholder="Enter event location"--}}
+{{--                                        error="{{ $errors->has('location') }}"--}}
+{{--                                        class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"--}}
+{{--                                    />--}}
+{{--                                </x-ui.forms.group>--}}
 
                                 <x-ui.forms.group label="Date & Time" for="date" error="date">
                                     <x-ui.forms.input
@@ -336,7 +336,7 @@
                         </div>
 
                         <div class="flex items-center justify-end pt-8 space-x-4">
-                            <x-ui.button type="button" variant="gray" wire:click="cancel">
+                            <x-ui.button type="button" variant="secondary" wire:click="cancel">
                                 {{ __('Cancel') }}
                             </x-ui.button>
                             <x-ui.button type="submit" variant="indigo">

@@ -40,9 +40,9 @@ class ShowUsers extends Component
     {
         return User::query()
             ->with(['roles', 'organization'])
-            ->join('organizations', function($join) {
+            ->leftJoin('organizations', function($join) {
                 $join->on('users.organization_id', '=', 'organizations.id')
-                    ->whereNull('organizations.deleted_at'); // Only join non-deleted orgs
+                    ->whereNull('organizations.deleted_at');
             })
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {

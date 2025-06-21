@@ -29,12 +29,12 @@ class ShowEvents extends Component
     public function getEventsProperty()
     {
         return Event::query()
-            ->with(['organization', 'ticketTypes', 'tickets'])
+            ->with(['organization', 'ticketTypes', 'tickets', 'venue'])
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('name', 'like', '%' . $this->search . '%')
-                        ->orWhere('description', 'like', '%' . $this->search . '%')
-                        ->orWhere('location', 'like', '%' . $this->search . '%');
+                        ->orWhere('description', 'like', '%' . $this->search . '%');
+//                        ->orWhere('location', 'like', '%' . $this->search . '%'); TODO
                 });
             })
             ->when($this->startDate, function ($query) {
@@ -101,8 +101,8 @@ class ShowEvents extends Component
 
     public function editEvent(Event $event)
     {
-        session(['events.edit.referrer' => url()->current()]);
-        return redirect()->route('events.update', $event);
+        session(['events.edit.referrer' => request()->headers->get('referer')]);
+        return redirect()->route('events.update', ['event' => $event->id]);
     }
 
     public function deleteEvent($id)
@@ -133,10 +133,6 @@ class ShowEvents extends Component
                 $this->dispatch('flash-message');
                 return;
             }
-        }
-
-        foreach ($ticketTypes as $ticketType) {
-            $ticketType->delete();
         }
 
         $event->forceDelete();

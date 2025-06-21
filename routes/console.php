@@ -12,11 +12,15 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
+
+// Clean expired temporary orders
 Schedule::call(function () {
     CleanExpiredOrdersJob::dispatch();
 //})->everyMinute();
 })->everyFiveMinutes();   // TODO
 
+
+// Check status temporary orders where in payment stage
 Schedule::call(function () {
     $temporaryOrders = TemporaryOrder::where('checkout_stage', '>', 3)->get();
     foreach ($temporaryOrders as $order) {
@@ -29,6 +33,8 @@ Schedule::call(function () {
 //})->everyMinute();
 })->everyTenMinutes();   // TODO
 
+
+// Check for events or ticket types that need to be published
 Schedule::call(function () {
     // Publish events that are scheduled for publishing
     $eventsToPublish = Event::scheduledForPublishing()->get();
@@ -65,3 +71,14 @@ Schedule::call(function () {
         ]);
     }
 })->everyMinute();
+
+
+// Check for customers with no orders
+Schedule::call(function () {
+    \DB::table('customers')
+        ->leftJoin('orders', 'customers.id', '=', 'orders.customer_id')
+        ->leftJoin('temporary_orders', 'customers.id', '=', 'temporary_orders.customer_id')
+        ->whereNull('orders.id')
+        ->whereNull('temporary_orders.id')
+        ->delete();
+})->daily(); // Runs once per day

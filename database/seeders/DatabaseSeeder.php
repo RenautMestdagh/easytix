@@ -16,15 +16,14 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class,
             OrganizationSeeder::class,
+            VenueSeeder::class,
             UserSeeder::class,
             EventSeeder::class,
             DiscountCodeSeeder::class,
             TicketTypeSeeder::class,
             CustomerSeeder::class,
             OrderSeeder::class,
-//            TemporaryOrderSeeder::class,
             TicketSeeder::class,
         ]);
-
     }
 }

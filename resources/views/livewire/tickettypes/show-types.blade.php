@@ -10,6 +10,7 @@
                         <h1 class="text-xl font-semibold leading-6 text-gray-900 dark:text-white me-2">
                             {{ $event->name }}
                         </h1>
+                        @can('events.update')
                         <button
                            wire:click="editEvent({{ $event->id }})"
                            wire:navigate
@@ -19,6 +20,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"/>
                             </svg>
                         </button>
+                        @endcan
                         <a href="{{ route('event.tickets', [$event->organization->subdomain, $event->uniqid]) }}" target="_blank"
                            class="p-1 pt-0 text-blue-600 hover:text-green-900 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
                            title="{{ __('Show event') }}">
@@ -127,13 +129,14 @@
             </p>
         </div>
 
-
+        @can('ticket-types.create')
         <x-ui.button href="{{ route('ticket-types.create', $event) }}">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
             {{ __('New Ticket Type') }}
         </x-ui.button>
+        @endcan
     </div>
 
     <!-- Ticket Types Table -->
@@ -220,6 +223,7 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div class="flex justify-end gap-2">
+                            @can('ticket-types.update')
                             <a href="{{ route('ticket-types.update', ['event' => $event, 'ticketType' => $ticketType]) }}" wire:navigate
                                class="p-1 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
                                title="{{ __('Edit') }}">
@@ -227,6 +231,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"/>
                                 </svg>
                             </a>
+                            @endcan
                             @can('ticket-types.delete')
                             <x-ui.delete-button
                                 type="delete"

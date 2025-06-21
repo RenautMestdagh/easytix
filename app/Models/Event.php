@@ -21,7 +21,7 @@ class Event extends Model
         'organization_id',
         'name',
         'description',
-        'location',
+        'venue_id',
         'date',
         'event_image',
         'header_image',
@@ -55,6 +55,11 @@ class Event extends Model
     public function organization()
     {
         return $this->belongsTo(Organization::class, 'organization_id');
+    }
+
+    public function venue()
+    {
+        return $this->belongsTo(Venue::class, 'venue_id');
     }
 
     /**

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Backend\Discountcodes;
+namespace App\Livewire\Backend\DiscountCodes;
 
 use App\Models\DiscountCode;
 use App\Models\Event;
@@ -84,7 +84,8 @@ class ShowDiscountCodes extends Component
 
     public function getEventsProperty()
     {
-        return Event::orderBy('date')
+        return Event::where('date', '>=', now()->format('Y-m-d'))
+            ->orderBy('date')
             ->get();
     }
 

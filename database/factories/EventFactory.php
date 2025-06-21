@@ -30,12 +30,14 @@ class EventFactory extends Factory
         // Determine if published (either auto-published or manually published)
         $isPublished = $this->faker->boolean(70) || ($publishAt && $publishAt <= new DateTime());
 
+        $organization = Organization::inRandomOrder()->first();
+
         return [
-            'organization_id' => Organization::inRandomOrder()->first()->id,
+            'organization_id' => $organization->id,
             'uniqid' => str_replace('-', '', Str::uuid()),
             'name' => $this->faker->words(3, true),
             'description' => $this->faker->paragraph,
-            'location' => $this->faker->address,
+            'venue_id' => $organization->venues()->inRandomOrder()->first()->id,
             'date' => $date,
             'event_image' => null,
             'header_image' => null,

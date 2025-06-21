@@ -60,10 +60,6 @@ class OrderController extends Controller
             'discountAmount' => $discountAmount,
             'orderTotal' => $orderTotal,
             'appliedDiscounts' => $order->discountCodes,
-        ])->layout('components.layouts.organization', [
-            'backgroundOverride' => $order->event->background_image_url ?? null,
-            'logoOverride' => $order->event->header_image_url ?? null,
-            'organization' => $order->event->organization
         ]);
     }
 }

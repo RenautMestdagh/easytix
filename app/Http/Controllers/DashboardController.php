@@ -8,6 +8,7 @@ use App\Models\Organization;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Models\Event;
+use App\Models\Venue;
 
 class DashboardController extends Controller
 {
@@ -17,6 +18,7 @@ class DashboardController extends Controller
             'organizationsCount' => Organization::count(),
             'usersCount' => User::count(),
             'eventsCount' => Event::count(),
+            'venueCount' => Venue::count(),
             'discountCodesCount' => DiscountCode::count(),
             'ticketsCount' => Ticket::count(), // Add this line for total tickets
             'customersCount' => Customer::count(), // Add this line for total tickets

@@ -415,7 +415,7 @@
 
                 <h1>{{ $order->event->name }}</h1>
                 <div class="event-date-location">
-                    {{ $order->event->date->format('F j, Y') }} • {{ $order->event->location }}
+                    {{ $order->event->date->format('F j, Y') }} • {{ $order->event->venue->name }}
                 </div>
             </div>
         </div>

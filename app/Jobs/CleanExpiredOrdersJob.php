@@ -6,7 +6,6 @@ use App\Models\Customer;
 use App\Models\TemporaryOrder;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Support\Facades\Log;
 
 class CleanExpiredOrdersJob implements ShouldQueue
 {
@@ -38,7 +37,7 @@ class CleanExpiredOrdersJob implements ShouldQueue
             $customer = Customer::find($expiredOrder->customer_id);
             $expiredOrder->delete();    // tickets and discount codes will be deleted in model event listener
             if($customer?->orders->isEmpty() && $customer?->temporaryOrders->isEmpty()) {
-                Customer::withoutGlobalScopes()->where('id', $customer->id)->delete();
+                Customer::where('id', $customer->id)->delete();
             }
         }
     }

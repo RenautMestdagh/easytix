@@ -60,7 +60,8 @@
                         autocomplete="bday"
                     />
                 </x-ui.forms.group>
-                <x-ui.forms.group label="Gender" for="gender" class="mb-4">
+
+                <x-ui.forms.group label="Gender" for="gender" class="mb-4" error="gender">
                     <x-ui.forms.select name="gender" id="gender" wire:model.blur="gender" class="w-full">
                         <option value="">Select Gender</option>
                         <option value="male">Male</option>

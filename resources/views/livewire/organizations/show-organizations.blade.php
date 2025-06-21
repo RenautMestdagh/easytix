@@ -13,6 +13,7 @@
                 </p>
             </div>
             <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+                @can('organizations.create')
                 <x-ui.button
                     href="{{ route('organizations.create') }}"
                 >
@@ -21,6 +22,7 @@
                     </svg>
                     {{ __('New organization') }}
                 </x-ui.button>
+                @endcan
             </div>
         </div>
 

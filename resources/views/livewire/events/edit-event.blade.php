@@ -59,15 +59,16 @@
                             </x-ui.forms.group>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <x-ui.forms.group label="Location" for="location" error="location">
-                                    <x-ui.forms.input
-                                        wire:model.lazy="location"
-                                        name="location"
-                                        placeholder="Enter event location"
-                                        error="{{ $errors->has('location') }}"
-                                        class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
-                                    />
-                                </x-ui.forms.group>
+{{--                                TODO--}}
+{{--                                <x-ui.forms.group label="Location" for="location" error="location">--}}
+{{--                                    <x-ui.forms.input--}}
+{{--                                        wire:model.lazy="location"--}}
+{{--                                        name="location"--}}
+{{--                                        placeholder="Enter event location"--}}
+{{--                                        error="{{ $errors->has('location') }}"--}}
+{{--                                        class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"--}}
+{{--                                    />--}}
+{{--                                </x-ui.forms.group>--}}
 
                                 <x-ui.forms.group label="Date & Time" for="date" error="date">
                                     <x-ui.forms.input
@@ -144,7 +145,7 @@
                                                     {{ $event_image ? round($event_image->getSize() / 1024, 2) : '' }} KB
                                                 </p>
                                             </div>
-                                            <button wire:click.prevent="removeEventImage"
+                                            <button wire:click.prevent="removeImage('event_image', 'Event image removed successfully.')"
                                                     type="button"
                                                     class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -194,7 +195,7 @@
                                                     {{ $header_image ? round($header_image->getSize() / 1024, 2) : '' }} KB
                                                 </p>
                                             </div>
-                                            <button wire:click.prevent="removeHeaderImage"
+                                            <button wire:click.prevent="removeImage('header_image', 'Header image removed successfully.')"
                                                     type="button"
                                                     class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -244,7 +245,7 @@
                                                     {{ $background_image ? round($background_image->getSize() / 1024, 2) : '' }} KB
                                                 </p>
                                             </div>
-                                            <button wire:click.prevent="removeBackgroundImage"
+                                            <button wire:click.prevent="removeImage('background_image', 'Background image removed successfully.')"
                                                     type="button"
                                                     class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -334,7 +335,7 @@
                         </div>
 
                         <div class="flex items-center justify-end pt-8 space-x-4">
-                            <x-ui.button type="button" variant="gray" wire:click="cancel">
+                            <x-ui.button type="button" variant="secondary" wire:click="cancel">
                                 {{ __('Cancel') }}
                             </x-ui.button>
                             <x-ui.button type="submit" variant="indigo">

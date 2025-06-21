@@ -17,12 +17,14 @@ class DiscountCode extends Model
 
     // Fillable attributes for mass assignment
     protected $fillable = [
-        'event_id',
         'organization_id',
         'code',
+        'event_id',
+        'start_date',
+        'end_date',
+        'max_uses',
         'discount_percent',
         'discount_fixed_cents',
-        'max_uses',
     ];
 
     /**

@@ -2,10 +2,10 @@
 
 namespace App\Livewire\Frontend;
 
+use App\Http\Requests\CustomerRequest;
 use App\Models\Customer;
 use App\Models\DiscountCode;
 use App\Traits\NavigateEventCheckout;
-use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Stripe\StripeClient;
 
@@ -26,18 +26,6 @@ class EventCheckout extends Component
 
     public $discountCode = '';
     public $discountError = '';
-
-    protected $rules = [
-        'first_name' => 'required|string|max:255',
-        'last_name' => 'required|string|max:255',
-        'email' => 'required|email|max:255',
-        'phone' => 'required|string|max:255',
-        'gender' => 'nullable|in:male,female,other,prefer not to say',
-        'date_of_birth' => 'nullable|date',
-        'address' => 'nullable|string|max:255',
-        'city' => 'nullable|string|max:255',
-        'country' => 'nullable|string|max:255',
-    ];
 
     public function boot()
     {
@@ -68,49 +56,53 @@ class EventCheckout extends Component
 
     public function updated($propertyName)
     {
-        if (str_starts_with($propertyName, 'first_name') ||
-            str_starts_with($propertyName, 'last_name') ||
-            str_starts_with($propertyName, 'email') ||
-            str_starts_with($propertyName, 'phone') ||
-            str_starts_with($propertyName, 'gender') ||
-            str_starts_with($propertyName, 'date_of_birth') ||
-            str_starts_with($propertyName, 'address') ||
-            str_starts_with($propertyName, 'city') ||
-            str_starts_with($propertyName, 'country')
-        ) {
-            $this->saveCustomerData();
+        $customerFields = [
+            'first_name', 'last_name', 'email', 'phone',
+            'gender', 'date_of_birth', 'address', 'city', 'country'
+        ];
+
+        foreach ($customerFields as $field) {
+            if (str_starts_with($propertyName, $field)) {
+                $this->saveSingleCustomerField($propertyName);
+                break;
+            }
         }
     }
 
-    protected function saveCustomerData()
+// Save a single field that was updated
+    protected function saveSingleCustomerField($propertyName)
     {
         if (!$this->tempOrder) return;
 
-        // Validate the data using the same rules defined in the $rules property
-        $validatedData = $this->validate();
+        $field = explode('.', $propertyName)[0];
 
-        $customerData = [
-            'first_name' => $validatedData['first_name'],
-            'last_name' => $validatedData['last_name'],
-            'email' => $validatedData['email'],
-            'phone' => $validatedData['phone'],
-            'gender' => $validatedData['gender'],
-            'date_of_birth' => $validatedData['date_of_birth'],
-            'address' => $validatedData['address'],
-            'city' => $validatedData['city'],
-            'country' => $validatedData['country'],
-        ];
+        if($field == 'gender' && empty($this->gender))
+            $this->gender = null;
+
+        $validatedData = $this->validateOnly($field, (new CustomerRequest)->rules());
 
         $customer = Customer::withoutGlobalScopes()->find($this->tempOrder->customer_id);
 
         if ($customer) {
-            // Customer exists, update it
-            $customer->update($customerData);
-        } else {
-            // No customer yet, create new one
-            $customer = Customer::withoutGlobalScopes()->create($customerData);
+            $customer->update([$field => $validatedData[$field]]);
+        } else if ($this->first_name && $this->last_name && $this->email && $this->phone) {
+            $this->saveAllCustomerData();
+        }
+    }
 
-            // Link new customer to the temp order
+// Save/update all customer data
+    public function saveAllCustomerData()
+    {
+        if (!$this->tempOrder) return;
+
+        $validatedData = $this->validate((new CustomerRequest)->rules());
+
+        $customer = Customer::withoutGlobalScopes()->find($this->tempOrder->customer_id);
+
+        if ($customer) {
+            $customer->update($validatedData);
+        } else {
+            $customer = Customer::create($validatedData);
             $this->tempOrder->customer_id = $customer->id;
             $this->tempOrder->save();
         }
@@ -120,7 +112,6 @@ class EventCheckout extends Component
     {
         if($this->tempOrder->checkout_stage !== 1) return;
 
-        $this->resetErrorBag('discountError');
         if (empty($this->discountCode)) {
             $this->addError('discountError', 'Please enter a discount code');
             return;
@@ -138,6 +129,14 @@ class EventCheckout extends Component
             ->where(function($query) {
                 $query->whereNull('event_id')
                     ->orWhere('event_id', $this->event->id);
+            })
+            ->where(function($query) {
+                $query->whereNull('start_date') // Either start date is not set
+                ->orWhere('start_date', '<=', now()); // Or it's in the past
+            })
+            ->where(function($query) {
+                $query->whereNull('end_date') // Either end date is not set
+                ->orWhere('end_date', '>=', now()); // Or it's in the future
             })
             ->first();
 
@@ -191,10 +190,7 @@ class EventCheckout extends Component
 
     public function backToTickets()
     {
-        try {
-            $this->saveCustomerData();
-        } catch (ValidationException $e) {}
-
+        $this->saveAllCustomerData();
         $this->tempOrder->checkout_stage = 0;
         $this->tempOrder->save();
         return redirect()->route('event.tickets', [$this->event->organization->subdomain, $this->event->uniqid]);
@@ -202,7 +198,7 @@ class EventCheckout extends Component
 
     public function proceedToPayment()
     {
-        $this->saveCustomerData();
+        $this->saveAllCustomerData();
 
         $this->calculateOrderTotal();
 
