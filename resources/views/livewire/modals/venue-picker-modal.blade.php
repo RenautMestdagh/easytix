@@ -4,7 +4,7 @@
         <button
             type="button"
             wire:click="openVenuePicker(@js($selectedVenueId))"
-            class="inline-flex items-center px-2 py-2 bg-indigo-600 border border-transparent rounded-2xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-300 ease-in-out hover:cursor-pointer"
+            class="inline-flex items-center px-2 py-2 bg-indigo-600 border border-transparent rounded-2xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-300 ease-in-out hover:cursor-pointer"
         >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
@@ -44,7 +44,7 @@
                 x-transition:leave="ease-in duration-200"
                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                class="relative transform overflow-hidden rounded-lg bg-white dark:bg-gray-800 text-left shadow-xl transition-all sm:my-8 w-full sm:max-w-2xl"
+                class="relative transform overflow-hidden rounded-lg bg-white dark:bg-gray-800 text-left shadow-xl transition-all duration-300 ease-in-out sm:my-8 w-full sm:max-w-2xl"
                 @click.away="show = false"
             >
                 <!-- Modal Content -->
@@ -66,7 +66,7 @@
                                 </div>
                                 <input
                                     type="text"
-                                    wire:model.live.debounce.300ms="search"
+                                    wire:model.live.debounce.150ms="search"
                                     placeholder="{{ __('Search venues by name...') }}"
                                     class="pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 p-2 text-sm w-full"
                                     autofocus
@@ -81,7 +81,7 @@
                                     <div
                                         wire:key="venue-{{ $venue->id }}"
                                         wire:click="selectVenue('{{ $venue->id }}', '{{ $venue->name }}')"
-                                        class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-all duration-300 ease-in-out border-b border-gray-200 dark:border-gray-700 last:border-b-0"
+                                        class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors duration-300 ease-in-out border-b border-gray-200 dark:border-gray-700 last:border-b-0"
                                     >
                                         <div class="flex justify-between items-center">
                                             <div>
@@ -103,7 +103,7 @@
                                                 <a
                                                     href="{{ $venue->getGoogleMapsUrl() }}"
                                                     target="_blank"
-                                                    class="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 transition-all duration-300 ease-in-out"
+                                                    class="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 transition-colors duration-300 ease-in-out"
                                                     onclick="event.stopPropagation()"
                                                 >
                                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
@@ -138,7 +138,7 @@
                     <button
                         type="button"
                         wire:click="$set('showModal', false)"
-                        class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-300 ease-in-out"
+                        class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-300 ease-in-out"
                     >
                         {{ __('Cancel') }}
                     </button>

@@ -38,7 +38,7 @@
 
                 <!-- Input field -->
                 <input type="text"
-                       wire:model.live.debounce.250ms="search"
+                       wire:model.live.debounce.150ms="search"
                        placeholder="{{ __('Search by name or email...') }}"
                        class="pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 p-2 text-sm w-full"
                 />
@@ -87,13 +87,13 @@
                             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                 <thead class="bg-gray-50 dark:bg-gray-700/50">
                                 <tr>
-                                    <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-white sm:pl-6 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 ease-in-out" wire:click="sortBy('name')">
+                                    <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-white sm:pl-6 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 ease-in-out" wire:click="sortBy('name')">
                                         {{ __('Name') }}
                                         <span class="text-xs ml-1" style="visibility: {{ $sortField == 'name' ? 'visible' : 'hidden' }};">
                                             {{ $sortDirection == 'asc' ? '↑' : '↓' }}
                                         </span>
                                     </th>
-                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700transition-all duration-300 ease-in-out" wire:click="sortBy('email')">
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 ease-in-out" wire:click="sortBy('email')">
                                         {{ __('Email') }}
                                         <span class="text-xs ml-1" style="visibility: {{ $sortField == 'email' ? 'visible' : 'hidden' }};">
                                             {{ $sortDirection == 'asc' ? '↑' : '↓' }}
@@ -103,7 +103,7 @@
                                         {{ __('Role') }}
                                     </th>
                                     @role('superadmin')
-                                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 ease-in-out" wire:click="sortBy('organization_id')">
+                                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 ease-in-out" wire:click="sortBy('organization_id')">
                                             {{ __('Organization') }}
                                             <span class="text-xs ml-1" style="visibility: {{ $sortField == 'organization_id' ? 'visible' : 'hidden' }};">
                                                 {{ $sortDirection == 'asc' ? '↑' : '↓' }}
@@ -119,14 +119,12 @@
                                 </thead>
                                 <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                                 @forelse($users as $user)
-                                    <tr wire:key="user-{{ $user->id }}" class="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-all duration-300 ease-in-out">
+                                    <tr wire:key="user-{{ $user->id }}" class="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors duration-300 ease-in-out">
                                         <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 dark:text-white sm:pl-6">
                                             <div class="flex items-center gap-2">
                                                 {{ $user->name }}
                                                 @if($user->trashed())
-                                                    <span class="inline-flex items-center rounded-md bg-red-50 dark:bg-red-900/20 px-2 py-1 text-xs font-medium text-red-700 dark:text-red-400 ring-1 ring-inset ring-red-600/10">
-                                                        {{ __('Deleted') }}
-                                                    </span>
+                                                    <x-ui.badge color="red" text="Deleted" size="sm"/>
                                                 @endif
                                             </div>
                                         </td>
@@ -149,7 +147,7 @@
                                                             <!-- Restore Button -->
                                                             <button type="button"
                                                                     wire:click="restoreUser({{ $user->id }})"
-                                                                    class="p-1 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all duration-300 ease-in-out hover:cursor-pointer"
+                                                                    class="p-1 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors duration-300 ease-in-out hover:cursor-pointer"
                                                                     title="{{ __('Restore') }}"
                                                             >
                                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -170,7 +168,7 @@
                                                             @if(!$user->isSuperadmin())
                                                                 <button type="button"
                                                                         wire:click.prevent="loginAsUser({{ $user->id }})"
-                                                                        class="p-1 rounded-full transition-all duration-300 ease-in-out text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                                        class="p-1 rounded-full transition-colors duration-300 ease-in-out text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:cursor-pointer"
                                                                         title="{{ __('Log in') }}">
                                                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25" />
@@ -180,15 +178,11 @@
                                                         @endcan
                                                         @can('users.update')
                                                             <!-- Edit Button -->
-                                                            <a href="{{ route('users.update', $user) }}"
-                                                               wire:navigate
-                                                               class="p-1 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all duration-300 ease-in-out"
-                                                               title="{{ __('Edit') }}"
-                                                            >
-                                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"/>
-                                                                </svg>
-                                                            </a>
+                                                            <x-ui.edit-button
+                                                                route="users.update"
+                                                                :routeParams="['user' => $user]"
+                                                                title="{{ __('Edit') }}"
+                                                            />
                                                         @endcan
 
                                                         @can('users.delete')

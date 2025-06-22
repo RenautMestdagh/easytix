@@ -33,7 +33,7 @@
                 </svg>
             </div>
             <input type="text"
-                   wire:model.live.debounce.250ms="search"
+                   wire:model.live.debounce.150ms="search"
                    placeholder="{{ __('Search discount codes or events...') }}"
                    class="pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 p-2 text-sm w-full"
             />
@@ -65,7 +65,7 @@
                                 ({{ $event->date->format('M j, Y') }})
                             </p>
                         </div>
-                        <x-ui.cross-button wireClick="$set('selectedEvent', '')" />
+                        <x-ui.cross-button wire:click="$set('selectedEvent', '')" />
                     </div>
                 @else
                     <p class="text-gray-600 dark:text-gray-400">
@@ -99,7 +99,7 @@
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead class="bg-gray-50 dark:bg-gray-700/50">
             <tr>
-                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300 transition-all duration-300 ease-in-out cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700" wire:click="sortBy('code')">
+                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300 transition-colors duration-300 ease-in-out cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700" wire:click="sortBy('code')">
                     <div class="flex items-center">
                         {{ __('Code') }}
                         <span class="ml-1 text-xs" style="visibility: {{ $sortField == 'code' ? 'visible' : 'hidden' }};">
@@ -116,7 +116,7 @@
                 <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
                     {{ __('Usage') }}
                 </th>
-                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 ease-in-out" wire:click="sortBy('start_date')">
+                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 ease-in-out" wire:click="sortBy('start_date')">
                     <div class="flex items-center">
                         {{ __('Start Date') }}
                         <span class="ml-1 text-xs" style="visibility: {{ $sortField == 'start_date' ? 'visible' : 'hidden' }};">
@@ -124,7 +124,7 @@
         </span>
                     </div>
                 </th>
-                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 ease-in-out" wire:click="sortBy('end_date')">
+                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 ease-in-out" wire:click="sortBy('end_date')">
                     <div class="flex items-center">
                         {{ __('End Date') }}
                         <span class="ml-1 text-xs" style="visibility: {{ $sortField == 'end_date' ? 'visible' : 'hidden' }};">
@@ -142,7 +142,7 @@
             </thead>
             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
             @forelse($discountCodes as $discountCode)
-                <tr wire:key="discount-code-{{ $discountCode->id }}" class="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-all duration-300 ease-in-out">
+                <tr wire:key="discount-code-{{ $discountCode->id }}" class="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors duration-300 ease-in-out">
                     <td class="px-4 py-4 whitespace-nowrap">
                         <div class="text-sm font-medium text-gray-900 dark:text-white">
                             <code>{{ $discountCode->code }}</code>
@@ -165,28 +165,7 @@
                         </div>
                     </td>
                     <td class="px-4 py-4 whitespace-nowrap">
-                        <div class="flex items-center">
-                            <div class="w-20 mr-2">
-                                <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-600">
-                                    <div
-                                        class="h-2 rounded-full
-                                            @if(!$discountCode->max_uses && !$discountCode->orders_count)
-                                            @elseif(!$discountCode->max_uses) bg-green-500
-                                            @elseif(($discountCode->orders_count / $discountCode->max_uses * 100) >= 90) bg-red-500
-                                            @elseif(($discountCode->orders_count / $discountCode->max_uses * 100) >= 50) bg-yellow-500
-                                            @else bg-green-500 @endif
-                                        "
-                                        style="
-                                            @if(!$discountCode->max_uses) width: 100%
-                                            @else width: {{ min(100, ($discountCode->orders_count / $discountCode->max_uses * 100)) }}% @endif
-                                        "
-                                    ></div>
-                                </div>
-                            </div>
-                            <span class="text-xs text-gray-600 dark:text-gray-300">
-                                {{ $discountCode->orders_count }}/{{ $discountCode->max_uses ?? '∞' }}
-                            </span>
-                        </div>
+                        <x-ui.usage-bar :progress="$discountCode->orders_count" :max="$discountCode->max_uses" />
                     </td>
                     <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
                         {{ $discountCode->start_date ? $discountCode->start_date->format('M j, Y') : '-' }}
@@ -195,38 +174,24 @@
                         {{ $discountCode->end_date ? $discountCode->end_date->format('M j, Y') : '-' }}
                     </td>
                     <td class="px-4 py-4 whitespace-nowrap">
-                        @if($discountCode->trashed())
-                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400">
-        {{ __('Deleted') }}
-    </span>
-                        @elseif($discountCode->event && $discountCode->event->date->format('Y-m-d') < now()->format('Y-m-d'))
-                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400">
-        {{ __('Event Past') }}
-    </span>
-                        @elseif($discountCode->max_uses && $discountCode->orders_count >= $discountCode->max_uses)
-                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400">
-        {{ __('Limit Reached') }}
-    </span>
-                        @elseif($discountCode->end_date && $discountCode->end_date->format('Y-m-d') < now()->format('Y-m-d'))
-                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400">
-        {{ __('Expired') }}
-    </span>
-                        @elseif($discountCode->start_date && $discountCode->start_date->format('Y-m-d') > now()->format('Y-m-d'))
-                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
-        {{ __('Upcoming') }}
-    </span>
-                        @else
-                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400">
-        {{ __('Active') }}
-    </span>
-                        @endif
+                        @php
+                            $badge = match(true) {
+                                $discountCode->trashed() => ['color' => 'red', 'text' => 'Deleted'],
+                                $discountCode->event && $discountCode->event->date->isPast() => ['color' => 'gray', 'text' => 'Event Past'],
+                                $discountCode->max_uses && $discountCode->orders_count >= $discountCode->max_uses => ['color' => 'red', 'text' => 'Limit Reached'],
+                                $discountCode->end_date && $discountCode->end_date->isPast() => ['color' => 'gray', 'text' => 'Expired'],
+                                $discountCode->start_date && $discountCode->start_date->isFuture() => ['color' => 'blue', 'text' => 'Upcoming'],
+                                default => ['color' => 'green', 'text' => 'Active']
+                            };
+                        @endphp
+                        <x-ui.badge :color="$badge['color']" :text="$badge['text']" size="sm"/>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div class="flex justify-end gap-2">
                             @if($discountCode->trashed())
                                 @can('discount-codes.delete')
                                 <button wire:click="restoreDiscountCode({{ $discountCode->id }})"
-                                        class="p-1 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all duration-300 ease-in-out hover:cursor-pointer"
+                                        class="p-1 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors duration-300 ease-in-out hover:cursor-pointer"
                                         title="{{ __('Restore') }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/>
@@ -239,30 +204,18 @@
                                     confirmation="⚠️ Are you sure you want to permanently delete this discount code?"
                                     title="{{ __('Delete permanently') }}"
                                     disabledTitle="Cannot permanently delete discount codes that have been used"
-                                    :disabled="$discountCode->getAllUsesCount() > 0"
+                                    :disabled="$discountCode->orders_count + $discountCode->temporary_orders_count > 0"
                                 />
                                 @endcan
                             @else
                                 @can('discount-codes.update')
-                                <button
-                                    @if($discountCode->getAllUsesCount() === 0)
-                                        wire:navigate
-                                        onclick="window.location.href='{{ route('discount-codes.update', $discountCode) }}'"
-                                    @endif
-                                    @disabled($discountCode->getAllUsesCount() > 0)
-                                    class="p-1 rounded-full transition-all duration-300 ease-in-out
-                                    @if($discountCode->getAllUsesCount() > 0)
-                                        opacity-50 cursor-not-allowed
-                                    @else
-                                        text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:cursor-pointer
-                                    @endif"
-                                    title="{{ $discountCode->getAllUsesCount() > 0 ? __('Cannot edit used discount code') : __('Edit') }}"
-                                    aria-label="{{ __('Edit discount code') }}"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"/>
-                                    </svg>
-                                </button>
+                                    <x-ui.edit-button
+                                        route="discount-codes.update"
+                                        :routeParams="['discountCode' => $discountCode]"
+                                        :disabled="$discountCode->orders_count + $discountCode->temporary_orders_count > 0"
+                                        :title="__('Edit')"
+                                        :disabledTitle="__('Cannot edit used discount code')"
+                                    />
                                 @endcan
                                 @can('discount-codes.delete')
                                 <x-ui.delete-button

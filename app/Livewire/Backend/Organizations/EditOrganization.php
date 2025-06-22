@@ -4,16 +4,15 @@ namespace App\Livewire\Backend\Organizations;
 
 use App\Http\Requests\Organization\UpdateOrganizationRequest;
 use App\Models\Organization;
-use App\Models\User;
+use App\Traits\DeleteUser;
 use App\Traits\FlashMessage;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 class EditOrganization extends Component
 {
-    use WithPagination, FlashMessage;
+    use WithPagination, DeleteUser, FlashMessage;
 
     public Organization $organization;
     public $organizationName = '';
@@ -148,57 +147,5 @@ class EditOrganization extends Component
             'users' => $this->users,
             'adminCount' => $this->adminCount,
         ]);
-    }
-
-    public function removeUser($id)
-    {
-        $this->authorize('users.delete');
-
-        try {
-            DB::transaction(function () use ($id) { // Wrap in transaction
-                $user = User::findOrFail($id);
-                $organization = Organization::findOrFail($user->organization_id);
-
-                // Lock admins (automatically unlocks on commit/rollback)
-                $adminIds = $organization->admins()->lockForUpdate()->pluck('id');
-
-                if ($adminIds->count() === 1 && $adminIds->first() === $user->id) {
-                    $this->flashMessage('Cannot delete the last admin in the organization.', 'error');
-                    return; // Locks released here due to transaction
-                }
-
-                $user->delete();
-                $this->flashMessage('User deleted successfully.');
-                $this->adminCount = $organization->admins()->count();
-            });
-        } catch (\Exception $e) {
-            Log::error('Error deleting user: ' . $e->getMessage());
-            $this->flashMessage('Error while deleting user.', 'error');
-        }
-    }
-
-    public function forceDeleteUser($id)
-    {
-        $this->authorize('users.delete');
-        try {
-            User::withTrashed()->findOrFail($id)->forceDelete();
-            $this->flashMessage('User permanently deleted.');
-        } catch (\Exception $e) {
-            Log::error('Error permanently deleting user: ' . $e->getMessage());
-            $this->flashMessage('Error while permanently deleting user.', 'error');
-        }
-    }
-
-    public function restoreUser($id)
-    {
-        $this->authorize('users.delete');
-        try {
-            User::withTrashed()->findOrFail($id)->restore();
-            $this->adminCount = $this->organization->admins()->count();
-            $this->flashMessage('User restored successfully.');
-        } catch (\Exception $e) {
-            Log::error('Error restoring user: ' . $e->getMessage());
-            $this->flashMessage('Error restoring user.', 'error');
-        }
     }
 }

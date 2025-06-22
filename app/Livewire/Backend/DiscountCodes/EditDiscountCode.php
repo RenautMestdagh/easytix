@@ -29,7 +29,7 @@ class EditDiscountCode extends Component
 
     public function mount(DiscountCode $discountCode)
     {
-        if($discountCode->getAllUsesCount() > 0)
+        if($discountCode->all_orders_count > 0)
             redirect()->route('discount-codes.index');
 
         $this->discountCode = $discountCode;
@@ -93,12 +93,8 @@ class EditDiscountCode extends Component
         }
 
         try {
-            DB::statement('LOCK TABLES discount_code_order WRITE');
-            if($this->discountCode->getAllUsesCount() > 0) {
-                DB::statement('UNLOCK TABLES');
-                $this->flashMessage('Cannot edit used discount code', 'error');
-                return redirect()->route('discount-codes.index');
-            }
+
+            DB::beginTransaction();
 
             $this->discountCode->update([
                 'code' => $validatedData['code'],
@@ -106,19 +102,39 @@ class EditDiscountCode extends Component
                 'start_date' => $validatedData['start_date'],
                 'end_date' => $validatedData['end_date'],
                 'max_uses' => $validatedData['max_uses'],
-                'discount_percent' => $validatedData['discount_type'] === 'percent' ? $validatedData['discount_percent'] : null,
-                'discount_fixed_cents' => $validatedData['discount_type'] === 'fixed' ? $discountFixedCents : null,
             ]);
 
+            if($this->discountCode->discount_percent != $validatedData['discount_percent'] || $this->discountCode->discount_fixed_cents != $discountFixedCents){
+                try {
+                    $this->discountCode->orders()->lockForUpdate();
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    $this->flashMessage('Error while updating discount code', 'error');
+                    return;
+                }
+
+                if ($this->discountCode->all_orders_count > 0) {
+                    $this->flashMessage('Cannot update discount code. It has already been used.', 'error');
+                    DB::rollBack();
+                }
+                $this->discountCode->update([
+                    'discount_percent' => $validatedData['discount_type'] === 'percent'
+                        ? $validatedData['discount_percent']
+                        : null,
+                    'discount_fixed_cents' => $validatedData['discount_type'] === 'fixed'
+                        ? $discountFixedCents
+                        : null,
+                ]);
+            }
+
+            DB::commit();
             $this->flashMessage('Discount code has been updated.');
+            redirect()->route('discount-codes.index');
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error('Error while updating discount code: ' . $e->getMessage());
             $this->flashMessage('Error while updating discount code', 'error');
-        } finally {
-            DB::statement('UNLOCK TABLES');
         }
-
-        return redirect()->route('discount-codes.index');
     }
 
     public function generateCode()

@@ -7,13 +7,12 @@ use App\Models\Order;
 use App\Models\TemporaryOrder;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 use Stripe\StripeClient;
 
 class CheckTemporaryOrderStatus implements ShouldQueue
@@ -37,32 +36,31 @@ class CheckTemporaryOrderStatus implements ShouldQueue
     {
         $stripe = new StripeClient(config('app.stripe.secret'));
 
+        $paymentIntent = null;
         try {
             $paymentIntent = $stripe->paymentIntents->retrieve($this->paymentIntentId);
+        } catch (\Exception $e) {
+            Log::error("Failed to retreive PaymentIntent: {$e->getMessage()}");
+            $this->fail($e);
+        }
 
+        $tempOrder = TemporaryOrder::where('payment_id', $this->paymentIntentId)->first();
+        if (!$tempOrder) {
+            Log::error("Order not found for PaymentIntent: {$this->paymentIntentId}");
+            return;
+        }
 
-            // Find the associated order (you might need to adjust this based on your DB structure)
-            $tempOrder = TemporaryOrder::where('payment_id', $this->paymentIntentId)->first();
+        switch ($paymentIntent->status) {
+            case 'succeeded':
 
-            if (!$tempOrder) {
-                Log::error("Order not found for PaymentIntent: {$this->paymentIntentId}");
-                return;
-            }
+                try {
+                    // Wrap in DB transaction
+                    DB::beginTransaction();
 
-            switch ($paymentIntent->status) {
-                case 'succeeded':
-
-                    $order = null;
-                    while (true) {
-                        try {
-                            $order = Order::create([
-                                'uniqid' => str_replace('-', '', Str::uuid()),
-                                'customer_id' => $tempOrder->customer_id,
-                                'payment_id' => $paymentIntent->id,
-                            ]);
-                            break;
-                        } catch (QueryException $e) {}
-                    }
+                    $order = Order::create([
+                        'customer_id' => $tempOrder->customer_id,
+                        'payment_id' => $paymentIntent->id,
+                    ]);
 
                     $tempOrder->tickets()->update([
                         'order_id' => $order->id,
@@ -74,23 +72,34 @@ class CheckTemporaryOrderStatus implements ShouldQueue
                     ]);
                     $tempOrder->delete();
 
+                    DB::commit();
+
                     // Send confirmation email
                     Mail::to($order->customer->email)
                         ->send(new OrderConfirmationMail($order->fresh()->load('tickets')));
 
-                    break;
-                case 'processing':
-                case 'requires_action':
-                case 'requires_payment_method':
-                case 'canceled':
-                    break;
-                default:
-                    Log::warning("Unhandled PaymentIntent status: {$paymentIntent->status}");
-            }
+                } catch (\Exception $e) {
+                    DB::rollBack();
 
-        } catch (\Exception $e) {
-            Log::error("Failed to check PaymentIntent status: {$e->getMessage()}");
-            $this->fail($e);
+                    Log::error("Failed to process successful PaymentIntent: {$e->getMessage()}", [
+                        'paymentIntentId' => $paymentIntent->id,
+                        'orderId' => $order->id ?? null,
+                    ]);
+
+                    if ($this->attempts() < 5)
+                        $this->release(5);
+                    else
+                        $this->fail($e);
+                }
+
+                break;
+            case 'processing':
+            case 'requires_action':
+            case 'requires_payment_method':
+            case 'canceled':
+                break;
+            default:
+                Log::warning("Unhandled PaymentIntent status: {$paymentIntent->status}");
         }
     }
 

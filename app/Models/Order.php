@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Order extends Model
 {
@@ -16,6 +17,17 @@ class Order extends Model
         'customer_id',
         'payment_id',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (Order $order) {
+            if (empty($order->uniqid) || static::where('uniqid', $order->uniqid)->exists()) {
+                do {
+                    $order->uniqid = str_replace('-', '', Str::uuid());
+                } while (static::where('uniqid', $order->uniqid)->exists());
+            }
+        });
+    }
 
     public function customer(): BelongsTo
     {

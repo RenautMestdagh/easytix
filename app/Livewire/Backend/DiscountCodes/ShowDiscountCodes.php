@@ -6,7 +6,6 @@ use App\Models\DiscountCode;
 use App\Models\Event;
 use App\Models\Organization;
 use App\Traits\FlashMessage;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -30,6 +29,7 @@ class ShowDiscountCodes extends Component
         return DiscountCode::query()
             ->with(['event', 'organization'])
             ->withCount('orders')
+            ->withCount('temporaryOrders')
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('code', 'like', '%' . $this->search . '%')
@@ -168,25 +168,16 @@ class ShowDiscountCodes extends Component
     {
         $this->authorize('discount-codes.delete');
 
-        $canDelete = true;
         try {
-            DB::statement('LOCK TABLES discount_code_order WRITE');
             $discountCode = DiscountCode::withTrashed()->findOrFail($id);
+            if ($discountCode->orders()->count() > 0)
+                return $this->flashMessage('Cannot permanently delete discount code that has been used.', 'error');
 
-            if ($discountCode->orders()->count() > 0) {
-                $this->flashMessage('Cannot permanently delete discount code that has been used.', 'error');
-                $canDelete = false;
-            }
-
-            if ($canDelete) {
-                $discountCode->forceDelete();
-                $this->flashMessage('Discount code deleted successfully.');
-            }
+            $discountCode->forceDelete();
+            $this->flashMessage('Discount code deleted successfully.');
         } catch (\Exception $e) {
             Log::error('An error occurred while force deleting discount code: ' . $e->getMessage());
             $this->flashMessage('An error occurred while deleting discount code', 'error');
-        } finally {
-            DB::statement('UNLOCK TABLES');
         }
     }
 

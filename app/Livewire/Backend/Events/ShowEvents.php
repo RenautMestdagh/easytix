@@ -5,7 +5,6 @@ namespace App\Livewire\Backend\Events;
 use App\Models\Event;
 use App\Models\Organization;
 use App\Traits\FlashMessage;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -33,7 +32,8 @@ class ShowEvents extends Component
     public function getEventsProperty()
     {
         return Event::query()
-            ->with(['organization', 'ticketTypes', 'tickets', 'venue'])
+            ->with(['organization', 'venue'])
+            ->withCount(['tickets'])
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('name', 'like', '%' . $this->search . '%')
@@ -137,22 +137,15 @@ class ShowEvents extends Component
             $event = Event::withTrashed()->findOrFail($id);
             $ticketTypes = $event->ticketTypes;
 
-            DB::statement('LOCK TABLES tickets WRITE');
-            foreach ($ticketTypes as $ticketType) {
-                if($ticketType->tickets->count() + $ticketType->reservedTickets->count() > 0) {
-                    DB::statement('UNLOCK TABLES');
-                    $this->flashMessage('Cannot permanently delete event with (reserved) tickets.', 'error');
-                    return;
-                }
-            }
+            foreach ($ticketTypes as $ticketType)
+                if($ticketType->allTickets->count())
+                    return $this->flashMessage('Cannot permanently delete event with (reserved) tickets.', 'error');
 
             $event->forceDelete();
             $this->flashMessage('Event deleted successfully.');
         } catch (\Exception $e) {
             Log::error('Error permanently deleting event: ' . $e->getMessage());
             $this->flashMessage('Error while deleting event.', 'error');
-        } finally {
-            DB::statement('UNLOCK TABLES');
         }
     }
 

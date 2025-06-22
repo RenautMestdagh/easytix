@@ -4,7 +4,6 @@ namespace App\Livewire\Backend\Organizations;
 
 use App\Models\Organization;
 use App\Traits\FlashMessage;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -103,18 +102,8 @@ class ShowOrganizations extends Component
         $this->authorize('organizations.delete');
 
         try {
-            $organization = Organization::withTrashed()
-                ->with([
-                    'events.ticketTypes.tickets',
-                    'events.discountCodes',
-                    'discountCodes',
-                    'users'
-                ])
-                ->findOrFail($id);
-
-            DB::statement('LOCK TABLES tickets WRITE');
+            $organization = Organization::withTrashed()->findOrFail($id);
             if ($organization->ticket_count > 0) {
-                DB::statement('UNLOCK TABLES');
                 $this->flashMessage('Cannot permanently delete organization that has tickets.', 'error');
                 return;
             }
@@ -124,8 +113,6 @@ class ShowOrganizations extends Component
         } catch (\Exception $e) {
             Log::error('Error permanently deleting organization: ' . $e->getMessage());
             $this->flashMessage('Error while permanently deleting organization.', 'error');
-        } finally {
-            DB::statement('UNLOCK TABLES');
         }
     }
 }

@@ -3,11 +3,14 @@
 namespace App\Models;
 
 use App\Models\Scopes\TicketTypeOrganizationScope;
+use App\Observers\TicketTypeObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 #[ScopedBy([TicketTypeOrganizationScope::class])]
+#[ObservedBy([TicketTypeObserver::class])]
 class TicketType extends Model
 {
     /** @use HasFactory<\Database\Factories\TicketTypeFactory> */
@@ -24,7 +27,7 @@ class TicketType extends Model
     ];
 
     protected $casts = [
-        'publish_at' => 'datetime', // Also cast publish_at if needed
+        'publish_at' => 'datetime',
         'is_published' => 'boolean',
     ];
 
@@ -64,6 +67,11 @@ class TicketType extends Model
     public function reservedTickets()
     {
         return $this->hasMany(Ticket::class)->whereNotNull('temporary_order_id');
+    }
+
+    public function allTickets()
+    {
+        return $this->hasMany(Ticket::class);
     }
 
 }

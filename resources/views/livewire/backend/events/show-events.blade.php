@@ -34,7 +34,7 @@
                 </svg>
             </div>
             <input type="text"
-                   wire:model.live.debounce.250ms="search"
+                   wire:model.live.debounce.150ms="search"
                    placeholder="{{ __('Search events...') }}"
                    class="pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 p-2 text-sm w-full"
             />
@@ -73,7 +73,7 @@
                                 {{ Str::limit($venue->name, 15, '...') }}
                             </p>
                         </div>
-                        <x-ui.cross-button wireClick="$set('venueFilter', null)" />
+                        <x-ui.cross-button wire:click="$set('venueFilter', null)" />
                     </div>
                 @else
                     <p class="text-gray-600 dark:text-gray-400">
@@ -111,7 +111,7 @@
                 <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
                     {{ __('Image') }}
                 </th>
-                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 ease-in-out" wire:click="sortBy('name')">
+                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 ease-in-out" wire:click="sortBy('name')">
                     <div class="flex items-center">
                         {{ __('Name') }}
                         <span class="ml-1 text-xs" style="visibility: {{ $sortField == 'name' ? 'visible' : 'hidden' }};">
@@ -119,7 +119,7 @@
                         </span>
                     </div>
                 </th>
-                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 ease-in-out" wire:click="sortBy('date')">
+                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 ease-in-out" wire:click="sortBy('date')">
                     <div class="flex items-center">
                         {{ __('Date') }}
                         <span class="ml-1 text-xs" style="visibility: {{ $sortField == 'date' ? 'visible' : 'hidden' }};">
@@ -143,7 +143,7 @@
             </thead>
             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
             @forelse($events as $event)
-                <tr wire:key="event-{{ $event->id }}" class="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-all duration-300 ease-in-out">
+                <tr wire:key="event-{{ $event->id }}" class="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors duration-300 ease-in-out">
                     <td class="px-4 py-4 whitespace-nowrap">
                         <div class="flex-shrink-0 h-50 w-50">
                             @if($event->event_image)
@@ -166,66 +166,33 @@
                     <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
                         <a href="{{ $event->venue?->getGoogleMapsUrl() }}"
                            target="_blank"
-                           class="hover:underline transition-all duration-300 ease-in-out"
+                           class="hover:underline"
                            title="{{ __('View on Google Maps') }}"
                         >
                             {{ Str::limit($event->venue?->name, 30, '...') }}
                         </a>
                     </td>
                     <td class="px-4 py-4 whitespace-nowrap">
-                        <div class="flex items-center">
-                            <div class="w-20 mr-2">
-                                <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-600">
-                                    <div
-                                        class="h-2 rounded-full
-                                            @if(!$event->max_capacity && !$event->tickets->count())
-                                            @elseif(!$event->max_capacity) bg-green-500
-                                            @elseif(($event->tickets->count() / $event->max_capacity * 100) >= 90) bg-red-500
-                                            @elseif(($event->tickets->count() / $event->max_capacity * 100) >= 50) bg-yellow-500
-                                            @else bg-green-500 @endif
-                                        "
-                                        style="
-                                            @if(!$event->max_capacity) width: 100%
-                                            @else width: {{ min(100, ($event->tickets->count() / $event->max_capacity * 100)) }}% @endif
-                                        "
-                                    >
-                                    </div>
-                                </div>
-                            </div>
-                            <span class="text-xs text-gray-600 dark:text-gray-300">
-                                {{ $event->tickets->count() }}/{{ $event->max_capacity ?? '∞' }}
-                            </span>
-                        </div>
+                        <x-ui.usage-bar :progress="$event->tickets_count" :max="$event->max_capacity" />
                     </td>
                     <td class="px-4 py-4 whitespace-nowrap">
-                        @if($event->trashed())
-                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400">
-                                {{ __('Deleted') }}
-                            </span>
-                        @elseif($event->date->isPast())
-                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400">
-                                {{ __('Passed') }}
-                            </span>
-                        @elseif($event->is_published)
-                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400">
-                                {{ __('Published') }}
-                            </span>
-                        @elseif($event->publish_at)
-                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400" title="Will publish on {{ $event->publish_at->format('M j, Y g:i A') }}">
-                                {{ __('Publishes ') }}{{ $event->publish_at->diffForHumans() }}
-                            </span>
-                        @else
-                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400">
-                                {{ __('Unlisted') }}
-                            </span>
-                        @endif
+                        @php
+                            $badge = match(true) {
+                                $event->trashed() => ['color' => 'red', 'text' => 'Deleted'],
+                                $event->date->isPast() => ['color' => 'gray', 'text' => 'Passed'],
+                                $event->is_published => ['color' => 'green', 'text' => 'Published'],
+                                !empty($event->publish_at) => ['color' => 'blue', 'text' => 'Publishes '.$event->publish_at->diffForHumans()],
+                                default => ['color' => 'yellow', 'text' => 'Unlisted']
+                            };
+                        @endphp
+                        <x-ui.badge :color="$badge['color']" :text="$badge['text']" size="sm"/>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div class="flex justify-end gap-2">
                             @if($event->trashed())
                                 @can('events.delete')
                                     <button wire:click="restoreEvent({{ $event->id }})"
-                                            class="p-1 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all duration-300 ease-in-out hover:cursor-pointer"
+                                            class="p-1 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors duration-300 ease-in-out hover:cursor-pointer"
                                             title="{{ __('Restore') }}">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/>
@@ -243,7 +210,7 @@
                                 @endcan
                             @else
                                 <a href="{{ route('event.tickets', [$event->organization->subdomain, $event->uniqid]) }}" target="_blank"
-                                   class="p-1 text-blue-600 hover:text-green-900 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all duration-300 ease-in-out"
+                                   class="p-1 text-blue-600 hover:text-green-900 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors duration-300 ease-in-out"
                                    title="{{ __('Show event') }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/>
@@ -251,7 +218,7 @@
 
                                 </a>
                                 <a href="{{ route('ticket-types.index', $event) }}" wire:navigate
-                                   class="p-1 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all duration-300 ease-in-out"
+                                   class="p-1 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors duration-300 ease-in-out"
                                    title="{{ __('Tickets') }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/>
@@ -259,15 +226,7 @@
                                     </svg>
                                 </a>
                                 @can('events.update')
-                                    <button
-                                        wire:click="editEvent({{ $event->id }})"
-                                        wire:navigate
-                                        class="p-1 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all duration-300 ease-in-out hover:cursor-pointer"
-                                        title="{{ __('Edit') }}">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"/>
-                                        </svg>
-                                    </button>
+                                    <x-ui.edit-button wire:click="editEvent({{ $event->id }})" title="{{ __('Edit') }}"/>
                                 @endcan
                                 @can('events.delete')
                                     <x-ui.delete-button

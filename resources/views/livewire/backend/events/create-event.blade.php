@@ -3,19 +3,14 @@
 
         <div class="flex justify-between items-center mb-10">
             <div>
-                <h1 class="text-3xl font-semibold text-gray-800 dark:text-gray-200 transition-all duration-300">
+                <h1 class="text-3xl font-semibold text-gray-800 dark:text-gray-200">
                     {{ __('Create New Event') }}
                 </h1>
                 <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
                     {{ __('Set up a new event for your organization') }}
                 </p>
             </div>
-            <a href="{{ route('events.index') }}" class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center transition-all duration-300 ease-in-out">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                </svg>
-                {{ __('Back to events') }}
-            </a>
+            <x-ui.back-to-button route="events.index" text="{{ __('Back to events') }}"/>
         </div>
 
         @if (session()->has('message'))
@@ -25,9 +20,9 @@
             />
         @endif
 
-        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm rounded-xl transition-all duration-300 ease-in-out hover:border-indigo-800">
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm rounded-xl transition-colors duration-300 ease-in-out hover:border-indigo-800">
             <div class="p-8">
-                <form wire:submit.prevent="store">
+                <form wire:submit="store">
                     <div class="space-y-8">
                         <!-- Event Information -->
                         <div>
@@ -75,7 +70,7 @@
                                                             </p>
                                                         @endif
                                                     </div>
-                                                    <x-ui.cross-button wireClick="$dispatch('venueSelected', { venueId: null, venueName: '' })" />
+                                                    <x-ui.cross-button wire:click="$dispatch('venueSelected', { venueId: null, venueName: '' })" />
                                                 </div>
 
                                             @else
@@ -135,7 +130,7 @@
                                     </label>
                                     <input type="file" wire:model="event_image" id="event-image-upload" class="hidden">
                                     <label for="event-image-upload" class="cursor-pointer">
-                                        <div class="border-2 border-dashed @error('event_image') border-red-500 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg p-4 text-center hover:border-indigo-500 transition-all duration-300 ease-in-out">
+                                        <div class="border-2 border-dashed @error('event_image') border-red-500 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg p-4 text-center hover:border-indigo-500 transition-colors duration-300 ease-in-out">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                                             </svg>
@@ -167,7 +162,7 @@
                                                     {{ round($event_image->getSize() / 1024, 2) }} KB
                                                 </p>
                                             </div>
-                                            <x-ui.cross-button wireClick="$set('event_image', null)" />
+                                            <x-ui.cross-button wire:click="$set('event_image', null)" />
                                         </div>
                                     @endif
                                 </div>
@@ -179,7 +174,7 @@
                                     </label>
                                     <input type="file" wire:model="header_image" id="header-image-upload" class="hidden">
                                     <label for="header-image-upload" class="cursor-pointer">
-                                        <div class="border-2 border-dashed @error('header_image') border-red-500 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg p-4 text-center hover:border-purple-500 transition-all duration-300 ease-in-out">
+                                        <div class="border-2 border-dashed @error('header_image') border-red-500 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg p-4 text-center hover:border-purple-500 transition-colors duration-300 ease-in-out">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                                             </svg>
@@ -211,7 +206,7 @@
                                                     {{ round($header_image->getSize() / 1024, 2) }} KB
                                                 </p>
                                             </div>
-                                            <x-ui.cross-button wireClick="$set('header_image', null)" />
+                                            <x-ui.cross-button wire:click="$set('header_image', null)" />
                                         </div>
                                     @endif
                                 </div>
@@ -223,7 +218,7 @@
                                     </label>
                                     <input type="file" wire:model="background_image" id="background-image-upload" class="hidden">
                                     <label for="background-image-upload" class="cursor-pointer">
-                                        <div class="border-2 border-dashed @error('background_image') border-red-500 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg p-4 text-center hover:border-purple-500 transition-all duration-300 ease-in-out">
+                                        <div class="border-2 border-dashed @error('background_image') border-red-500 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg p-4 text-center hover:border-purple-500 transition-colors duration-300 ease-in-out">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                                             </svg>
@@ -255,7 +250,7 @@
                                                     {{ round($background_image->getSize() / 1024, 2) }} KB
                                                 </p>
                                             </div>
-                                            <x-ui.cross-button wireClick="$set('background_image', null)" />
+                                            <x-ui.cross-button wire:click="$set('background_image', null)" />
                                         </div>
                                     @endif
                                 </div>

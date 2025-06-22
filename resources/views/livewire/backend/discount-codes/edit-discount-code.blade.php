@@ -2,19 +2,14 @@
     <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
         <div class="flex justify-between items-center mb-10">
             <div>
-                <h1 class="text-3xl font-semibold text-gray-800 dark:text-gray-200 transition-all duration-300">
+                <h1 class="text-3xl font-semibold text-gray-800 dark:text-gray-200">
                     {{ __('Edit Discount Code') }}
                 </h1>
                 <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
                     {{ __('Update discount code details') }}
                 </p>
             </div>
-            <a href="{{ route('discount-codes.index') }}" class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center transition-all duration-300 ease-in-out">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                </svg>
-                {{ __('Back to discount codes') }}
-            </a>
+            <x-ui.back-to-button route="discount-codes.index" text="{{ __('Back to discount codes') }}"/>
         </div>
 
         @if (session()->has('message'))
@@ -24,7 +19,7 @@
             />
         @endif
 
-        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm rounded-xl transition-all duration-300 ease-in-out hover:border-indigo-800">
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm rounded-xl transition-colors duration-300 ease-in-out hover:border-indigo-800">
             <div class="p-8">
                 <form wire:submit.prevent="update">
                     <div class="space-y-8">
@@ -71,7 +66,7 @@
                                                             ({{ $event->date->format('M j, Y') }})
                                                         </p>
                                                     </div>
-                                                    <x-ui.cross-button wireClick="$dispatch('eventSelected', { eventId: null, eventName: '' })" />
+                                                    <x-ui.cross-button wire:click="$dispatch('eventSelected', { eventId: null, eventName: '' })" />
                                                 </div>
                                             @else
                                                 <p class="text-gray-600 dark:text-gray-400">
@@ -136,24 +131,21 @@
 
                             <div class="space-y-4">
                                 <div class="flex gap-4">
-                                    <label class="inline-flex items-center">
-                                        <input
-                                            type="radio"
-                                            wire:model.live="discount_type"
-                                            value="percent"
-                                            class="form-radio h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
-                                        >
-                                        <span class="ml-2 text-gray-700 dark:text-gray-300">{{ __('Percentage Discount') }}</span>
-                                    </label>
-                                    <label class="inline-flex items-center">
-                                        <input
-                                            type="radio"
-                                            wire:model.live="discount_type"
-                                            value="fixed"
-                                            class="form-radio h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
-                                        >
-                                        <span class="ml-2 text-gray-700 dark:text-gray-300">{{ __('Fixed Amount Discount') }}</span>
-                                    </label>
+                                    <x-ui.forms.radio
+                                        name="discount_type"
+                                        value="percent"
+                                        wire:model.live="discount_type"
+                                    >
+                                        {{ __('Percentage Discount') }}
+                                    </x-ui.forms.radio>
+
+                                    <x-ui.forms.radio
+                                        name="discount_type"
+                                        value="fixed"
+                                        wire:model.live="discount_type"
+                                    >
+                                        {{ __('Fixed Amount Discount') }}
+                                    </x-ui.forms.radio>
                                 </div>
 
                                 @if($discount_type === 'percent')

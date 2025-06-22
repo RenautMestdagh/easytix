@@ -6,6 +6,7 @@ use App\Models\Scopes\TicketOrganizationScope;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 #[ScopedBy([TicketOrganizationScope::class])]
 class Ticket extends Model
@@ -22,6 +23,21 @@ class Ticket extends Model
         'scanned_at',
         'scanned_by',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (Ticket $ticket) {
+            // Generate QR code only if it's not already set
+            if (!$ticket->qr_code) {
+                do {
+                    $qrCode = substr(str_replace('-', '', Str::uuid()), 0, 12);
+                } while (static::query()->where('qr_code', $qrCode)->exists());
+
+                $ticket->qr_code = $qrCode;
+            }
+        });
+    }
+
 
     public function order()
     {

@@ -9,22 +9,17 @@
 
         <div class="flex justify-between items-center mb-10">
             <div>
-                <h1 class="text-3xl font-semibold text-gray-800 dark:text-gray-200 transition-all duration-300">
+                <h1 class="text-3xl font-semibold text-gray-800 dark:text-gray-200">
                     {{ __('New Venue') }}
                 </h1>
                 <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
                     {{ __('Create a new venue location') }}
                 </p>
             </div>
-            <a href="{{ route('venues.index') }}" class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center transition-all duration-300 ease-in-out">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                </svg>
-                {{ __('Back to venues') }}
-            </a>
+            <x-ui.back-to-button route="venues.index" text="{{ __('Back to venues') }}"/>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm rounded-xl transition-all duration-300 ease-in-out hover:border-indigo-800">
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm rounded-xl transition-colors duration-300 ease-in-out hover:border-indigo-800">
             <div class="p-8">
                 <form wire:submit.prevent="save">
                     <div class="space-y-8">

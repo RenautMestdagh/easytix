@@ -6,6 +6,7 @@ use App\Http\Requests\User\UpdateUserRequest;
 use App\Models\Organization;
 use App\Models\User;
 use App\Traits\FlashMessage;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
@@ -89,17 +90,38 @@ class EditUser extends Component
         );
 
         try {
+            DB::beginTransaction();
+
             $this->user->update(array_filter([
-                'organization_id' => $validatedData['organization_id'],
                 'name' => $validatedData['userName'],
                 'email' => $validatedData['userEmail'] ?? $this->user['email'],
                 'password' => !empty($validatedData['userPassword']) ? Hash::make($validatedData['userPassword']) : null
             ]));
 
-            $this->user->syncRoles([$validatedData['role']]);
+            if (
+                $this->user->roles->first()->name === 'admin' &&
+                ($this->user->organization_id != $validatedData['organization_id'] || $this->user->roles->first()->name !== $validatedData['role'])
+            ) {
+                $adminCount = Organization::findOrFail($this->user->organization_id)
+                    ->admins()
+                    ->lockForUpdate()
+                    ->count();
+
+                if ($adminCount <= 1) {
+                    DB::rollBack();
+                    $this->flashMessage('Cannot remove the last admin from this organization.', 'error');
+                    return;
+                }
+                $this->user->update(['organization_id' => $validatedData['organization_id']]);
+                $this->user->syncRoles([$validatedData['role']]);
+            }
+
+            DB::commit();
+
             $this->flashMessage('User updated successfully.');
             redirect()->route('users.index');
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error('An error occurred while updating the user: ' . $e->getMessage());
             $this->flashMessage('An error occurred while updating the user.', 'error');
         }

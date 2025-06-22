@@ -11,7 +11,7 @@
         {{ $attributes->merge([
             'id' => $id ?? $name,
             'name' => $name,
-            'class' => 'text-blue-600 border-gray-300 focus:ring-blue-500'
+            'class' => 'text-blue-600 border-gray-300 focus:ring-blue-500 transition duration-300 ease-in-out form-radio'
         ]) }}
     >
     <span>{{ $slot }}</span>

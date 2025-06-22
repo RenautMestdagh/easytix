@@ -4,9 +4,8 @@ namespace App\Livewire\Backend\Users;
 
 use App\Models\Organization;
 use App\Models\User;
+use App\Traits\DeleteUser;
 use App\Traits\FlashMessage;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Spatie\Permission\Models\Role;
@@ -14,7 +13,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class ShowUsers extends Component
 {
-    use WithPagination, FlashMessage;
+    use WithPagination, DeleteUser, FlashMessage;
 
     public $includeDeleted = false; // Flag to include soft-deleted organizations
     public $search = '';
@@ -121,8 +120,6 @@ class ShowUsers extends Component
             ->toArray();
     }
 
-
-
     public function render()
     {
         return view('livewire.backend.users.show-users', [
@@ -131,72 +128,6 @@ class ShowUsers extends Component
             'organizations' => Organization::all(),
             'singleAdminOrgIds' => $this->getOrganizationsWithSingleAdmin(),
         ]);
-    }
-
-    public function deleteUser($id)
-    {
-        $this->authorize('users.delete');
-
-        if (auth()->id() === (int) $id) {
-            $this->flashMessage('You cannot delete your own account.', 'error');
-            return;
-        }
-
-        try {
-            DB::transaction(function () use ($id) {
-                $user = User::findOrFail($id);
-
-                if ($user->organization_id) {
-                    $organization = Organization::findOrFail($user->organization_id);
-
-                    // Lock all admin user rows for update to prevent race conditions
-                    $adminIds = $organization->admins()->lockForUpdate()->pluck('id');
-                    if ($adminIds->count() > 1 || $adminIds->count() === 1 && $adminIds->first() !== $user->id) {
-                        $user->delete();
-                        $this->flashMessage('User deleted successfully.');
-                    } else {
-                        $this->flashMessage('Cannot delete the last admin in the organization.', 'error');
-                    }
-                } else {
-                    $superadmins = User::whereNull('organization_id')->lockForUpdate()->get();
-
-                    if ($superadmins->count() > 1) {
-                        $user->delete();
-                        $this->flashMessage('User deleted successfully.');
-                    } else {
-                        $this->flashMessage('Cannot delete the last superadmin.', 'error');
-                    }
-                }
-            });
-        } catch (\Exception $e) {
-            Log::error('Error deleting user: ' . $e->getMessage());
-            $this->flashMessage('Error while deleting user.', 'error');
-        }
-
-    }
-
-    public function forceDeleteUser($id)
-    {
-        $this->authorize('users.delete');
-        try {
-            User::withTrashed()->findOrFail($id)->forceDelete();
-            $this->flashMessage('User permanently deleted.');
-        } catch (\Exception $e) {
-            Log::error('Error permanently deleting user: ' . $e->getMessage());
-            $this->flashMessage('Error while permanently deleting user.', 'error');
-        }
-    }
-
-    public function restoreUser($id)
-    {
-        $this->authorize('users.delete');
-        try{
-            User::withTrashed()->findOrFail($id)->restore();
-            $this->flashMessage('User restored successfully.');
-        } catch (\Exception $e) {
-            Log::error('Error restoring user: ' . $e->getMessage());
-            $this->flashMessage('Error restoring user.', 'error');
-        }
     }
 
     public function loginAsUser($userId)

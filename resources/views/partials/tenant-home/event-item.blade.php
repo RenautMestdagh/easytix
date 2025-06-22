@@ -31,7 +31,7 @@
         <div class="flex-shrink-0 ml-4 self-center">
             <a href="{{ route('event.tickets', [$organization->subdomain, $event->uniqid]) }}"
                target="_blank"
-               class="inline-flex items-center px-6 py-2 bg-black dark:bg-white text-white dark:text-black text-sm font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-all duration-300 ease-in-out">
+               class="inline-flex items-center px-6 py-2 bg-black dark:bg-white text-white dark:text-black text-sm font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors duration-300 ease-in-out">
                 Buy Tickets
             </a>
         </div>

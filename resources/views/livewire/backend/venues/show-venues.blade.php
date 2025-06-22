@@ -37,7 +37,7 @@
 
                 <!-- Input field -->
                 <input type="text"
-                       wire:model.live.debounce.250ms="search"
+                       wire:model.live.debounce.150ms="search"
                        placeholder="{{ __('Search by name...') }}"
                        class="pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 p-2 text-sm w-full"
                 />
@@ -66,13 +66,13 @@
                             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                 <thead class="bg-gray-50 dark:bg-gray-700/50">
                                 <tr>
-                                    <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-white sm:pl-6 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 ease-in-out" wire:click="sortBy('name')">
+                                    <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-white sm:pl-6 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 ease-in-out" wire:click="sortBy('name')">
                                         {{ __('Name') }}
                                         <span class="text-xs ml-1" style="visibility: {{ $sortField == 'name' ? 'visible' : 'hidden' }};">
                                             {{ $sortDirection == 'asc' ? '↑' : '↓' }}
                                         </span>
                                     </th>
-                                    <th scope="col" class="py-3.5 pl-3 pr-4 text-left text-sm font-semibold text-gray-900 dark:text-white sm:pl-6 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 ease-in-out" wire:click="sortBy('max_capacity')">
+                                    <th scope="col" class="py-3.5 pl-3 pr-4 text-left text-sm font-semibold text-gray-900 dark:text-white sm:pl-6 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 ease-in-out" wire:click="sortBy('max_capacity')">
                                         {{ __('Capacity') }}
                                         <span class="text-xs ml-1" style="visibility: {{ $sortField == 'max_capacity' ? 'visible' : 'hidden' }};">
                                             {{ $sortDirection == 'asc' ? '↑' : '↓' }}
@@ -88,14 +88,12 @@
                                 </thead>
                                 <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                                 @forelse($venues as $venue)
-                                    <tr wire:key="venue-{{ $venue->id }}" class="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-all duration-300 ease-in-out">
+                                    <tr wire:key="venue-{{ $venue->id }}" class="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors duration-300 ease-in-out">
                                         <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 dark:text-white sm:pl-6">
                                             <div class="flex items-center gap-2">
                                                 {{ $venue->name }}
                                                 @if($venue->trashed())
-                                                    <span class="inline-flex items-center rounded-md bg-red-50 dark:bg-red-900/20 px-2 py-1 text-xs font-medium text-red-700 dark:text-red-400 ring-1 ring-inset ring-red-600/10">
-                                                        {{ __('Deleted') }}
-                                                    </span>
+                                                    <x-ui.badge color="red" text="Deleted" size="sm"/>
                                                 @endif
                                             </div>
                                         </td>
@@ -108,7 +106,7 @@
                                                     @if(!empty($venue->coordinates))
                                                         <a href="{{ $venue->getGoogleMapsUrl() }}"
                                                            target="_blank"
-                                                           class="p-1 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all duration-300 ease-in-out"
+                                                           class="p-1 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors duration-300 ease-in-out"
                                                            title="{{ __('View on Google Maps') }}"
                                                         >
                                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -122,7 +120,7 @@
                                                             <!-- Restore Button -->
                                                             <button type="button"
                                                                     wire:click="restoreVenue({{ $venue->id }})"
-                                                                    class="p-1 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all duration-300 ease-in-out hover:cursor-pointer"
+                                                                    class="p-1 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors duration-300 ease-in-out hover:cursor-pointer"
                                                                     title="{{ __('Restore') }}"
                                                             >
                                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -141,15 +139,11 @@
                                                     @else
                                                         @can('venues.update')
                                                             <!-- Edit Button -->
-                                                            <a href="{{ route('venues.update', $venue) }}"
-                                                               wire:navigate
-                                                               class="p-1 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all duration-300 ease-in-out"
-                                                               title="{{ __('Edit') }}"
-                                                            >
-                                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"/>
-                                                                </svg>
-                                                            </a>
+                                                            <x-ui.edit-button
+                                                                route="venues.update"
+                                                                :routeParams="['venue' => $venue]"
+                                                                title="{{ __('Edit') }}"
+                                                            />
                                                         @endcan
 
                                                         @can('venues.delete')

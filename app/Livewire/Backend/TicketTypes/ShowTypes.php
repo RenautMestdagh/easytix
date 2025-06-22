@@ -4,7 +4,6 @@ namespace App\Livewire\Backend\TicketTypes;
 
 use App\Models\Event;
 use App\Traits\FlashMessage;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
@@ -37,29 +36,20 @@ class ShowTypes extends Component
 
         try {
             $ticketType = $this->event->ticketTypes()->findOrFail($ticketTypeId);
-
-            DB::statement('LOCK TABLES tickets WRITE');
-            if ($ticketType->tickets->count() > 0) {
-                DB::statement('UNLOCK TABLES');
-                $this->flashMessage('Cannot delete ticket type with (reserved) tickets.', 'error');
-                return;
-            }
+            if ($ticketType->allTickets->count() > 0)
+                return $this->flashMessage('Cannot delete ticket type with (reserved) tickets.', 'error');
 
             $ticketType->delete();
-            DB::statement('UNLOCK TABLES');
+            $this->flashMessage('Ticket type deleted successfully.');
 
             $this->event->load([
                 'ticketTypes' => function ($query) {
                     $query->withCount('tickets');
                 },
             ]);
-
-            $this->flashMessage('Ticket type deleted successfully.');
         } catch (\Exception $e) {
             Log::error('Error deleting ticket type: ' . $e->getMessage());
             $this->flashMessage('Error deleting ticket type', 'error');
-        } finally {
-            DB::statement('UNLOCK TABLES');
         }
     }
 

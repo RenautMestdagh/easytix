@@ -3,6 +3,7 @@
 namespace App\Livewire\Frontend;
 
 use App\Models\Ticket;
+use App\Models\TicketType;
 use App\Traits\FlashMessage;
 use App\Traits\NavigateEventCheckout;
 use Illuminate\Database\QueryException;
@@ -126,42 +127,70 @@ class EventTicketsSelector extends Component
 
     public function increment($ticketTypeId)
     {
-        if($this->tempOrder->payment_id) return;
+        if ($this->tempOrder->payment_id) return;
 
         $ticketType = $this->event->ticketTypes->firstWhere('id', $ticketTypeId);
         if (!$ticketType) return;
 
-        $ticket = null;
-        for ($tries = 0; $tries < 50; $tries++) {
+        for ($tries = 0; $tries < 3; $tries++) {
             try {
-                $ticket = Ticket::create([
+                DB::beginTransaction();
+
+                // First, lock all ticket types for the event to prevent concurrent modifications
+                $ticketTypes = TicketType::where('event_id', $this->event->id)
+                    ->orderBy('id') // Ensure consistent ordering for lock
+                    ->lockForUpdate()
+                    ->get();
+
+                // Then lock and count tickets for each ticket type
+                $ticketCounts = Ticket::whereIn('ticket_type_id', $ticketTypes->pluck('id'))
+                    ->selectRaw('ticket_type_id, COUNT(*) as count')
+                    ->groupBy('ticket_type_id')
+                    ->pluck('count', 'ticket_type_id')
+                    ->toArray();
+
+                $totalTickets = array_sum($ticketCounts);
+
+                if (
+                    $ticketType->available_quantity && ($ticketCounts[$ticketTypeId]??0) >= $ticketType->available_quantity ||
+                    $this->event->max_capacity && $totalTickets >= $this->event->max_capacity
+                ) {
+                    DB::rollBack();
+                    $this->flashMessage('No more tickets available', 'error');
+                    return;
+                }
+
+                // Create ticket
+                Ticket::create([
                     'temporary_order_id' => $this->tempOrder->id,
                     'ticket_type_id' => $ticketTypeId,
-                    'qr_code' => uniqid(),
                 ]);
-                break;
-            } catch (QueryException $e) {
-                if ($tries >= 49) {
-                    $this->flashMessage('Error adding ticket to cart', 'error');
-                    Log::error('Error adding ticket to cart: ' . $e->getMessage());
+
+                DB::commit();
+
+                // Update UI after success
+                $this->calculateAvailableTickets($ticketTypeId);
+                $this->quantities[$ticketTypeId]->amount++;
+
+                if (collect($this->quantities)->sum('amount') === 1) {
+                    $this->tempOrder->resetExpiry();
+                    $this->updateTimeRemaining();
                 }
+
+                break; // success, exit loop
+            } catch (\Exception $e) {
+                DB::rollBack();
+
+                if ($tries >= 2) {
+                    Log::error('Error adding ticket to cart: ' . $e->getMessage());
+                    $this->flashMessage('Error adding ticket to cart', 'error');
+                }
+
+                usleep(100 * 1000);
             }
         }
-
-        $this->calculateAvailableTickets($ticketTypeId);
-        if($this->remainingQuantities[$ticketType->id]->ticketsLeft < 0) {
-            Ticket::where('id', $ticket->id)->delete();
-            return;
-        }
-
-        $this->quantities[$ticketTypeId]->amount++;
-
-        if (collect($this->quantities)->sum('amount') == 1){
-            // on addition of first ticket to cart, reset expiration timer
-            $this->tempOrder->resetExpiry();
-            $this->updateTimeRemaining();
-        }
     }
+
 
     public function decrement($ticketTypeId)
     {

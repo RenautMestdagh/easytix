@@ -141,7 +141,7 @@
                             <span class="opacity-65">
                             {{ !empty($discount->discount_percent) ? $discount->discount_percent.'%' : '€'.number_format($discount->discount_fixed_cents/100, 2) }}
                             </span>
-                                <x-ui.cross-button wireClick="removeDiscount({{ $discount->id }})" />
+                                <x-ui.cross-button wire:click="removeDiscount({{ $discount->id }})" />
                             </div>
                         </div>
                     @endforeach

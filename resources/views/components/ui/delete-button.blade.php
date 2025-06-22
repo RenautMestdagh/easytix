@@ -10,7 +10,7 @@
 
 @php
     // Base classes
-    $baseClasses = 'p-1 rounded transition-colors inline-flex items-center justify-center transition-all duration-300 ease-in-out';
+    $baseClasses = 'p-1 rounded transition-colors inline-flex items-center justify-center transition-colors duration-300 ease-in-out';
 
     // Variant-specific classes (with hover effects)
     $variantClasses = [

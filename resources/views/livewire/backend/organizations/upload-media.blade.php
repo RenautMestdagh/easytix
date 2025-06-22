@@ -2,7 +2,7 @@
     <div class="px-10">
         <div class="flex justify-between items-center mb-10">
             <div>
-                <h1 class="text-3xl font-semibold text-gray-800 dark:text-gray-200 transition-all duration-300">
+                <h1 class="text-3xl font-semibold text-gray-800 dark:text-gray-200">
                     {{ __('Organization Media') }}
                 </h1>
                 <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
@@ -10,13 +10,7 @@
                 </p>
             </div>
             @role('superadmin')
-            <a href="{{ route('organizations.update', $organization) }}"
-               class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center transition-all duration-300 ease-in-out">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                </svg>
-                {{ __('Back to organization') }}
-            </a>
+            <x-ui.back-to-button route="organizations.index" text="{{ __('Back to organizations') }}"/>
             @endrole
         </div>
 
@@ -27,7 +21,7 @@
             />
         @endif
 
-        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm rounded-xl transition-all duration-300 ease-in-out hover:border-indigo-800">
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm rounded-xl transition-colors duration-300 ease-in-out hover:border-indigo-800">
             <div class="p-8 space-y-8">
 
                 <div class="flex flex-col gap-6">
@@ -50,7 +44,7 @@
                                                  alt="Favicon"
                                                  class="w-16 h-16 rounded-lg object-contain border border-gray-200 dark:border-gray-700">
                                             <button wire:click="removeFavicon"
-                                                    class="absolute top-0 right-0 -mt-2 -mr-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out">
+                                                    class="absolute top-0 right-0 -mt-2 -mr-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                                 </svg>
@@ -81,7 +75,7 @@
                                         </label>
                                         <input type="file" wire:model="favicon" id="favicon-upload" class="hidden">
                                         <label for="favicon-upload" class="cursor-pointer">
-                                            <div class="border-2 border-dashed @error('favicon') border-red-500 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg p-4 text-center hover:border-blue-500 transition-all duration-300 ease-in-out">
+                                            <div class="border-2 border-dashed @error('favicon') border-red-500 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg p-4 text-center hover:border-blue-500 transition-colors duration-300 ease-in-out">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                                                 </svg>
@@ -114,7 +108,7 @@
                                                     {{ round($favicon->getSize() / 1024, 2) }} KB
                                                 </p>
                                             </div>
-                                            <x-ui.cross-button wireClick="$set('favicon', null)" />
+                                            <x-ui.cross-button wire:click="$set('favicon', null)" />
                                         </div>
                                     @endif
                                 </div>
@@ -141,9 +135,9 @@
                                         <div class="relative group">
                                             <img src="{{ $organization->logo_url }}?{{ time() }}"
                                                  alt="Organization Logo"
-                                                 class="w-32 h-32 rounded-lg object-contain border border-gray-200 dark:border-gray-700">
+                                                 class="w-32 rounded-lg object-contain border border-gray-200 dark:border-gray-700">
                                             <button wire:click="removeLogo"
-                                                    class="absolute top-0 right-0 -mt-2 -mr-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out">
+                                                    class="absolute top-0 right-0 -mt-2 -mr-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                                 </svg>
@@ -174,7 +168,7 @@
                                         </label>
                                         <input type="file" wire:model="logo" id="logo-upload" class="hidden">
                                         <label for="logo-upload" class="cursor-pointer">
-                                            <div class="border-2 border-dashed @error('logo') border-red-500 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg p-4 text-center hover:border-indigo-500 transition-all duration-300 ease-in-out">
+                                            <div class="border-2 border-dashed @error('logo') border-red-500 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg p-4 text-center hover:border-indigo-500 transition-colors duration-300 ease-in-out">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                                                 </svg>
@@ -207,7 +201,7 @@
                                                     {{ round($logo->getSize() / 1024, 2) }} KB
                                                 </p>
                                             </div>
-                                            <x-ui.cross-button wireClick="$set('logo', null)" />
+                                            <x-ui.cross-button wire:click="$set('logo', null)" />
                                         </div>
                                     @endif
                                 </div>
@@ -236,7 +230,7 @@
                                                  alt="Background Image"
                                                  class="w-full h-32 rounded-lg object-cover border border-gray-200 dark:border-gray-700">
                                             <button wire:click="removeBackground"
-                                                    class="absolute top-0 right-0 -mt-2 -mr-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out">
+                                                    class="absolute top-0 right-0 -mt-2 -mr-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                                 </svg>
@@ -267,7 +261,7 @@
                                         </label>
                                         <input type="file" wire:model="background" id="background-upload" class="hidden">
                                         <label for="background-upload" class="cursor-pointer">
-                                            <div class="border-2 border-dashed @error('background') border-red-500 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg p-4 text-center hover:border-purple-500 transition-all duration-300 ease-in-out">
+                                            <div class="border-2 border-dashed @error('background') border-red-500 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg p-4 text-center hover:border-purple-500 transition-colors duration-300 ease-in-out">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                                                 </svg>
@@ -300,7 +294,7 @@
                                                     {{ round($background->getSize() / 1024, 2) }} KB
                                                 </p>
                                             </div>
-                                            <x-ui.cross-button wireClick="$set('background', null)" />
+                                            <x-ui.cross-button wire:click="$set('background', null)" />
                                         </div>
                                     @endif
                                 </div>
@@ -313,7 +307,7 @@
                 <div class="flex justify-end pt-6">
                     <button wire:click="save"
                             wire:loading.attr="disabled"
-                            class="px-6 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300 ease-in-out flex items-center">
+                            class="px-6 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors duration-300 ease-in-out flex items-center">
                         <svg wire:loading wire:target="save" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>

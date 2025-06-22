@@ -9,7 +9,7 @@ class DiscountCodeObserver
 {
     public function creating(DiscountCode $discountCode): void
     {
-        if (session('organization_id') && $discountCode->event->organization_id != session('organization_id')) {
+        if (session('organization_id') && $discountCode->organization_id != session('organization_id')) {
             throw new AuthorizationException('Invalid organization assignment');
         }
     }

@@ -90,17 +90,7 @@ class EditTicketType extends Component
         $price_cents = (int) round(str_replace(',', '.', $validatedData['price_euros']) * 100);
 
         try{
-            if($price_cents !== $this->ticketType->price_cents) {
-                DB::statement('LOCK TABLES tickets WRITE');
-                if($this->ticketType->tickets->count() + $this->ticketType->reservedTickets->count() > 0) {
-                    DB::statement('UNLOCK TABLES');
-                    $this->flashMessage('Cannot update ticket price when it has (reserved) tickets.', 'error');
-                    return;
-                }
-                $this->ticketType->price_cents = $price_cents;
-                $this->ticketType->save();
-                DB::statement('UNLOCK TABLES');
-            }
+            DB::beginTransaction();
 
             $this->ticketType->update([
                 'name' => $validatedData['name'],
@@ -110,13 +100,30 @@ class EditTicketType extends Component
                 'publish_with_event' => $publishStatus['publish_with_event'],
             ]);
 
+            if($price_cents !== $this->ticketType->price_cents) {
+                try {
+                    $this->ticketType->lockForUpdate();
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    $this->flashMessage('Error while updating ticket type.', 'error');
+                    return;
+                }
+
+                if($this->ticketType->allTickets->count() > 0) {
+                    DB::rollBack();
+                    $this->flashMessage('Cannot update ticket price when it has (reserved) tickets.', 'error');
+                    return;
+                }
+                $this->ticketType->update( ['price_cents' => $price_cents]);
+            }
+
+            DB::commit();
             $this->flashMessage('Ticket type updated successfully.');
             redirect()->route('ticket-types.index', $this->event);
         }  catch (\Exception $e) {
+            DB::rollBack();
             Log::error('Error updating ticket type: ' . $e->getMessage());
             $this->flashMessage('Error while updating ticket type.', 'error');
-        } finally {
-            DB::statement('UNLOCK TABLES');
         }
     }
 

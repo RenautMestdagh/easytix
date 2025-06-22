@@ -3,13 +3,15 @@
 namespace App\Models;
 
 use App\Models\Scopes\DiscountCodeOrganizationScope;
+use App\Observers\DiscountCodeObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\DB;
 
 #[ScopedBy([DiscountCodeOrganizationScope::class])]
+#[ObservedBy([DiscountCodeObserver::class])]
 class DiscountCode extends Model
 {
     /** @use HasFactory<\Database\Factories\DiscountCodeFactory> */
@@ -54,19 +56,13 @@ class DiscountCode extends Model
 
     public function temporaryOrders()
     {
-        return $this->belongsToMany(Order::class, 'discount_code_order', 'discount_code_id', 'temporary_order_id')
+        return $this->belongsToMany(TemporaryOrder::class, 'discount_code_order', 'discount_code_id', 'temporary_order_id')
             ->wherePivotNotNull('temporary_order_id')
             ->withPivot(['order_id']);
     }
 
-    public function getAllUsesCount()
+    public function getAllOrdersCountAttribute()
     {
-        return DB::table('discount_code_order')
-            ->where('discount_code_id', $this->id)
-            ->where(function($query) {
-                $query->whereNotNull('order_id')
-                    ->orWhereNotNull('temporary_order_id');
-            })
-            ->count();
+        return $this->orders()->count() + $this->temporaryOrders()->count();
     }
 }

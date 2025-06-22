@@ -24,7 +24,7 @@
             <flux:navlist.item
                 icon="calendar"
                 :href="route('events.index')"
-                :current="request()->routeIs('events.index')"
+                :current="request()->routeIs('events.*')"
                 wire:navigate
             >
                 {{ __('Events') }}
@@ -35,7 +35,7 @@
             <flux:navlist.item
                 icon="tag"
                 :href="route('discount-codes.index')"
-                :current="request()->routeIs('discount-codes.index')"
+                :current="request()->routeIs('discount-codes.*')"
                 wire:navigate
             >
                 {{ __('Discount codes') }}
@@ -57,7 +57,7 @@
                 <flux:navlist.item
                     icon="home-modern"
                     :href="route('venues.index')"
-                    :current="request()->routeIs('venues.index')"
+                    :current="request()->routeIs('venues.*')"
                     wire:navigate
                 >
                     {{ __('Venues') }}
@@ -68,7 +68,7 @@
                 <flux:navlist.item
                     icon="users"
                     :href="route('users.index')"
-                    :current="request()->routeIs('users.index')"
+                    :current="request()->routeIs('users.*')"
                     wire:navigate
                 >
                     {{ __('Users') }}
@@ -79,7 +79,7 @@
             <flux:navlist.item
                 icon="briefcase"
                 :href="route('organizations.index')"
-                :current="request()->routeIs('organizations.index')"
+                :current="request()->routeIs(['organizations.index', 'organizations.create', 'organizations.update'])"
                 wire:navigate
             >
                 {{ __('Organizations') }}

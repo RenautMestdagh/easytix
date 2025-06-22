@@ -7,6 +7,7 @@ use App\Models\Customer;
 use App\Models\DiscountCode;
 use App\Traits\FlashMessage;
 use App\Traits\NavigateEventCheckout;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Stripe\StripeClient;
@@ -113,77 +114,86 @@ class EventCheckout extends Component
 
     public function applyDiscount()
     {
-        if($this->tempOrder->checkout_stage !== 1) return;
+        if ($this->tempOrder->checkout_stage !== 1) return;
 
         if (empty($this->discountCode)) {
             $this->addError('discountError', 'Please enter a discount code');
             return;
         }
-        // Validate the discount code is not empty
+
         $this->validate(
             ['discountCode' => 'required|string'],
             ['discountCode.required' => 'Please enter a discount code']
         );
 
-        // cant do it with normal where because thats case insensitive
-        $discount = DiscountCode::whereRaw('BINARY code = ?', [$this->discountCode])
-            ->where('organization_id', $this->event->organization_id)
-            ->where(function($query) {
-                $query->whereNull('event_id')
-                    ->orWhere('event_id', $this->event->id);
-            })
-            ->where(function($query) {
-                $query->whereNull('start_date') // Either start date is not set
-                ->orWhere('start_date', '<=', now()); // Or it's in the past
-            })
-            ->where(function($query) {
-                $query->whereNull('end_date') // Either end date is not set
-                ->orWhere('end_date', '>=', now()); // Or it's in the future
-            })
-            ->first();
+        DB::beginTransaction();
 
-        if (!$discount) {
-            $this->addError('discountError', 'Invalid discount code');
-            return;
-        }
+        try {
+            $discount = DiscountCode::whereRaw('BINARY code = ?', [$this->discountCode])
+                ->withCount('allOrders')
+                ->where('organization_id', $this->event->organization_id)
+                ->where(function ($query) {
+                    $query->whereNull('event_id')
+                        ->orWhere('event_id', $this->event->id);
+                })
+                ->where(function ($query) {
+                    $query->whereNull('start_date')
+                        ->orWhere('start_date', '<=', now());
+                })
+                ->where(function ($query) {
+                    $query->whereNull('end_date')
+                        ->orWhere('end_date', '>=', now());
+                })
+                ->lockForUpdate()
+                ->first();
 
-        // Check if code is already applied
-        if ($this->tempOrder->discountCodes()->where('code', $this->discountCode)->exists()) {
-            $this->addError('discountError', 'Discount code already applied');
-            return;
-        }
-
-        // Check if new discount type conflicts with existing discounts
-        $newDiscountType = $discount->discount_percent ? 'percent' : 'fixed';
-        $existingDiscounts = $this->tempOrder->discountCodes()->get();
-
-        if ($existingDiscounts->isNotEmpty()) {
-            $existingType = $existingDiscounts->first()->discount_percent ? 'percent' : 'fixed';
-            if ($existingType !== $newDiscountType) {
-                $this->addError('discountError', 'This discount cannot be combined with already applied discounts.');
+            if (!$discount) {
+                DB::rollBack();
+                $this->addError('discountError', 'Invalid discount code');
                 return;
             }
-        }
 
-        // Apply discount
-        try {
+            // Check if already applied
+            if ($this->tempOrder->discountCodes()->where('code', $this->discountCode)->exists()) {
+                DB::rollBack();
+                $this->addError('discountError', 'Discount code already applied');
+                return;
+            }
+
+            $newDiscountType = $discount->discount_percent ? 'percent' : 'fixed';
+            $existingDiscounts = $this->tempOrder->discountCodes()->get();
+
+            if ($existingDiscounts->isNotEmpty()) {
+                $existingType = $existingDiscounts->first()->discount_percent ? 'percent' : 'fixed';
+                if ($existingType !== $newDiscountType) {
+                    DB::rollBack();
+                    $this->addError('discountError', 'This discount cannot be combined with already applied discounts.');
+                    return;
+                }
+            }
+
+            // Check max uses
+            if ($discount->max_uses && $discount->all_orders_count >= $discount->max_uses) {
+                DB::rollBack();
+                $this->addError('discountError', 'Discount code has reached maximum uses');
+                return;
+            }
+
+            // Apply the discount safely
             $this->tempOrder->discountCodes()->attach($discount->id);
+
+            DB::commit();
+
+            $this->discountCode = '';
+            $this->loadAppliedDiscounts();
+            $this->calculateOrderTotal();
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error('Error applying discount code: ' . $e->getMessage());
             $this->addError('discountError', 'Something went wrong, please try again.');
         }
-
-        // Check max uses
-        if ($discount->max_uses && $discount->getAllUsesCount() > $discount->max_uses) {
-            $this->tempOrder->discountCodes()->detach($discount->id);
-            $this->addError('discountError', 'Discount code has reached maximum uses');
-            return;
-        }
-
-        $this->discountCode = '';
-        $this->loadAppliedDiscounts();
-        $this->calculateOrderTotal();
     }
+
 
     public function removeDiscount($discountId)
     {

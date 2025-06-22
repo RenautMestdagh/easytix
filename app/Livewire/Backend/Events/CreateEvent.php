@@ -8,10 +8,8 @@ use App\Models\Venue;
 use App\Traits\EventManagementUtilities;
 use App\Traits\FlashMessage;
 use Exception;
-use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -22,7 +20,7 @@ class CreateEvent extends Component
     // Event fields
     public $name = '';
     public $description = '';
-    public $venue_id = '';
+    public $venue_id = null;
     public $date = '';
     public $max_capacity = null;
 
@@ -90,25 +88,17 @@ class CreateEvent extends Component
         );
 
         $publishStatus = $this->determinePublishStatus();
-        $event = null;
         try {
-            while (true) {
-                // In try catch because uniqid may not be unique but must be
-                try {
-                    $event = Event::create([
-                        'organization_id' => Auth::user()->organization_id,
-                        'uniqid' => str_replace('-', '', Str::uuid()),
-                        'name' => $validatedData['name'],
-                        'description' => $validatedData['description'],
-                        'venue_id' => $validatedData['venue_id'],
-                        'date' => $validatedData['date'],
-                        'max_capacity' => $validatedData['max_capacity'],
-                        'is_published' => $publishStatus['is_published'],
-                        'publish_at' => $publishStatus['publish_at'],
-                    ]);
-                    break;
-                } catch (QueryException $e) {}
-            }
+            $event = Event::create([
+                'organization_id' => Auth::user()->organization_id,
+                'name' => $validatedData['name'],
+                'description' => $validatedData['description'],
+                'venue_id' => $validatedData['venue_id'],
+                'date' => $validatedData['date'],
+                'max_capacity' => $validatedData['max_capacity'],
+                'is_published' => $publishStatus['is_published'],
+                'publish_at' => $publishStatus['publish_at'],
+            ]);
 
             $this->flashMessage('Event created successfully.');
 

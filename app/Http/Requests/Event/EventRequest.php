@@ -66,7 +66,7 @@ class EventRequest extends FormRequest
 
             'description.string' => 'The description must be a string.',
 
-            'venue_id.exists' => 'The selected venue does not exist or does not belong to your organization.',
+            'venue_id.exists' => 'The selected venue does not exist.',
 
             'date.required' => 'The event date is required.',
             'date.date' => 'The event date must be a valid date.',

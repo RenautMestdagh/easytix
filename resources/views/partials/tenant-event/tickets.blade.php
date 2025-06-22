@@ -37,7 +37,7 @@
                                 <div class="flex items-center">
                                     <button
                                         wire:click="decrement({{ $ticketType->id }})"
-                                        class="bg-gray-200 text-gray-800 hover:bg-gray-300 disabled:hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 dark:disabled:hover:bg-gray-700 font-bold py-2 px-4 rounded-l disabled:opacity-50  aspect-square h-10 flex items-center justify-center transition-all duration-300 ease-in-out"
+                                        class="bg-gray-200 text-gray-800 hover:bg-gray-300 disabled:hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 dark:disabled:hover:bg-gray-700 font-bold py-2 px-4 rounded-l disabled:opacity-50  aspect-square h-10 flex items-center justify-center transition-[colors,opacity] duration-300 ease-in-out"
                                         @disabled($quantities[$ticketType->id]->amount <= 0)
                                         wire:loading.attr="disabled"
                                         wire:target="decrement({{ $ticketType->id }})"
@@ -54,7 +54,7 @@
                                     </span>
                                     @php
                                         // Calculate if all tickets in basket would exceed event capacity
-                                        $basketExceedsCapacity = $this->event->max_capacity && ($this->event->tickets->count() + collect($this->quantities)->sum('amount') >= $this->event->max_capacity);
+                                        $basketExceedsCapacity = $this->event->max_capacity && ($this->event->tickets_count + collect($this->quantities)->sum('amount') >= $this->event->max_capacity);
 
                                         // Determine if this specific increment button should be disabled
                                         $disableIncrement = ($remainingQuantities[$ticketType->id]->plusDisabledFrom !== null && $quantities[$ticketType->id]->amount >= $remainingQuantities[$ticketType->id]->plusDisabledFrom) || $basketExceedsCapacity;
@@ -62,7 +62,7 @@
 
                                     <button
                                         wire:click="increment({{ $ticketType->id }})"
-                                        class="bg-gray-200 text-gray-800 hover:bg-gray-300 disabled:hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 dark:disabled:hover:bg-gray-700 font-bold py-2 px-4 rounded-r disabled:opacity-50  aspect-square h-10 flex items-center justify-center transition-all duration-300 ease-in-out"                                        @disabled($disableIncrement)
+                                        class="bg-gray-200 text-gray-800 hover:bg-gray-300 disabled:hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 dark:disabled:hover:bg-gray-700 font-bold py-2 px-4 rounded-r disabled:opacity-50  aspect-square h-10 flex items-center justify-center transition-[colors,opacity] duration-300 ease-in-out"                                        @disabled($disableIncrement)
                                         wire:loading.attr="disabled"
                                         wire:target="increment({{ $ticketType->id }})"
                                     >
@@ -110,7 +110,7 @@
     @if($event->ticketTypes->isNotEmpty())
         <!-- Checkout -->
         <button
-            class="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 transition-all duration-300 ease-in-out rounded-lg shadow-lg overflow-hidden mb-8 w-full"
+            class="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 transition-colors duration-300 ease-in-out rounded-lg shadow-lg overflow-hidden mb-8 w-full"
             wire:click="proceedToCheckout"
         >
             <div class="p-4 flex gap-3 justify-center">

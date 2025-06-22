@@ -4,13 +4,12 @@
     'title' => 'Close',
     'disabledTitle' => 'Cannot close',
     'size' => 'md', // 'sm', 'md', 'lg'
-    'wireClick' => null, // Livewire click handler
     'onClick' => null, // JavaScript click handler
 ])
 
 @php
     // Base classes
-    $baseClasses = 'inline-flex items-center justify-center rounded-full transition-all duration-300 ease-in-out focus:outline-none focus:ring-1';
+    $baseClasses = 'inline-flex items-center justify-center rounded-full transition-colors duration-300 ease-in-out focus:outline-none focus:ring-1';
 
     // Size classes
     $sizeClasses = [
@@ -39,7 +38,6 @@
 
 <button
     type="button"
-    @if($wireClick) wire:click.prevent="{{ $wireClick }}" @endif
     @if($onClick) onclick="{{ $onClick }}" @endif
     @if($disabled) disabled @endif
     title="{{ $disabled ? $disabledTitle : $title }}"

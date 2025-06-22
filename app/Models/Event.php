@@ -3,13 +3,17 @@
 namespace App\Models;
 
 use App\Models\Scopes\EventOrganizationScope;
+use App\Observers\EventObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 #[ScopedBy([EventOrganizationScope::class])]
+#[ObservedBy([EventObserver::class])]
 class Event extends Model
 {
     /** @use HasFactory<\Database\Factories\EventFactory> */
@@ -32,10 +36,21 @@ class Event extends Model
     ];
 
     protected $casts = [
-        'date' => 'datetime',       // Casts date to Carbon instance
-        'publish_at' => 'datetime', // Also cast publish_at if needed
+        'date' => 'datetime',
+        'publish_at' => 'datetime',
         'is_published' => 'boolean',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (Event $event) {
+            if (empty($event->uniqid) || static::where('uniqid', $event->uniqid)->exists()) {
+                do {
+                    $event->uniqid = str_replace('-', '', Str::uuid());
+                } while (static::where('uniqid', $event->uniqid)->exists());
+            }
+        });
+    }
 
     public function scopePublished($query)
     {
