@@ -173,7 +173,7 @@
                         </a>
                     </td>
                     <td class="px-4 py-4 whitespace-nowrap">
-                        <x-ui.usage-bar :progress="$event->tickets_count" :max="$event->max_capacity" />
+                        <x-ui.usage-bar :progress="$event->tickets_count" :max="$event->capacity" />
                     </td>
                     <td class="px-4 py-4 whitespace-nowrap">
                         @php

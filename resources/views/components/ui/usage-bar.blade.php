@@ -52,6 +52,6 @@
         </div>
     </div>
     <span class="@if($percentage<=100) text-gray-600 dark:text-gray-300 @else text-red-600 dark:text-red-400 @endif">
-        {{ $progress }}/{{ $max ?? '∞' }}
+        {{ $progress }} <strong>/</strong> {{ $max ?? '∞' }}
     </span>
 </div>

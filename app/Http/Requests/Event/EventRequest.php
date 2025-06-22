@@ -36,6 +36,7 @@ class EventRequest extends FormRequest
                     return $query->where('organization_id', session('organization_id'));
                 }),
             ],
+            'use_venue_capacity' => 'boolean',
             'date' => ['required', 'date'],
             'event_image' => 'nullable|image|max:2048',
             'header_image' => 'nullable|image|max:2048',

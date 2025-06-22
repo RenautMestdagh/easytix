@@ -57,7 +57,7 @@ class EditVenue extends Component
         try {
             $this->venue->update([
                 'name' => $validatedData['name'],
-                'max_capacity' => $validatedData['max_capacity'],
+                'max_capacity' => $validatedData['max_capacity']?:null,
                 'coordinates' => $coordinates,
             ]);
 

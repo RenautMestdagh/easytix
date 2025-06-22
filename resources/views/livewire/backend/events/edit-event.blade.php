@@ -65,7 +65,7 @@
                                             @if($venue_id && $venue = \App\Models\Venue::find($venue_id))
                                                 <div class="flex justify-between">
                                                     <div class="flex flex-col items-start">
-                                                        <p>
+                                                        <p class="text-sm text-gray-600 dark:text-gray-400">
                                                             {{ Str::limit($venue->name, 25, '...') }}
                                                         </p>
                                                         @if($venue->max_capacity)
@@ -90,17 +90,38 @@
                                     </div>
                                 </x-ui.forms.group>
 
-                                <x-ui.forms.group label="Max Capacity" for="max_capacity" error="max_capacity">
-                                    <x-ui.forms.input
-                                        type="number"
-                                        wire:model.lazy="max_capacity"
-                                        name="max_capacity"
-                                        placeholder="Leave empty for unlimited"
-                                        min="1"
-                                        error="{{ $errors->has('max_capacity') }}"
-                                        class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
-                                    />
-                                </x-ui.forms.group>
+                                <div>
+                                    <x-ui.forms.group label="Max Capacity" for="max_capacity" error="max_capacity" class="h-full">
+                                        <div class="flex items-center gap-4">
+                                            @if(!$use_venue_capacity)
+                                                <div class="flex-1">
+                                                    <x-ui.forms.input
+                                                        type="number"
+                                                        wire:model.lazy="max_capacity"
+                                                        name="max_capacity"
+                                                        placeholder="Unlimited"
+                                                        min="1"
+                                                        error="{{ $errors->has('max_capacity') }}"
+                                                        class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
+                                                    />
+                                                </div>
+                                            @endif
+                                            @if($venue_id)
+                                                <div class="flex items-center @if($use_venue_capacity) mt-3 @endif">
+                                                    <x-ui.forms.checkbox
+                                                        wire:model.live="use_venue_capacity"
+                                                        id="use_venue_capacity"
+                                                        name="use_venue_capacity"
+                                                        class="rounded focus:ring-indigo-500"
+                                                    />
+                                                    <label for="use_venue_capacity" class="ml-2 text-sm text-gray-600 dark:text-gray-400">
+                                                        {{ __('Use venue capacity') }}
+                                                    </label>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </x-ui.forms.group>
+                                </div>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">

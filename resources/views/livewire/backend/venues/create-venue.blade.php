@@ -48,7 +48,7 @@
                                     <x-ui.forms.input
                                         wire:model.lazy="max_capacity"
                                         name="max_capacity"
-                                        placeholder="Enter venue capacity"
+                                        placeholder="Leave empty for unlimited"
                                         error="{{ $errors->has('max_capacity') }}"
                                         class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
                                     />

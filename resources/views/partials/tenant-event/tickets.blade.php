@@ -54,7 +54,7 @@
                                     </span>
                                     @php
                                         // Calculate if all tickets in basket would exceed event capacity
-                                        $basketExceedsCapacity = $this->event->max_capacity && ($this->event->tickets_count + collect($this->quantities)->sum('amount') >= $this->event->max_capacity);
+                                        $basketExceedsCapacity = $this->event->capacity && ($this->event->tickets_count + collect($this->quantities)->sum('amount') >= $this->event->capacity);
 
                                         // Determine if this specific increment button should be disabled
                                         $disableIncrement = ($remainingQuantities[$ticketType->id]->plusDisabledFrom !== null && $quantities[$ticketType->id]->amount >= $remainingQuantities[$ticketType->id]->plusDisabledFrom) || $basketExceedsCapacity;

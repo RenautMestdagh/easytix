@@ -51,7 +51,7 @@
             <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-300">{{ __('Total Capacity') }}</p>
                 <p class="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">
-                    {{ $event->max_capacity ?: '∞' }}
+                    {{ $event->capacity ?: '∞' }}
                 </p>
             </div>
             <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
@@ -67,13 +67,13 @@
                     return max(0, $ticketType->available_quantity - $ticketType->tickets_count);
                 });
                 if($hasUnlimited)
-                    $totalRemaining = $event->max_capacity - $event->tickets->count();
+                    $totalRemaining = $event->capacity - $event->tickets->count();
                 $totalRemaining = max(0, $totalRemaining);
             @endphp
             <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-300">{{ __('Tickets Remaining') }}</p>
                 <p class="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">
-                    {{ !$event->max_capacity&&$hasUnlimited ? '∞' : $totalRemaining }}
+                    {{ !$event->capacity && $hasUnlimited ? '∞' : $totalRemaining }}
                 </p>
             </div>
             <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">

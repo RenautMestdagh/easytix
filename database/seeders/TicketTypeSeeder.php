@@ -17,9 +17,9 @@ class TicketTypeSeeder extends Seeder
 
         foreach ($events as $event) {
             $ticketTypeCount = rand(0, 5);
-            $totalCapacity = $event->max_capacity;
+            $totalCapacity = $event->capacity;
 
-            // Create ticket types with quantities that sum to max_capacity
+            // Create ticket types with quantities that sum to capacity
             $quantities = [];
             $remaining = $totalCapacity;
 

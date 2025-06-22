@@ -21,6 +21,7 @@ class CreateEvent extends Component
     public $name = '';
     public $description = '';
     public $venue_id = null;
+    public $use_venue_capacity = false;
     public $date = '';
     public $max_capacity = null;
 
@@ -67,10 +68,13 @@ class CreateEvent extends Component
 
     public function venueSelected($venueId, $venueName)
     {
-        $this->venue_id = $venueId;
         $venue = Venue::find($venueId);
-        if(empty($this->max_capacity) && $venue?->max_capacity)
-            $this->max_capacity = $venue->max_capacity;
+        if(!$venue)
+            $this->use_venue_capacity = false;
+        else if(empty($this->max_capacity))
+            $this->use_venue_capacity = true;
+
+        $this->venue_id = $venueId;
     }
 
     public function store()
@@ -94,6 +98,7 @@ class CreateEvent extends Component
                 'name' => $validatedData['name'],
                 'description' => $validatedData['description'],
                 'venue_id' => $validatedData['venue_id'],
+                'use_venue_capacity' => $validatedData['use_venue_capacity'],
                 'date' => $validatedData['date'],
                 'max_capacity' => $validatedData['max_capacity'],
                 'is_published' => $publishStatus['is_published'],

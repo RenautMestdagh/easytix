@@ -22,6 +22,7 @@ class EditEvent extends Component
     public $name;
     public $description;
     public $venue_id;
+    public $use_venue_capacity = false;
     public $date;
     public ?int $max_capacity;
 
@@ -41,6 +42,7 @@ class EditEvent extends Component
         $this->name = $event->name;
         $this->description = $event->description;
         $this->venue_id = $event->venue_id;
+        $this->use_venue_capacity = $event->use_venue_capacity;
         $this->date = $event->date->format('Y-m-d\TH:i');
         $this->max_capacity = $event->max_capacity;
         $this->is_published = $event->is_published;
@@ -90,10 +92,13 @@ class EditEvent extends Component
 
     public function venueSelected($venueId, $venueName)
     {
-        $this->venue_id = $venueId;
         $venue = Venue::find($venueId);
-        if(empty($this->max_capacity) && $venue?->max_capacity)
-            $this->max_capacity = $venue->max_capacity;
+        if(!$venue)
+            $this->use_venue_capacity = false;
+        else if(empty($this->max_capacity))
+            $this->use_venue_capacity = true;
+
+        $this->venue_id = $venueId;
     }
 
     public function update()
@@ -120,6 +125,7 @@ class EditEvent extends Component
                 'name' => $validatedData['name'],
                 'description' => $validatedData['description'],
                 'venue_id' => $validatedData['venue_id'],
+                'use_venue_capacity' => $validatedData['use_venue_capacity'],
                 'date' => $validatedData['date'],
                 'max_capacity' => $validatedData['max_capacity'],
                 'is_published' => $publishStatus['is_published'],

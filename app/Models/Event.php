@@ -26,6 +26,7 @@ class Event extends Model
         'name',
         'description',
         'venue_id',
+        'use_venue_capacity',
         'max_capacity',
         'date',
         'event_image',
@@ -36,6 +37,7 @@ class Event extends Model
     ];
 
     protected $casts = [
+        'use_venue_capacity' => 'boolean',
         'date' => 'datetime',
         'publish_at' => 'datetime',
         'is_published' => 'boolean',
@@ -123,6 +125,11 @@ class Event extends Model
             'id'                // Local key on ticket_types table
         )->whereNotNull('tickets.temporary_order_id')
             ->whereNull('tickets.order_id');
+    }
+
+    public function getCapacityAttribute()
+    {
+        return $this->use_venue_capacity ? $this->venue->max_capacity : $this->max_capacity;
     }
 
     /**

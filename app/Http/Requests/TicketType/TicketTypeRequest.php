@@ -44,7 +44,7 @@ class TicketTypeRequest extends FormRequest
                 'integer',
                 'min:1',
                 function ($attribute, $value, $fail) {
-                    if($this->event->max_capacity === null)
+                    if($this->event->capacity === null)
                         return;
 
                     $ticketTypes = $this->event->ticketTypes;
@@ -52,7 +52,7 @@ class TicketTypeRequest extends FormRequest
                         $ticketTypes = $ticketTypes->where('id', '!=', $this->currentTicketType);
                     $alreadyAvailableTickets = $ticketTypes->sum('available_quantity');
 
-                    if ($value > $this->event->max_capacity - $alreadyAvailableTickets) {
+                    if ($value > $this->event->capacity - $alreadyAvailableTickets) {
                         $fail(__('The available quantity must not exceed the event capacity.'));
                     }
                 },

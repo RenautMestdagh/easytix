@@ -36,6 +36,7 @@ class EventFactory extends Factory
             'name' => $this->faker->words(3, true),
             'description' => $this->faker->paragraph,
             'venue_id' => $organization->venues()->where('organization_id', $organization->id)->inRandomOrder()->first()?->id ?? null,
+            'use_venue_capacity' => $this->faker->boolean(),
             'date' => $date,
             'event_image' => null,
             'header_image' => null,

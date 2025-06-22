@@ -57,8 +57,8 @@
 
                                 @php
                                     $alreadyAvailableTickets = $this->event->ticketTypes->sum('available_quantity');
-                                    $this->event->max_capacity - $alreadyAvailableTickets;
-                                    $placeholder = $event->max_capacity ? 'Remaining: ' . ($event->max_capacity - $alreadyAvailableTickets) : "Leave empty for unlimited";
+                                    $this->event->capacity - $alreadyAvailableTickets;
+                                    $placeholder = $event->capacity ? 'Remaining: ' . ($event->capacity - $alreadyAvailableTickets) : "Leave empty for unlimited";
                                 @endphp
                                 <x-ui.forms.group label="Available Quantity" for="available_quantity" error="available_quantity">
                                     <x-ui.forms.input

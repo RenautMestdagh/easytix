@@ -81,17 +81,17 @@ class EventTicketsSelector extends Component
         ];
 
         // Calculate based on event capacity if it exists
-        if ($this->event->max_capacity !== null) {
-            $availability['ticketsLeft'] = $this->event->max_capacity - $soldTickets - $reservedTickets;
-            $availability['plusDisabledFrom'] = $this->event->max_capacity - $soldTickets;
-            $availability['soldout'] = $soldTickets >= $this->event->max_capacity;
+        if ($this->event->capacity !== null) {
+            $availability['ticketsLeft'] = $this->event->capacity - $soldTickets - $reservedTickets;
+            $availability['plusDisabledFrom'] = $this->event->capacity - $soldTickets;
+            $availability['soldout'] = $soldTickets >= $this->event->capacity;
         }
 
         // Handle ticket type specific limits
         if ($ticketTypeMaxQuantity !== null) {
             $ticketTypeAvailable = $ticketTypeMaxQuantity - $reserved - $sold;
 
-            if ($this->event->max_capacity !== null) {
+            if ($this->event->capacity !== null) {
                 // When both event capacity and ticket quantity are set, use the more restrictive value
                 $availability['ticketsLeft'] = min($availability['ticketsLeft'], $ticketTypeAvailable);
                 $availability['plusDisabledFrom'] = min(
@@ -153,7 +153,7 @@ class EventTicketsSelector extends Component
 
                 if (
                     $ticketType->available_quantity && ($ticketCounts[$ticketTypeId]??0) >= $ticketType->available_quantity ||
-                    $this->event->max_capacity && $totalTickets >= $this->event->max_capacity
+                    $this->event->capacity && $totalTickets >= $this->event->capacity
                 ) {
                     DB::rollBack();
                     $this->flashMessage('No more tickets available', 'error');
