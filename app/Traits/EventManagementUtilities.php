@@ -2,11 +2,14 @@
 
 namespace App\Traits;
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 trait EventManagementUtilities
 {
+    use FlashMessage;
+
     protected function determinePublishStatus()
     {
         return match ($this->publish_option) {
@@ -65,19 +68,18 @@ trait EventManagementUtilities
      */
     public function removeImage($event, string $fieldName, string $successMessage)
     {
-        // Delete the file from storage if it exists
-        if ($event->{$fieldName}) {
-            Storage::disk('public')->delete("events/{$event->id}/{$event->{$fieldName}}");
+        try {
+            // Delete the file from storage if it exists
+            if ($event->{$fieldName})
+                Storage::disk('public')->delete("events/{$event->id}/{$event->{$fieldName}}");
+
+            $event->update([$fieldName => null]); // Update field in db
+            $this->reset($fieldName); // Reset the file input
+
+            $this->flashMessage($successMessage);
+        } catch (\Exception $e) {
+            Log::error('Error deleting image: ' . $e->getMessage());
+            $this->flashMessage('Error while deleting image.', 'error');
         }
-
-        // Update the event to remove the image reference
-        $event->update([$fieldName => null]);
-
-        // Reset the file input
-        $this->reset($fieldName);
-
-        // Show success message
-        session()->flash('message', __($successMessage));
-        session()->flash('message_type', 'success');
     }
 }

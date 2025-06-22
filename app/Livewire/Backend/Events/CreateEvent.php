@@ -5,6 +5,7 @@ namespace App\Livewire\Backend\Events;
 use App\Http\Requests\Event\StoreEventRequest;
 use App\Models\Event;
 use App\Traits\EventManagementUtilities;
+use App\Traits\FlashMessage;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Auth;
@@ -15,7 +16,7 @@ use Livewire\WithFileUploads;
 
 class CreateEvent extends Component
 {
-    use WithFileUploads, EventManagementUtilities;
+    use WithFileUploads, EventManagementUtilities, FlashMessage;
 
     // Event fields
     public $name = '';
@@ -46,6 +47,16 @@ class CreateEvent extends Component
         ))->rules();
         $fieldMessages = (new StoreEventRequest())->messages();
 
+        if($propertyName === 'event_image' || $propertyName === 'background_image' || $propertyName === 'header_image') {
+            try {
+                $this->validateOnly($propertyName, $fieldRules, $fieldMessages);
+            } catch (Exception $e) {
+                $this->$propertyName = null;
+                $this->setErrorBag([$propertyName => $e->validator->getMessageBag()->toArray()[$propertyName][0]]);
+            }
+            return;
+        }
+
         if (!array_key_exists($propertyName, $fieldRules)) {
             return; // skip validation if no rule is defined
         }
@@ -67,13 +78,11 @@ class CreateEvent extends Component
             (new StoreEventRequest())->messages(),
         );
 
+        $publishStatus = $this->determinePublishStatus();
+        $event = null;
         try {
-            // Determine publish status
-            $publishStatus = $this->determinePublishStatus();
-
-            // Create the event
-            $event = null;
             while (true) {
+                // In try catch because uniqid may not be unique but must be
                 try {
                     $event = Event::create([
                         'organization_id' => Auth::user()->organization_id,
@@ -90,28 +99,25 @@ class CreateEvent extends Component
                 } catch (QueryException $e) {}
             }
 
+            $this->flashMessage('Event created successfully.');
+
             // Handle file uploads
-            if ($this->event_image) {
-                $this->uploadImage($event, 'event_image');
+            try{
+                if ($this->event_image)
+                    $this->uploadImage($event, 'event_image');
+                if ($this->header_image)
+                    $this->uploadImage($event, 'header_image');
+                if ($this->background_image)
+                    $this->uploadImage($event, 'background_image');
+            } catch (Exception $e) {
+                Log::error('An error occurred while uploading images: ' . $e->getMessage());
+                $this->flashMessage('Error while uploading images.', 'error');
             }
 
-            if ($this->header_image) {
-                $this->uploadImage($event, 'header_image');
-            }
-
-            if ($this->background_image) {
-                $this->uploadImage($event, 'background_image');
-            }
-
-            session()->flash('message', __('Event successfully created.'));
-            session()->flash('message_type', 'success');
-
-            return redirect()->route('ticket-types.index', $event);
-
+            redirect()->route('ticket-types.index', $event);
         } catch (Exception $e) {
-            Log::error($e);
-            session()->flash('message', __('An error occurred while creating the event.'));
-            session()->flash('message_type', 'error');
+            Log::error('An error occurred while creating the event: ' . $e->getMessage());
+            $this->flashMessage('Error while creating event.', 'error');
         }
     }
 

@@ -5,13 +5,15 @@ namespace App\Livewire\Backend\Organizations;
 use App\Http\Requests\Organization\UpdateOrganizationRequest;
 use App\Models\Organization;
 use App\Models\User;
+use App\Traits\FlashMessage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 class EditOrganization extends Component
 {
-    use WithPagination;
+    use WithPagination, FlashMessage;
 
     public Organization $organization;
     public $organizationName = '';
@@ -54,51 +56,45 @@ class EditOrganization extends Component
 
     public function save()
     {
-        // Skip validation for subdomain if it's unchanged
         $validated = $this->validate(
             (new UpdateOrganizationRequest($this->organization->id))->rules(),
             (new UpdateOrganizationRequest())->messages(),
         );
-
-        $oldSubdomain = $this->organization->subdomain;
-        $newSubdomain = $validated['organizationSubdomain'];
 
         try {
             $this->organization->update([
                 'name' => $validated['organizationName'],
                 'subdomain' => $validated['organizationSubdomain'],
             ]);
-
-            session()->flash('message', __('Organization successfully updated.'));
-            $this->dispatch('flash-message');
-
             $this->saveButtonVisible = false;
-
-            // If the subdomain has changed, redirect to the new subdomain's edit page
-            if ($oldSubdomain !== $newSubdomain && session('organization_id')) {
-                $baseUrl = config('app.url');
-                $hostParts = parse_url($baseUrl);
-
-                $scheme = $hostParts['scheme'] ?? 'http';
-                $domain = $hostParts['host'] ?? 'localhost';
-                $port = isset($hostParts['port']) ? ':' . $hostParts['port'] : '';
-
-                // Construct new host: newsub.localeasytix.org
-                $newHost = $newSubdomain . '.' . $domain;
-
-                // Build relative path to edit page
-                $path = route('organizations.update', $this->organization->id, false);
-
-                // Full new URL with port if present
-                $newUrl = $scheme . '://' . $newHost . $port . $path;
-
-                return redirect()->away($newUrl);
-            }
+            $this->flashMessage('Organization successfully updated.');
 
         } catch (\Exception $e) {
-            session()->flash('message', __('An error occurred while updating the organization.'));
-            session()->flash('message_type', 'error');
-            $this->dispatch('flash-message');
+            Log::error('Error updating organization: ' . $e->getMessage());
+            $this->flashMessage('Error while updating organization.', 'error');
+        }
+
+        // If the subdomain has changed, redirect to the new subdomain's edit page
+        $oldSubdomain = $this->organization->subdomain;
+        $newSubdomain = $validated['organizationSubdomain'];
+        if ($oldSubdomain !== $newSubdomain && session('organization_id')) {
+            $baseUrl = config('app.url');
+            $hostParts = parse_url($baseUrl);
+
+            $scheme = $hostParts['scheme'] ?? 'http';
+            $domain = $hostParts['host'] ?? 'localhost';
+            $port = isset($hostParts['port']) ? ':' . $hostParts['port'] : '';
+
+            // Construct new host: newsub.localeasytix.org
+            $newHost = $newSubdomain . '.' . $domain;
+
+            // Build relative path to edit page
+            $path = route('organizations.update', $this->organization->id, false);
+
+            // Full new URL with port if present
+            $newUrl = $scheme . '://' . $newHost . $port . $path;
+
+            redirect()->away($newUrl);
         }
     }
 
@@ -156,46 +152,53 @@ class EditOrganization extends Component
 
     public function removeUser($id)
     {
-        DB::transaction(function () use ($id) {
-            $user = User::findOrFail($id);
-            $organization = Organization::findOrFail($user->organization_id);
+        $this->authorize('users.delete');
 
-            // Lock all admin user rows for update to prevent race conditions
-            $adminIds = $organization->admins()->lockForUpdate()->pluck('id');
+        try {
+            DB::transaction(function () use ($id) { // Wrap in transaction
+                $user = User::findOrFail($id);
+                $organization = Organization::findOrFail($user->organization_id);
 
-            if ($adminIds->count() === 1 && $adminIds->first() === $user->id) {
-                session()->flash('message_type', 'error');
-                session()->flash('message', __('Cannot delete the last admin in the organization.'));
-                $this->dispatch('flash-message');
-                return;
-            }
+                // Lock admins (automatically unlocks on commit/rollback)
+                $adminIds = $organization->admins()->lockForUpdate()->pluck('id');
 
-            $user->delete();
+                if ($adminIds->count() === 1 && $adminIds->first() === $user->id) {
+                    $this->flashMessage('Cannot delete the last admin in the organization.', 'error');
+                    return; // Locks released here due to transaction
+                }
 
-            $this->adminCount = $this->organization->admins()->count();
-
-            session()->flash('message', __('User deleted successfully.'));
-            $this->dispatch('flash-message');
-        });
+                $user->delete();
+                $this->flashMessage('User deleted successfully.');
+                $this->adminCount = $organization->admins()->count();
+            });
+        } catch (\Exception $e) {
+            Log::error('Error deleting user: ' . $e->getMessage());
+            $this->flashMessage('Error while deleting user.', 'error');
+        }
     }
 
     public function forceDeleteUser($id)
     {
-        $user = User::withTrashed()->findOrFail($id);
-        $user->forceDelete();
-
-        session()->flash('message', __('User permanently deleted.'));
-        $this->dispatch('flash-message');
+        $this->authorize('users.delete');
+        try {
+            User::withTrashed()->findOrFail($id)->forceDelete();
+            $this->flashMessage('User permanently deleted.');
+        } catch (\Exception $e) {
+            Log::error('Error permanently deleting user: ' . $e->getMessage());
+            $this->flashMessage('Error while permanently deleting user.', 'error');
+        }
     }
 
     public function restoreUser($id)
     {
-        $user = User::withTrashed()->findOrFail($id);
-        $user->restore();
-
-        $this->adminCount = $this->organization->admins()->count();
-
-        session()->flash('message', 'User restored successfully.');
-        $this->dispatch('flash-message');
+        $this->authorize('users.delete');
+        try {
+            User::withTrashed()->findOrFail($id)->restore();
+            $this->adminCount = $this->organization->admins()->count();
+            $this->flashMessage('User restored successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error restoring user: ' . $e->getMessage());
+            $this->flashMessage('Error restoring user.', 'error');
+        }
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Mail\OrderConfirmationMail;
+use App\Models\Order;
 use App\Models\TemporaryOrder;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -10,11 +11,10 @@ use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Stripe\StripeClient;
-use App\Models\Order;
-use Illuminate\Support\Facades\Log;
 
 class CheckTemporaryOrderStatus implements ShouldQueue
 {
@@ -102,7 +102,5 @@ class CheckTemporaryOrderStatus implements ShouldQueue
         Log::error("CheckTemporaryOrderStatus job failed for PaymentIntent: {$this->paymentIntentId}", [
             'error' => $exception->getMessage()
         ]);
-
-        // Optional: Notify admin or perform cleanup
     }
 }

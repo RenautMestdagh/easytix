@@ -7,6 +7,8 @@
             />
         @endif
 
+        @dump($this->getErrorBag()->all())
+
         <div class="flex justify-between items-center mb-10">
             <div>
                 <h1 class="text-3xl font-semibold text-gray-800 dark:text-gray-200 transition-all duration-300">

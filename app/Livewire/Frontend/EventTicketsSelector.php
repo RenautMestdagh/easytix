@@ -3,14 +3,16 @@
 namespace App\Livewire\Frontend;
 
 use App\Models\Ticket;
+use App\Traits\FlashMessage;
 use App\Traits\NavigateEventCheckout;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
 class EventTicketsSelector extends Component
 {
-    use NavigateEventCheckout;
+    use NavigateEventCheckout, FlashMessage;
 
     public $remainingQuantities = [];
 
@@ -130,7 +132,7 @@ class EventTicketsSelector extends Component
         if (!$ticketType) return;
 
         $ticket = null;
-        while (true) {
+        for ($tries = 0; $tries < 50; $tries++) {
             try {
                 $ticket = Ticket::create([
                     'temporary_order_id' => $this->tempOrder->id,
@@ -138,7 +140,12 @@ class EventTicketsSelector extends Component
                     'qr_code' => uniqid(),
                 ]);
                 break;
-            } catch (QueryException $e) {}
+            } catch (QueryException $e) {
+                if ($tries >= 49) {
+                    $this->flashMessage('Error adding ticket to cart', 'error');
+                    Log::error('Error adding ticket to cart: ' . $e->getMessage());
+                }
+            }
         }
 
         $this->calculateAvailableTickets($ticketTypeId);
@@ -160,12 +167,18 @@ class EventTicketsSelector extends Component
     {
         if($this->tempOrder->payment_id) return;
 
-        $deleted = $this->tempOrder->tickets()->where('ticket_type_id', $ticketTypeId)->limit(1)?->delete();
+        $deleted = false;
+        try{
+            $deleted = $this->tempOrder->tickets()->where('ticket_type_id', $ticketTypeId)->limit(1)?->delete();
+        } catch(QueryException $e) {
+            $this->flashMessage('An error occurred, please try again.', 'error');
+            Log::error('Error decrementing quantity: ' . $e->getMessage());
+        }
+
         if(!$deleted) return;
 
         $this->quantities[$ticketTypeId]->amount--;
-
-        if (collect($this->quantities)->sum('amount') == 0){
+        if (collect($this->quantities)->sum('amount') == 0) {
             $this->tempOrder->resetExpiry();
             $this->updateTimeRemaining();
         }
@@ -174,15 +187,17 @@ class EventTicketsSelector extends Component
     public function proceedToCheckout()
     {
         if ($this->tempOrder->tickets->count() == 0) {
-            session()->flash('message', __('You must select at least one ticket.'));
-            session()->flash('message_type', 'error');
+            $this->flashMessage('You must select at least one ticket.', 'error');
             return;
         }
 
         $this->tempOrder->checkout_stage = 1;
-        $this->tempOrder->save();
-
-        return redirect()->route('event.checkout', [$this->event->organization->subdomain, $this->event->uniqid]);
+        try {
+            $this->tempOrder->save();
+            redirect()->route('event.checkout', [$this->event->organization->subdomain, $this->event->uniqid]);
+        } catch (QueryException $e) {
+            $this->flashMessage('An error occurred, please try again.', 'error');
+        }
     }
 
     public function render()

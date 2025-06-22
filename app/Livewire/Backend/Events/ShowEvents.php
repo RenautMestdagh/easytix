@@ -4,13 +4,15 @@ namespace App\Livewire\Backend\Events;
 
 use App\Models\Event;
 use App\Models\Organization;
+use App\Traits\FlashMessage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 class ShowEvents extends Component
 {
-    use WithPagination;
+    use WithPagination, FlashMessage;
 
     public $includeDeleted = false;
     public $search = '';
@@ -108,48 +110,53 @@ class ShowEvents extends Component
     public function deleteEvent($id)
     {
         $this->authorize('events.delete');
-
-        DB::transaction(function () use ($id) {
-            $event = Event::findOrFail($id);
-            $event->delete();
-
-            session()->flash('message', __('Event deleted successfully.'));
-            $this->dispatch('flash-message');
-        });
+        try {
+            Event::findOrFail($id)->delete();
+            $this->flashMessage('Event deleted successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error deleting event: ' . $e->getMessage());
+            $this->flashMessage('Error while deleting event.', 'error');
+        }
     }
 
     public function forceDeleteEvent($id)
     {
         $this->authorize('events.delete');
 
-        $event = Event::withTrashed()->findOrFail($id);
+        try {
+            $event = Event::withTrashed()->findOrFail($id);
+            $ticketTypes = $event->ticketTypes;
 
-        $ticketTypes = $event->ticketTypes;
-
-        foreach ($ticketTypes as $ticketType) {
-            if($ticketType->tickets->count() + $ticketType->reservedTickets->count() > 0) {
-                session()->flash('message', __('Cannot permanently delete event with (reserved) tickets.'));
-                session()->flash('message_type', __('error'));
-                $this->dispatch('flash-message');
-                return;
+            DB::statement('LOCK TABLES tickets WRITE');
+            foreach ($ticketTypes as $ticketType) {
+                if($ticketType->tickets->count() + $ticketType->reservedTickets->count() > 0) {
+                    DB::statement('UNLOCK TABLES');
+                    $this->flashMessage('Cannot permanently delete event with (reserved) tickets.', 'error');
+                    return;
+                }
             }
+
+            $event->forceDelete();
+            $this->flashMessage('Event deleted successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error permanently deleting event: ' . $e->getMessage());
+            $this->flashMessage('Error while deleting event.', 'error');
+        } finally {
+            DB::statement('UNLOCK TABLES');
         }
-
-        $event->forceDelete();
-
-        session()->flash('message', __('Event permanently deleted.'));
-        $this->dispatch('flash-message');
     }
 
     public function restoreEvent($id)
     {
         $this->authorize('events.delete');
 
-        $event = Event::withTrashed()->findOrFail($id);
-        $event->restore();
-
-        session()->flash('message', 'Event restored successfully.');
-        $this->dispatch('flash-message');
+        try {
+            Event::withTrashed()->findOrFail($id)->restore();
+            $this->flashMessage('Event restored successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error restoring event: ' . $e->getMessage());
+            $this->flashMessage('Error while restoring event.', 'error');
+        }
     }
 
     public function render()

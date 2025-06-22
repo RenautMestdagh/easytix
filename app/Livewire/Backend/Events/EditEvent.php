@@ -5,13 +5,15 @@ namespace App\Livewire\Backend\Events;
 use App\Http\Requests\Event\UpdateEventRequest;
 use App\Models\Event;
 use App\Traits\EventManagementUtilities;
+use App\Traits\FlashMessage;
+use Exception;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
 class EditEvent extends Component
 {
-    use WithFileUploads, EventManagementUtilities;
+    use WithFileUploads, EventManagementUtilities, FlashMessage;
 
     public Event $event;
 
@@ -66,6 +68,16 @@ class EditEvent extends Component
         ))->rules();
         $fieldMessages = (new UpdateEventRequest())->messages();
 
+        if($propertyName === 'event_image' || $propertyName === 'background_image' || $propertyName === 'header_image') {
+            try {
+                $this->validateOnly($propertyName, $fieldRules, $fieldMessages);
+            } catch (Exception $e) {
+                $this->$propertyName = null;
+                $this->setErrorBag([$propertyName => $e->validator->getMessageBag()->toArray()[$propertyName][0]]);
+            }
+            return;
+        }
+
         if (!array_key_exists($propertyName, $fieldRules)) {
             return; // skip validation if no rule is defined
         }
@@ -102,9 +114,29 @@ class EditEvent extends Component
                 'is_published' => $publishStatus['is_published'],
                 'publish_at' => $publishStatus['publish_at'],
             ]);
+            $this->flashMessage('Event updated successfully.');
 
-            if($publishStatus['is_published']) {
-                // Publish any ticket types that should publish with the event
+            try{
+                if ($this->event_image)
+                    $this->uploadImage($this->event, 'event_image');
+                if ($this->header_image)
+                    $this->uploadImage($this->event, 'header_image');
+                if ($this->background_image)
+                    $this->uploadImage($this->event, 'background_image');
+            } catch (Exception $e) {
+                Log::error('An error occurred while uploading images: ' . $e->getMessage());
+                $this->flashMessage('Error while uploading images.', 'error');
+            }
+
+            redirect(session()->pull('events.edit.referrer', route('events.index')));
+        } catch (\Exception $e) {
+            Log::error('An error occurred while updating the event: ' . $e->getMessage());
+            $this->flashMessage('An error occurred while updating the event.', 'error');
+        }
+
+        if($publishStatus['is_published']) {
+            // Publish any ticket types that should publish with the event
+            try {
                 $ticketTypesToPublish = $this->event->ticketTypes()
                     ->where('publish_with_event', true)
                     ->where('is_published', false)
@@ -116,29 +148,11 @@ class EditEvent extends Component
                         'publish_at' => null // Clear the publish_at since it's now published
                     ]);
                 }
+
+            } catch (\Exception $e) {
+                Log::error('An error occurred while publishing ticket types: ' . $e->getMessage());
+                $this->flashMessage('An error occurred while publishing ticket types.', 'error');
             }
-
-            // Handle file uploads
-            if ($this->event_image) {
-                $this->uploadImage($this->event, 'event_image');
-            }
-
-            if ($this->header_image) {
-                $this->uploadImage($this->event, 'header_image');
-            }
-
-            if ($this->background_image) {
-                $this->uploadImage($this->event, 'background_image');
-            }
-
-            session()->flash('message', __('Event successfully updated.'));
-            session()->flash('message_type', 'success');
-
-            return redirect(session()->pull('events.edit.referrer', route('events.index')));
-        } catch (\Exception $e) {
-            Log::error($e);
-            session()->flash('message', __('An error occurred while updating the event.'));
-            session()->flash('message_type', 'error');
         }
     }
 

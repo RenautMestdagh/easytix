@@ -5,13 +5,15 @@ namespace App\Livewire\Frontend;
 use App\Http\Requests\CustomerRequest;
 use App\Models\Customer;
 use App\Models\DiscountCode;
+use App\Traits\FlashMessage;
 use App\Traits\NavigateEventCheckout;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Stripe\StripeClient;
 
 class EventCheckout extends Component
 {
-    use NavigateEventCheckout;
+    use NavigateEventCheckout, FlashMessage;
 
     // Customer fields
     public $first_name;
@@ -56,20 +58,14 @@ class EventCheckout extends Component
 
     public function updated($propertyName)
     {
-        $customerFields = [
+        if (in_array(explode('.', $propertyName)[0], [
             'first_name', 'last_name', 'email', 'phone',
             'gender', 'date_of_birth', 'address', 'city', 'country'
-        ];
-
-        foreach ($customerFields as $field) {
-            if (str_starts_with($propertyName, $field)) {
-                $this->saveSingleCustomerField($propertyName);
-                break;
-            }
+        ])) {
+            $this->saveSingleCustomerField($propertyName);
         }
     }
 
-// Save a single field that was updated
     protected function saveSingleCustomerField($propertyName)
     {
         if (!$this->tempOrder) return;
@@ -86,14 +82,15 @@ class EventCheckout extends Component
 
         $customer = Customer::withoutGlobalScopes()->find($this->tempOrder->customer_id);
 
-        if ($customer) {
-            $customer->update([$field => $validatedData[$field]]);
-        } else if ($this->first_name && $this->last_name && $this->email && $this->phone) {
-            $this->saveAllCustomerData();
-        }
+        try {
+            if ($customer) {
+                $customer->update([$field => $validatedData[$field]]);
+            } else if ($this->first_name && $this->last_name && $this->email && $this->phone) {
+                $this->saveAllCustomerData();
+            }
+        } catch (\Exception $e) {}
     }
 
-// Save/update all customer data
     public function saveAllCustomerData()
     {
         if (!$this->tempOrder) return;
@@ -169,7 +166,12 @@ class EventCheckout extends Component
         }
 
         // Apply discount
-        $this->tempOrder->discountCodes()->attach($discount->id);
+        try {
+            $this->tempOrder->discountCodes()->attach($discount->id);
+        } catch (\Exception $e) {
+            Log::error('Error applying discount code: ' . $e->getMessage());
+            $this->addError('discountError', 'Something went wrong, please try again.');
+        }
 
         // Check max uses
         if ($discount->max_uses && $discount->getAllUsesCount() > $discount->max_uses) {
@@ -187,7 +189,13 @@ class EventCheckout extends Component
     {
         if($this->tempOrder->checkout_stage !== 1) return;
 
-        $this->tempOrder->discountCodes()->detach($discountId);
+        try {
+            $this->tempOrder->discountCodes()->detach($discountId);
+        } catch (\Exception $e) {
+            Log::error('Error removing discount code: ' . $e->getMessage());
+            $this->addError('discountError', 'Something went wrong, please try again.');
+        }
+
         $this->loadAppliedDiscounts();
         $this->calculateOrderTotal();
     }
@@ -195,34 +203,43 @@ class EventCheckout extends Component
 
     public function backToTickets()
     {
-        $this->saveAllCustomerData();
         $this->tempOrder->checkout_stage = 0;
-        $this->tempOrder->save();
-        return redirect()->route('event.tickets', [$this->event->organization->subdomain, $this->event->uniqid]);
+        try {
+            try {$this->saveAllCustomerData();} catch (\Exception $e) {}
+            $this->tempOrder->save();
+            redirect()->route('event.tickets', [$this->event->organization->subdomain, $this->event->uniqid]);
+        } catch (\Exception $e) {
+            Log::error('Error backing to tickets: ' . $e->getMessage());
+            $this->flashMessage('An error occurred, please try again.', 'error');
+        }
     }
 
     public function proceedToPayment()
     {
-        $this->saveAllCustomerData();
+        try {
+            $this->saveAllCustomerData();
+            $this->calculateOrderTotal();
 
-        $this->calculateOrderTotal();
+            if(!$this->tempOrder->payment_id) {
+                // Create Stripe payment intent
+                $stripe = new StripeClient(config('app.stripe.secret'));
+                $paymentIntent = $stripe->paymentIntents->create([
+                    'amount' => $this->orderTotal,
+                    'currency' => 'eur',
+                    'automatic_payment_methods' => ['enabled' => true],
+                ]);
 
-        if(!$this->tempOrder->payment_id) {
-            // Create Stripe payment intent
-            $stripe = new StripeClient(config('app.stripe.secret'));
-            $paymentIntent = $stripe->paymentIntents->create([
-                'amount' => $this->orderTotal,
-                'currency' => 'eur',
-                'automatic_payment_methods' => ['enabled' => true],
-            ]);
+                $this->tempOrder->payment_id = $paymentIntent->id;
+            }
 
-            $this->tempOrder->payment_id = $paymentIntent->id;
+            $this->tempOrder->checkout_stage = 2;
+            $this->tempOrder->save();
+
+            redirect()->route('event.payment', [$this->event->organization->subdomain, $this->event->uniqid]);
+        } catch (\Exception $e) {
+            Log::error('Error proceeding to payment: ' . $e->getMessage());
+            $this->flashMessage('An error occurred, please try again.', 'error');
         }
-
-        $this->tempOrder->checkout_stage = 2;
-        $this->tempOrder->save();
-
-        return redirect()->route('event.payment', [$this->event->organization->subdomain, $this->event->uniqid]);
     }
 
     public function render()

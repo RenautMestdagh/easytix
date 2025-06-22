@@ -3,10 +3,15 @@
 namespace App\Livewire\Backend\TicketTypes;
 
 use App\Models\Event;
+use App\Traits\FlashMessage;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
 class ShowTypes extends Component
 {
+    use FlashMessage;
+
     public Event $event;
 
     public function mount(Event $event)
@@ -29,26 +34,33 @@ class ShowTypes extends Component
     public function deleteTicketType($ticketTypeId)
     {
         $this->authorize('ticket-types.delete');
-        $ticketType = $this->event->ticketTypes()->findOrFail($ticketTypeId);
-        if($ticketType->tickets->count() > 0) {
-            session()->flash('message', __('Cannot delete ticket type with (reserved) tickets.'));
-            session()->flash('message_type', __('error'));
-            $this->dispatch('flash-message');
-            return;
+
+        try {
+            $ticketType = $this->event->ticketTypes()->findOrFail($ticketTypeId);
+
+            DB::statement('LOCK TABLES tickets WRITE');
+            if ($ticketType->tickets->count() > 0) {
+                DB::statement('UNLOCK TABLES');
+                $this->flashMessage('Cannot delete ticket type with (reserved) tickets.', 'error');
+                return;
+            }
+
+            $ticketType->delete();
+            DB::statement('UNLOCK TABLES');
+
+            $this->event->load([
+                'ticketTypes' => function ($query) {
+                    $query->withCount('tickets');
+                },
+            ]);
+
+            $this->flashMessage('Ticket type deleted successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error deleting ticket type: ' . $e->getMessage());
+            $this->flashMessage('Error deleting ticket type', 'error');
+        } finally {
+            DB::statement('UNLOCK TABLES');
         }
-
-        $ticketType->delete();
-
-        $this->event->load([
-            'ticketTypes' => function ($query) {
-                $query->withCount('tickets');
-            },
-        ]);
-
-        $this->dispatch('notify',
-            type: 'success',
-            content: 'Ticket type deleted successfully'
-        );
     }
 
     public function render()

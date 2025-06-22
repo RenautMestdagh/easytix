@@ -5,11 +5,15 @@ namespace App\Livewire\Backend\DiscountCodes;
 use App\Http\Requests\DiscountCode\StoreDiscountCodeRequest;
 use App\Models\DiscountCode;
 use App\Models\Event;
+use App\Traits\FlashMessage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
 class CreateDiscountCode extends Component
 {
+    use FlashMessage;
+
     public ?string $code = null;
     public ?int $event_id = null;
     public $start_date = null;
@@ -59,23 +63,24 @@ class CreateDiscountCode extends Component
             $discountFixedCents = (int) round($validatedData['discount_fixed_euros'] * 100);
         }
 
-        $discountCode = new DiscountCode([
-            'organization_id' => session('organization_id'),
-            'event_id' => $validatedData['event_id'],
-            'code' => $validatedData['code'],
-            'start_date' => $validatedData['start_date'],
-            'end_date' => $validatedData['end_date'],
-            'max_uses' => $validatedData['max_uses'],
-            'discount_percent' => $validatedData['discount_type'] === 'percent' ? $validatedData['discount_percent'] : null,
-            'discount_fixed_cents' => $validatedData['discount_type'] === 'fixed' ? $discountFixedCents : null,
-        ]);
+        try {
+            DiscountCode::create([
+                'organization_id' => session('organization_id'),
+                'event_id' => $validatedData['event_id'],
+                'code' => $validatedData['code'],
+                'start_date' => $validatedData['start_date'],
+                'end_date' => $validatedData['end_date'],
+                'max_uses' => $validatedData['max_uses'],
+                'discount_percent' => $validatedData['discount_type'] === 'percent' ? $validatedData['discount_percent'] : null,
+                'discount_fixed_cents' => $validatedData['discount_type'] === 'fixed' ? $discountFixedCents : null,
+            ]);
 
-        $discountCode->save();
-
-        session()->flash('message', __('Discount code created successfully.'));
-        session()->flash('message_type', 'success');
-
-        return redirect()->route('discount-codes.index');
+            $this->flashMessage('Discount code added successfully.');
+            redirect()->route('discount-codes.index');
+        } catch (\Exception $e) {
+            $this->flashMessage('Error while creating discount code.', 'error');
+            Log::error('Error creating discount code: ' . $e->getMessage());
+        }
     }
 
     public function generateCode()

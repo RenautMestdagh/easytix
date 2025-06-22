@@ -5,6 +5,7 @@ namespace App\Livewire\Backend\Users;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Models\Organization;
 use App\Models\User;
+use App\Traits\FlashMessage;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\Unique;
@@ -13,6 +14,8 @@ use Spatie\Permission\Models\Role;
 
 class CreateUser extends Component
 {
+    use FlashMessage;
+
     public $user = [
         'name' => '',
         'email' => '',
@@ -49,15 +52,24 @@ class CreateUser extends Component
     public function updated($propertyName)
     {
         if ($propertyName === 'role') {
-            $this->resetErrorBag('organization_id');
             if($this->role === 'superadmin')
                 $this->organization_id = null;
             else if($this->organization_id === null)
                 $this->organization_id = array_key_first($this->organizations);
         }
 
-        $fieldRules = (new StoreUserRequest($this->organization_id))->rules();
+        $fieldRules = (new StoreUserRequest(
+            $this->role,
+            $this->organization_id,
+        ))->rules();
         $fieldMessages = (new StoreUserRequest())->messages();
+
+        if ($propertyName === 'userEmail' && empty($this->role)) {
+            // If no role is selected, dont check on email uniqueness
+            $fieldRules['userEmail'] = array_filter($fieldRules['userEmail'], function ($rule) {
+                return !($rule instanceof Unique);
+            });
+        }
 
         // Handle password confirmation case
         if ($propertyName === 'userPassword' || $propertyName === 'userPassword_confirmation') {
@@ -65,19 +77,8 @@ class CreateUser extends Component
             return;
         }
 
-        if ($propertyName === 'role' || $propertyName === 'organization_id') {
-            $this->validate([
-                'userEmail' => $fieldRules['userEmail'],
-                $propertyName => $fieldRules[$propertyName],
-            ], $fieldMessages);
-            return;
-        }
-
-        if ($propertyName === 'userEmail' && !$this->role) {
-            // If no role is selected, dont check on email uniqueness
-            $fieldRules = array_filter($fieldRules, function ($rule) {
-                return !($rule instanceof Unique);
-            });
+        if (!empty($this->userEmail) && ($propertyName === 'role' || $propertyName === 'organization_id')) {
+            $this->validateOnly('userEmail', $fieldRules, $fieldMessages);
         }
 
         if (!array_key_exists($propertyName, $fieldRules)) {
@@ -89,25 +90,16 @@ class CreateUser extends Component
 
     public function save()
     {
+        if($this->role === 'superadmin')
+            $this->organization_id = null;
+
         $validatedData = $this->validate(
-            (new StoreUserRequest($this->organization_id))->rules(),
+            (new StoreUserRequest(
+                $this->role,
+                $this->organization_id,
+            ))->rules(),
             (new StoreUserRequest)->messages()
         );
-
-        // 1. Ensure non-superadmin users have an organization
-        if ($validatedData['role'] !== 'superadmin' && empty($validatedData['organization_id'])) {
-            session()->flash('message', __('Non-superadmin users must belong to an organization.'));
-            session()->flash('message_type', 'error');
-            return;
-        }
-
-        // 2. Prevent organization assignment for superadmin
-        if ($validatedData['role'] === 'superadmin' && !empty($validatedData['organization_id'])) {
-            session()->flash('message', __('Superadmin cannot be assigned to an organization.'));
-            session()->flash('message_type', 'error');
-            $this->organization_id = null;
-            return;
-        }
 
         try {
             // Create the user
@@ -118,18 +110,13 @@ class CreateUser extends Component
                 'password' => Hash::make($validatedData['userPassword']),
             ]);
 
-            // Assign the selected role
             $user->assignRole($validatedData['role']);
-
-            session()->flash('message', __('User successfully created.'));
-            session()->flash('message_type', 'success');
-
-            return redirect()->route('users.index');
+            $this->flashMessage('User created successfully.');
+            redirect()->route('users.index');
 
         } catch (\Exception $e) {
             Log::error('An error occurred while creating the user: ' . $e->getMessage());
-            session()->flash('message', __('An error occurred while creating the user'));
-            session()->flash('message_type', 'error');
+            $this->flashMessage('An error occurred while creating the user.', 'error');
         }
     }
 

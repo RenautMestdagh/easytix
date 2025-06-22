@@ -4,11 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class TemporaryOrder extends Model
 {
@@ -53,7 +49,7 @@ class TemporaryOrder extends Model
 
     public function discountCodes()
     {
-        return $this->belongsToMany(DiscountCode::class, 'discount_code_orders', 'temporary_order_id')
+        return $this->belongsToMany(DiscountCode::class, 'discount_code_order', 'temporary_order_id')
             ->withPivot(['order_id', 'created_at'])
             ->wherePivotNotNull('temporary_order_id');
     }

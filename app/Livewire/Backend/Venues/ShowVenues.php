@@ -4,12 +4,14 @@ namespace App\Livewire\Backend\Venues;
 
 use App\Models\Organization;
 use App\Models\Venue;
+use App\Traits\FlashMessage;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 class ShowVenues extends Component
 {
-    use WithPagination;
+    use WithPagination, FlashMessage;
 
     public $includeDeleted = false;
     public $search = '';
@@ -70,28 +72,37 @@ class ShowVenues extends Component
 
     public function deleteVenue($id)
     {
-        $venue = Venue::findOrFail($id);
-        $venue->delete();
-
-        session()->flash('message', __('Venue deleted successfully.'));
-        $this->dispatch('flash-message');
+        $this->authorize('venues.delete');
+        try{
+            Venue::findOrFail($id)->delete();
+            $this->flashMessage('Venue deleted successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error deleting venue: ' . $e->getMessage());
+            $this->flashMessage('Error while deleting venue.', 'error');
+        }
     }
 
     public function forceDeleteVenue($id)
     {
-        $venue = Venue::withTrashed()->findOrFail($id);
-        $venue->forceDelete();
-
-        session()->flash('message', __('Venue permanently deleted.'));
-        $this->dispatch('flash-message');
+        $this->authorize('venues.delete');
+        try {
+            Venue::withTrashed()->findOrFail($id)->forceDelete();
+            $this->flashMessage('Venue permanently deleted.');
+        } catch (\Exception $e) {
+            Log::error('Error permanently deleting venue: ' . $e->getMessage());
+            $this->flashMessage('Error while permanently deleting venue.', 'error');
+        }
     }
 
     public function restoreVenue($id)
     {
-        $venue = Venue::withTrashed()->findOrFail($id);
-        $venue->restore();
-
-        session()->flash('message', 'Venue restored successfully.');
-        $this->dispatch('flash-message');
+        $this->authorize('venues.delete');
+        try {
+            Venue::withTrashed()->findOrFail($id)->restore();
+            $this->flashMessage('Venue restored successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error restoring venue: ' . $e->getMessage());
+            $this->flashMessage('Error restoring venue.', 'error');
+        }
     }
 }

@@ -3,21 +3,17 @@
 namespace App\Livewire\Frontend;
 
 use App\Jobs\CheckTemporaryOrderStatus;
-use App\Mail\OrderConfirmationMail;
 use App\Models\Event;
-use App\Models\Order;
 use App\Models\TemporaryOrder;
+use App\Traits\FlashMessage;
 use App\Traits\NavigateEventCheckout;
-use Exception;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Livewire\Component;
-use Stripe\StripeClient;
 
 class PaymentConfirmation extends Component
 {
-    use NavigateEventCheckout;
+    use NavigateEventCheckout, FlashMessage;
 
     public $redirect_status;
 
@@ -59,15 +55,22 @@ class PaymentConfirmation extends Component
 
     public function backToPayment()
     {
-        $this->tempOrder = TemporaryOrder::find($this->tempOrderId);
-        if($this->tempOrder) {
-            $this->tempOrder->checkout_stage = 2;
+        try {
+            $this->tempOrder = TemporaryOrder::findOrFail($this->tempOrderId);
+        } catch (\Exception $e) {
+            Log::error('Temporary order not found in payment confirmation: ' . $e->getMessage());
+            $this->redirect_status = 'temporary_order_not_found';
+            return;
+        }
+
+        $this->tempOrder->checkout_stage = 2;
+        try {
             $this->tempOrder->save();
             session()->put("temporary_order_id_{$this->event->uniqid}", $this->tempOrder->id);
-
-            return redirect()->route('event.payment', [$this->event->organization->subdomain, $this->event->uniqid]);
-        } else {
-            throw new Exception('Order not found');
+            redirect()->route('event.payment', [$this->event->organization->subdomain, $this->event->uniqid]);
+        } catch (\Exception $e) {
+            Log::error('Error backing to payment: ' . $e->getMessage());
+            $this->flashMessage('An error occurred, please try again.', 'error');
         }
     }
 

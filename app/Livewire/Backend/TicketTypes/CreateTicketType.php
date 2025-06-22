@@ -5,12 +5,14 @@ namespace App\Livewire\Backend\TicketTypes;
 use App\Http\Requests\TicketType\StoreTicketTypeRequest;
 use App\Models\Event;
 use App\Models\TicketType;
+use App\Traits\FlashMessage;
 use App\Traits\TicketTypeManagementUtilities;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
 class CreateTicketType extends Component
 {
-    use TicketTypeManagementUtilities;
+    use TicketTypeManagementUtilities, FlashMessage;
 
     public Event $event;
     public string $name = '';
@@ -65,22 +67,22 @@ class CreateTicketType extends Component
         // Convert euros to cents for database storage
         $priceInCents = (int) round($validatedData['price_euros'] * 100);
 
-        $ticketType = new TicketType([
-            'event_id' => $this->event->id,
-            'name' => $validatedData['name'],
-            'price_cents' => $priceInCents,
-            'available_quantity' => $validatedData['available_quantity'],
-            'is_published' => $publishStatus['is_published'],
-            'publish_at' => $publishStatus['publish_at'],
-            'publish_with_event' => $publishStatus['publish_with_event'],
-        ]);
-
-        $ticketType->save();
-
-        session()->flash('message', __('Ticket type created successfully.'));
-        session()->flash('message_type', 'success');
-
-        return redirect()->route('ticket-types.index', $this->event);
+        try{
+            TicketType::create([
+                'event_id' => $this->event->id,
+                'name' => $validatedData['name'],
+                'price_cents' => $priceInCents,
+                'available_quantity' => $validatedData['available_quantity'],
+                'is_published' => $publishStatus['is_published'],
+                'publish_at' => $publishStatus['publish_at'],
+                'publish_with_event' => $publishStatus['publish_with_event'],
+            ]);
+            $this->flashMessage('Ticket type created successfully.');
+            redirect()->route('ticket-types.index', $this->event);
+        } catch (\Exception $e) {
+            $this->flashMessage('Something went wrong, please try again later.', 'error');
+            Log::error('Error creating ticket type: ' . $e->getMessage());
+        }
     }
 
     public function render()

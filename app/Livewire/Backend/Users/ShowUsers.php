@@ -4,7 +4,9 @@ namespace App\Livewire\Backend\Users;
 
 use App\Models\Organization;
 use App\Models\User;
+use App\Traits\FlashMessage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Spatie\Permission\Models\Role;
@@ -12,7 +14,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class ShowUsers extends Component
 {
-    use WithPagination;
+    use WithPagination, FlashMessage;
 
     public $includeDeleted = false; // Flag to include soft-deleted organizations
     public $search = '';
@@ -134,70 +136,67 @@ class ShowUsers extends Component
     public function deleteUser($id)
     {
         $this->authorize('users.delete');
+
         if (auth()->id() === (int) $id) {
-            session()->flash('message_type', 'error');
-            session()->flash('message', __('You cannot delete your own account.'));
-            $this->dispatch('flash-message');
+            $this->flashMessage('You cannot delete your own account.', 'error');
             return;
         }
 
-        DB::transaction(function () use ($id) {
-            $user = User::findOrFail($id);
+        try {
+            DB::transaction(function () use ($id) {
+                $user = User::findOrFail($id);
 
-            if ($user->organization_id) {
-                $organization = Organization::findOrFail($user->organization_id);
+                if ($user->organization_id) {
+                    $organization = Organization::findOrFail($user->organization_id);
 
-                // Lock all admin user rows for update to prevent race conditions
-                $adminIds = $organization->admins()->lockForUpdate()->pluck('id');
+                    // Lock all admin user rows for update to prevent race conditions
+                    $adminIds = $organization->admins()->lockForUpdate()->pluck('id');
+                    if ($adminIds->count() > 1 || $adminIds->count() === 1 && $adminIds->first() !== $user->id) {
+                        $user->delete();
+                        $this->flashMessage('User deleted successfully.');
+                    } else {
+                        $this->flashMessage('Cannot delete the last admin in the organization.', 'error');
+                    }
+                } else {
+                    $superadmins = User::whereNull('organization_id')->lockForUpdate()->get();
 
-                if ($adminIds->count() === 1 && $adminIds->first() === $user->id) {
-                    session()->flash('message_type', 'error');
-                    session()->flash('message', __('Cannot delete the last admin in the organization.'));
-                    $this->dispatch('flash-message');
-                    return;
+                    if ($superadmins->count() > 1) {
+                        $user->delete();
+                        $this->flashMessage('User deleted successfully.');
+                    } else {
+                        $this->flashMessage('Cannot delete the last superadmin.', 'error');
+                    }
                 }
+            });
+        } catch (\Exception $e) {
+            Log::error('Error deleting user: ' . $e->getMessage());
+            $this->flashMessage('Error while deleting user.', 'error');
+        }
 
-                $user->delete();
-
-                session()->flash('message', __('User deleted successfully.'));
-                $this->dispatch('flash-message');
-                return;
-            }
-
-            // Handle the case where organization_id is null
-            $usersWithNoOrganization = User::whereNull('organization_id')->lockForUpdate()->get();
-
-            if ($usersWithNoOrganization->count() > 1) {
-                $user->delete();
-
-                session()->flash('message', __('User deleted successfully.'));
-                $this->dispatch('flash-message');
-            } else {
-                session()->flash('message_type', 'error');
-                session()->flash('message', __('Cannot delete the last superadmin.'));
-                $this->dispatch('flash-message');
-            }
-        });
     }
 
     public function forceDeleteUser($id)
     {
         $this->authorize('users.delete');
-        $user = User::withTrashed()->findOrFail($id);
-        $user->forceDelete();
-
-        session()->flash('message', __('User permanently deleted.'));
-        $this->dispatch('flash-message');
+        try {
+            User::withTrashed()->findOrFail($id)->forceDelete();
+            $this->flashMessage('User permanently deleted.');
+        } catch (\Exception $e) {
+            Log::error('Error permanently deleting user: ' . $e->getMessage());
+            $this->flashMessage('Error while permanently deleting user.', 'error');
+        }
     }
 
     public function restoreUser($id)
     {
         $this->authorize('users.delete');
-        $user = User::withTrashed()->findOrFail($id);
-        $user->restore();
-
-        session()->flash('message', 'User restored successfully.');
-        $this->dispatch('flash-message');
+        try{
+            User::withTrashed()->findOrFail($id)->restore();
+            $this->flashMessage('User restored successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error restoring user: ' . $e->getMessage());
+            $this->flashMessage('Error restoring user.', 'error');
+        }
     }
 
     public function loginAsUser($userId)
@@ -206,31 +205,21 @@ class ShowUsers extends Component
 
         $targetUser = User::findOrFail($userId);
 
-        // Check if trying to login as self or another superadmin
-        if (auth()->id() === $userId) {
-            session()->flash('message_type', 'error');
-            session()->flash('message', __('You cannot login as yourself.'));
-            $this->dispatch('flash-message');
-            return;
-        }
-
-        if ($targetUser->hasRole('superadmin')) {
-            session()->flash('message_type', 'error');
-            session()->flash('message', __('Cannot login as another superadmin.'));
-            $this->dispatch('flash-message');
-            return;
-        }
+        if (auth()->id() === $userId)
+            return $this->flashMessage(__('You cannot login as yourself.'),  'error');
+        if ($targetUser->hasRole('superadmin'))
+            return $this->flashMessage(__('Cannot login as superadmin.'), 'error');
+        if ($targetUser->deleted_at)
+            return $this->flashMessage(__('Cannot login as deleted user.'), 'error');
 
         // Store the original user ID in session so we can switch back
         session()->put('original_user_id', auth()->id());
 
         // Login as the target user
         auth()->login($targetUser);
+        $this->flashMessage(__('Now logged in as :name', ['name' => $targetUser->name]));
 
-        session()->flash('message', __('Now logged in as :name', ['name' => $targetUser->name]));
-        $this->dispatch('flash-message');
-
-        return redirect()->route('dashboard'); // Redirect to dashboard or desired route
+        return redirect()->route('dashboard');
     }
 
     public function switchBackToOriginalUser()
@@ -245,8 +234,7 @@ class ShowUsers extends Component
         session()->forget('original_user_id');
         session()->forget('organization_id');
 
-        session()->flash('message', __('Switched back to your original account.'));
-        $this->dispatch('flash-message');
+        $this->flashMessage('Switched back to your original account.');
 
         return redirect()->route('users.index');
     }

@@ -4,11 +4,14 @@ namespace App\Livewire\Backend\Venues;
 
 use App\Http\Requests\Venue\StoreVenueRequest;
 use App\Models\Venue;
+use App\Traits\FlashMessage;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
 class CreateVenue extends Component
 {
+    use FlashMessage;
+
     public $name = '';
     public $max_capacity = '';
     public $latitude = '';
@@ -34,26 +37,21 @@ class CreateVenue extends Component
             (new StoreVenueRequest())->messages()
         );
 
-        try {
-            $coordinates = (!empty($validatedData['latitude']) && !empty($validatedData['longitude'])) ?
-                $validatedData['latitude'] . ',' . $validatedData['longitude'] : null;
+        $coordinates = (!empty($validatedData['latitude']) && !empty($validatedData['longitude'])) ?
+            $validatedData['latitude'] . ',' . $validatedData['longitude'] : null;
 
+        try {
             Venue::create([
                 'organization_id' => session('organization_id'),
                 'name' => $validatedData['name'],
                 'max_capacity' => $validatedData['max_capacity'],
                 'coordinates' => $coordinates,
             ]);
-
-            session()->flash('message', __('Venue successfully created.'));
-            session()->flash('message_type', 'success');
-
-            return redirect()->route('venues.index');
-
+            $this->flashMessage('Venue created successfully.');
+            redirect()->route('venues.index');
         } catch (\Exception $e) {
             Log::error('An error occurred while creating the venue: ' . $e->getMessage());
-            session()->flash('message', __('An error occurred while creating the venue'));
-            session()->flash('message_type', 'error');
+            $this->flashMessage('An error occurred while creating the venue.', 'error');
         }
     }
 

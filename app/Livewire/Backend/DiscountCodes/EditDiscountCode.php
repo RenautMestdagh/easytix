@@ -5,11 +5,16 @@ namespace App\Livewire\Backend\DiscountCodes;
 use App\Http\Requests\DiscountCode\UpdateDiscountCodeRequest;
 use App\Models\DiscountCode;
 use App\Models\Event;
+use App\Traits\FlashMessage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
 class EditDiscountCode extends Component
 {
+    use FlashMessage;
+
     public DiscountCode $discountCode;
     public ?string $code = null;
     public ?int $event_id = null;
@@ -66,13 +71,6 @@ class EditDiscountCode extends Component
 
     public function update()
     {
-        if($this->discountCode->getAllUsesCount() > 0) {
-            session()->flash('message', __('Cannot edit used discount code'));
-            session()->flash('message_type', 'error');
-            return redirect()->route('discount-codes.index');
-        }
-
-
         $validatedData = $this->validate(
             (new UpdateDiscountCodeRequest(
                 $this->start_date,
@@ -87,18 +85,31 @@ class EditDiscountCode extends Component
             $discountFixedCents = (int) round($validatedData['discount_fixed_euros'] * 100);
         }
 
-        $this->discountCode->update([
-            'code' => $validatedData['code'],
-            'event_id' => $validatedData['event_id'],
-            'start_date' => $validatedData['start_date'],
-            'end_date' => $validatedData['end_date'],
-            'max_uses' => $validatedData['max_uses'],
-            'discount_percent' => $validatedData['discount_type'] === 'percent' ? $validatedData['discount_percent'] : null,
-            'discount_fixed_cents' => $validatedData['discount_type'] === 'fixed' ? $discountFixedCents : null,
-        ]);
+        try {
+            DB::statement('LOCK TABLES discount_code_order WRITE');
+            if($this->discountCode->getAllUsesCount() > 0) {
+                DB::statement('UNLOCK TABLES');
+                $this->flashMessage('Cannot edit used discount code', 'error');
+                return redirect()->route('discount-codes.index');
+            }
 
-        session()->flash('message', __('Discount code updated successfully.'));
-        session()->flash('message_type', 'success');
+            $this->discountCode->update([
+                'code' => $validatedData['code'],
+                'event_id' => $validatedData['event_id'],
+                'start_date' => $validatedData['start_date'],
+                'end_date' => $validatedData['end_date'],
+                'max_uses' => $validatedData['max_uses'],
+                'discount_percent' => $validatedData['discount_type'] === 'percent' ? $validatedData['discount_percent'] : null,
+                'discount_fixed_cents' => $validatedData['discount_type'] === 'fixed' ? $discountFixedCents : null,
+            ]);
+
+            $this->flashMessage('Discount code has been updated.');
+        } catch (\Exception $e) {
+            Log::error('Error while updating discount code: ' . $e->getMessage());
+            $this->flashMessage('Error while updating discount code', 'error');
+        } finally {
+            DB::statement('UNLOCK TABLES');
+        }
 
         return redirect()->route('discount-codes.index');
     }

@@ -11,14 +11,16 @@ class UserRequest extends FormRequest
 {
     use AuthorizesWithPermission;
 
+    protected $role = null;
     protected $organizationId;
-    protected $ignoreId = null;
+    protected $user = null;
 
-    public function __construct($organizationId = null, $ignoreId = null)
+    public function __construct($role = null, $organizationId = null, $user = null)
     {
         parent::__construct();
+        $this->role = $role;
         $this->organizationId = $organizationId;
-        $this->ignoreId = $ignoreId;
+        $this->user = $user;
     }
 
     /**
@@ -30,20 +32,30 @@ class UserRequest extends FormRequest
     {
         return [
             'organization_id' => [
-                Rule::when(request('role') !== 'superadmin', [
+                // making sure the user is in an organization (if on subdomain, the user should be in that organization)
+                Rule::when($this->role !== 'superadmin', [
                     'required',
-                    Rule::exists('organizations', 'id'),
-                    Rule::when(session('organization_id'), [
-                        'in:' . session('organization_id'),
-                    ]),
+                    'exists:organizations,id',
+                    session('organization_id') ? 'in:' . session('organization_id') : null,
                 ]),
-                Rule::when(request('role') === 'superadmin', [
-                    'nullable',
+                // making sure a superadmin is not assigned to an organization
+                Rule::when($this->role === 'superadmin', [
                     'prohibited',
                 ]),
             ],
             'userName' => ['required', 'string', 'max:255'],
-            'role' => ['required', 'string', 'exists:roles,name'],
+            'role' => [
+                'required',
+                'string',
+                'exists:roles,name',
+                function ($attribute, $value, $fail) {
+                    if($this->user?->hasRole('superadmin') && $value !== 'superadmin') {
+                        $fail(__('Superadmin role cannot be changed.'));
+                    } else if($this->user && !$this->user->hasRole('superadmin') && $value === 'superadmin') {
+                        $fail(__('Normal user cannot become superadmin.'));
+                    }
+                },
+            ],
             'userPassword' => [
                 'string',
                 Password::defaults(),
@@ -60,7 +72,7 @@ class UserRequest extends FormRequest
                             ? $query->whereNull('organization_id')
                             : $query->where('organization_id', $this->organizationId);
                     })
-                    ->ignore($this->ignoreId)
+                    ->ignore($this->user?->id)
             ],
         ];
     }
@@ -74,7 +86,9 @@ class UserRequest extends FormRequest
             'role.required' => 'The role field is required.',
             'role.exists' => 'The selected role is invalid.',
 
+            'organization_id.required' => 'The organization field is required.',
             'organization_id.exists' => 'The selected organization is invalid.',
+            'organization_id.prohibited' => 'Superadmin cannot be assigned to an organization.',
 
             'userPassword.string' => 'The password must be a string.',
             'userPassword.confirmed' => 'The password confirmation does not match.',

@@ -66,7 +66,7 @@
                                     <div class="flex gap-4">
                                         <!-- Latitude Input -->
                                         <div class="flex-1">
-                                            <div class="flex rounded-xl border overflow-hidden shadow-md @if($errors->has('latitude')) border-red-500 @endif">
+                                            <div class="flex rounded-xl border overflow-hidden shadow-md @error('latitude') border-red-500 @enderror">
                                                 <div class="flex items-center justify-center px-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600">
                                                     N
                                                 </div>
@@ -78,14 +78,14 @@
                                                     class="border-0 rounded-none focus:ring-0 w-full"
                                                 />
                                             </div>
-                                            @if($errors->has('latitude'))
+                                            @error('latitude')
                                                 <x-ui.forms.error error="latitude" />
-                                            @endif
+                                            @enderror
                                         </div>
 
                                         <!-- Longitude Input -->
                                         <div class="flex-1">
-                                            <div class="flex rounded-xl border overflow-hidden shadow-md @if($errors->has('longitude')) border-red-500 @endif">
+                                            <div class="flex rounded-xl border overflow-hidden shadow-md @error('longitude') border-red-500 @enderror">
                                                 <div class="flex items-center justify-center px-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600">
                                                     E
                                                 </div>
@@ -97,9 +97,9 @@
                                                     class="border-0 rounded-none focus:ring-0 w-full"
                                                 />
                                             </div>
-                                            @if($errors->has('longitude'))
+                                            @error('longitude')
                                                 <x-ui.forms.error error="longitude" />
-                                            @endif
+                                            @enderror
                                         </div>
                                     </div>
 

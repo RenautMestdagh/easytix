@@ -5,12 +5,15 @@ namespace App\Livewire\Backend\TicketTypes;
 use App\Http\Requests\TicketType\UpdateTicketTypeRequest;
 use App\Models\Event;
 use App\Models\TicketType;
+use App\Traits\FlashMessage;
 use App\Traits\TicketTypeManagementUtilities;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
 class EditTicketType extends Component
 {
-    use TicketTypeManagementUtilities;
+    use TicketTypeManagementUtilities, FlashMessage;
 
     public Event $event;
     public TicketType $ticketType;
@@ -84,22 +87,37 @@ class EditTicketType extends Component
         );
 
         $publishStatus = $this->determinePublishStatus();
+        $price_cents = (int) round(str_replace(',', '.', $validatedData['price_euros']) * 100);
 
-        $updateData = [
-            'name' => $validatedData['name'],
-            'price_cents' => (int) round(str_replace(',', '.', $validatedData['price_euros']) * 100),
-            'available_quantity' => $validatedData['available_quantity'],
-            'is_published' => $publishStatus['is_published'],
-            'publish_at' => $publishStatus['publish_at'],
-            'publish_with_event' => $publishStatus['publish_with_event'],
-        ];
+        try{
+            if($price_cents !== $this->ticketType->price_cents) {
+                DB::statement('LOCK TABLES tickets WRITE');
+                if($this->ticketType->tickets->count() + $this->ticketType->reservedTickets->count() > 0) {
+                    DB::statement('UNLOCK TABLES');
+                    $this->flashMessage('Cannot update ticket price when it has (reserved) tickets.', 'error');
+                    return;
+                }
+                $this->ticketType->price_cents = $price_cents;
+                $this->ticketType->save();
+                DB::statement('UNLOCK TABLES');
+            }
 
-        $this->ticketType->update($updateData);
+            $this->ticketType->update([
+                'name' => $validatedData['name'],
+                'available_quantity' => $validatedData['available_quantity'],
+                'is_published' => $publishStatus['is_published'],
+                'publish_at' => $publishStatus['publish_at'],
+                'publish_with_event' => $publishStatus['publish_with_event'],
+            ]);
 
-        session()->flash('message', __('Ticket type updated successfully.'));
-        session()->flash('message_type', 'success');
-
-        return redirect()->route('ticket-types.index', $this->event);
+            $this->flashMessage('Ticket type updated successfully.');
+            redirect()->route('ticket-types.index', $this->event);
+        }  catch (\Exception $e) {
+            Log::error('Error updating ticket type: ' . $e->getMessage());
+            $this->flashMessage('Error while updating ticket type.', 'error');
+        } finally {
+            DB::statement('UNLOCK TABLES');
+        }
     }
 
     public function render()

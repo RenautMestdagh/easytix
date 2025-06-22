@@ -3,13 +3,15 @@
 namespace App\Livewire\Backend\Organizations;
 
 use App\Models\Organization;
+use App\Traits\FlashMessage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 class ShowOrganizations extends Component
 {
-    use WithPagination;
+    use WithPagination, FlashMessage;
 
     public $includeDeleted = false; // Flag to include soft-deleted organizations
     public $search = '';
@@ -74,50 +76,56 @@ class ShowOrganizations extends Component
     {
         $this->authorize('organizations.delete');
 
-        $organization = Organization::findOrFail($id);
-
-        // Delete the organization
-        $organization->delete();
-
-        // Optionally, add a success message
-        session()->flash('message', 'Organization deleted successfully.');
-        $this->dispatch('flash-message');
+        try {
+            Organization::findOrFail($id)->delete();
+            $this->flashMessage('Organization deleted successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error deleting organization: ' . $e->getMessage());
+            $this->flashMessage('Error while deleting organization.', 'error');
+        }
     }
 
     public function restoreOrganization($id)
     {
         $this->authorize('organizations.delete');
 
-        $organization = Organization::withTrashed()->findOrFail($id);
-        $organization->restore(); // Restore the soft-deleted organization
-
-        session()->flash('message', 'Organization restored successfully.');
-        $this->dispatch('flash-message');
+        try {
+            Organization::withTrashed()->findOrFail($id)->restore();
+            $this->flashMessage('Organization restored successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error restoring organization: ' . $e->getMessage());
+            $this->flashMessage('Error while restoring organization.', 'error');
+        }
     }
 
     public function forceDeleteOrganization($id)
     {
         $this->authorize('organizations.delete');
 
-        $organization = Organization::withTrashed()
-            ->with([
-                'events.ticketTypes.tickets', // Eager load all necessary relationships
-                'events.discountCodes',
-                'discountCodes',
-                'users'
-            ])
-            ->findOrFail($id);
+        try {
+            $organization = Organization::withTrashed()
+                ->with([
+                    'events.ticketTypes.tickets',
+                    'events.discountCodes',
+                    'discountCodes',
+                    'users'
+                ])
+                ->findOrFail($id);
 
-        if($organization->ticket_count > 0) {
-            session()->flash('message', __('Cannot permanently delete organization that has tickets.'));
-            session()->flash('message_type', __('error'));
-            $this->dispatch('flash-message');
-            return;
+            DB::statement('LOCK TABLES tickets WRITE');
+            if ($organization->ticket_count > 0) {
+                DB::statement('UNLOCK TABLES');
+                $this->flashMessage('Cannot permanently delete organization that has tickets.', 'error');
+                return;
+            }
+
+            $organization->forceDelete();
+            $this->flashMessage('Organization permanently deleted.');
+        } catch (\Exception $e) {
+            Log::error('Error permanently deleting organization: ' . $e->getMessage());
+            $this->flashMessage('Error while permanently deleting organization.', 'error');
+        } finally {
+            DB::statement('UNLOCK TABLES');
         }
-
-        $organization->forceDelete();
-
-        session()->flash('message', 'Organization permanently deleted with all related data.');
-        $this->dispatch('flash-message');
     }
 }

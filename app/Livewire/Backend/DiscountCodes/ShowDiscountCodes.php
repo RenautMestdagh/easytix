@@ -5,13 +5,15 @@ namespace App\Livewire\Backend\DiscountCodes;
 use App\Models\DiscountCode;
 use App\Models\Event;
 use App\Models\Organization;
+use App\Traits\FlashMessage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 class ShowDiscountCodes extends Component
 {
-    use WithPagination;
+    use WithPagination, FlashMessage;
 
     public $includeDeleted = false;
     public $search = '';
@@ -20,10 +22,6 @@ class ShowDiscountCodes extends Component
     public $sortField = 'code';
     public $sortDirection = 'asc';
     public $perPage = 10;
-
-    public function mount()
-    {
-    }
 
     public function getDiscountCodesProperty()
     {
@@ -149,43 +147,52 @@ class ShowDiscountCodes extends Component
     public function deleteDiscountCode($id)
     {
         $this->authorize('discount-codes.delete');
-        DB::transaction(function () use ($id) {
-            $discountCode = DiscountCode::findOrFail($id);
-            $discountCode->delete();
-
-            session()->flash('message', __('Discount code deleted successfully.'));
-            $this->dispatch('flash-message');
-        });
+        try {
+            DiscountCode::findOrFail($id)->delete();
+            $this->flashMessage('Discount code deleted successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error deleting discount code: ' . $e->getMessage());
+            $this->flashMessage('Error deleting discount code.', 'error');
+        }
     }
 
     public function forceDeleteDiscountCode($id)
     {
         $this->authorize('discount-codes.delete');
 
-        $discountCode = DiscountCode::withTrashed()->findOrFail($id);
+        $canDelete = true;
+        try {
+            DB::statement('LOCK TABLES discount_code_order WRITE');
+            $discountCode = DiscountCode::withTrashed()->findOrFail($id);
 
-        if ($discountCode->orders()->count() > 0) {
-            session()->flash('message', __('Cannot permanently delete discount code that has been used.'));
-            session()->flash('message_type', 'error');
-            $this->dispatch('flash-message');
-            return;
+            if ($discountCode->orders()->count() > 0) {
+                $this->flashMessage('Cannot permanently delete discount code that has been used.', 'error');
+                $canDelete = false;
+            }
+
+            if ($canDelete) {
+                $discountCode->forceDelete();
+                $this->flashMessage('Discount code deleted successfully.');
+            }
+        } catch (\Exception $e) {
+            Log::error('An error occurred while force deleting discount code: ' . $e->getMessage());
+            $this->flashMessage('An error occurred while deleting discount code', 'error');
+        } finally {
+            DB::statement('UNLOCK TABLES');
         }
-
-        $discountCode->forceDelete();
-
-        session()->flash('message', __('Discount code permanently deleted.'));
-        $this->dispatch('flash-message');
     }
 
     public function restoreDiscountCode($id)
     {
         $this->authorize('discount-codes.delete');
 
-        $discountCode = DiscountCode::withTrashed()->findOrFail($id);
-        $discountCode->restore();
-
-        session()->flash('message', 'Discount code restored successfully.');
-        $this->dispatch('flash-message');
+        try {
+            DiscountCode::withTrashed()->findOrFail($id)->restore();
+            $this->flashMessage('Discount code restored successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error restoring discount code: ' . $e->getMessage());
+            $this->flashMessage('Error restoring discount code.', 'error');
+        }
     }
 
     public function render()

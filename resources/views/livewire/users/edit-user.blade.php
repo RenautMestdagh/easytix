@@ -95,51 +95,45 @@
                                 </svg>
                                 {{ __('Permissions') }}
                             </div>
+                            @if($adminCount <= 1 && $user->hasRole('admin'))
+                                <div class="mb-4 text-sm text-yellow-600 dark:text-yellow-400">
+                                    {{ __('Cannot change role or organization. This is the last admin in the organization.') }}
+                                </div>
+                            @elseif($role === 'superadmin')
+                                <div class="mb-4 text-sm text-blue-600 dark:text-blue-400">
+                                    {{ __('Superadmin role cannot be changed.') }}
+                                </div>
+                            @endif
 
                             <div class="flex flex-col">
                                 <x-ui.forms.group label="Role" for="role" error="role">
-                                    @if($adminCount <= 1 && $user->hasRole('admin'))
-                                        <div class="mb-2 text-sm text-yellow-600 dark:text-yellow-400">
-                                            {{ __('Cannot change role: This is the last admin in the organization.') }}
-                                        </div>
-                                    @elseif($role === 'superadmin')
-                                        <div class="mb-2 text-sm text-blue-600 dark:text-blue-400">
-                                            {{ __('Superadmin role cannot be changed.') }}
-                                        </div>
-                                    @else
                                     <x-ui.forms.select
                                         wire:model.lazy="role"
                                         name="role"
                                         error="{{ $errors->has('role') }}"
                                         class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500 px-5"
-{{--                                        :disabled="$adminCount <= 1 && $user->hasRole('admin') || $role === 'superadmin'"--}}
+                                        :disabled="$adminCount <= 1 && $user->hasRole('admin') || $role === 'superadmin'"
                                     >
                                         @foreach($roles as $key => $value)
                                             <option value="{{ $key }}">{{ ucfirst($value) }}</option>
                                         @endforeach
                                     </x-ui.forms.select>
-                                    @endif
                                 </x-ui.forms.group>
 
                                 @role('superadmin')
                                 @if($role !== 'superadmin')
                                 <x-ui.forms.group label="Organization" for="organization_id" error="organization_id">
-                                    @if($adminCount <= 1 && $user->hasRole('admin'))
-                                        <div class="mb-2 text-sm text-yellow-600 dark:text-yellow-400">
-                                            {{ __('Cannot change organization: This is the last admin in the current organization.') }}
-                                        </div>
-                                    @endif
-                                        <x-ui.forms.select
-                                            wire:model.lazy="organization_id"
-                                            name="organization_id"
-                                            error="{{ $errors->has('organization_id') }}"
-                                            class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
-                                            {{--                                        :disabled="$role === 'superadmin' || ($adminCount <= 1 && $user->hasRole('admin'))"--}}
-                                        >
-                                            @foreach($organizations as $id => $name)
-                                                <option value="{{ $id }}">{{ Str::limit($name, 30) }}</option>
-                                            @endforeach
-                                        </x-ui.forms.select>
+                                    <x-ui.forms.select
+                                        wire:model.lazy="organization_id"
+                                        name="organization_id"
+                                        error="{{ $errors->has('organization_id') }}"
+                                        class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
+                                        :disabled="$adminCount <= 1 && $user->hasRole('admin')"
+                                    >
+                                        @foreach($organizations as $id => $name)
+                                            <option value="{{ $id }}">{{ Str::limit($name, 30) }}</option>
+                                        @endforeach
+                                    </x-ui.forms.select>
                                 </x-ui.forms.group>
                                 @endif
                                 @endrole

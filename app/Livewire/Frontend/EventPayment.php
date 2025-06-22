@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Frontend;
 
+use App\Traits\FlashMessage;
 use App\Traits\NavigateEventCheckout;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
@@ -9,7 +10,7 @@ use Stripe\StripeClient;
 
 class EventPayment extends Component
 {
-    use NavigateEventCheckout;
+    use NavigateEventCheckout, FlashMessage;
 
     public $stripeClientSecret;
 
@@ -23,36 +24,47 @@ class EventPayment extends Component
     {
         if(!$this->checkCorrectFlow())
             return;
-        $stripe = new StripeClient(config('app.stripe.secret'));
-        $paymentIntent = $stripe->paymentIntents->retrieve($this->tempOrder->payment_id);
+        try {
+            $stripe = new StripeClient(config('app.stripe.secret'));
+            $paymentIntent = $stripe->paymentIntents->retrieve($this->tempOrder->payment_id);
+        } catch (\Exception $e) {
+            Log::error('Error retrieving paymentIntent: ' . $e->getMessage());
+            $this->flashMessage('An error occurred, please refresh this page.', 'error');
+            return;
+        }
+
         if($paymentIntent->status === 'succeeded'){
             session()->put('payment_succeeded', true);
             return redirect()->route('stripe.payment.confirmation', [$subdomain, $eventuniqid]);
         }
-
 
         $this->stripeClientSecret = $paymentIntent->client_secret;
     }
 
     public function backToCheckout()
     {
-        if($this->tempOrder->payment_id) {
-            $stripe = new StripeClient(config('app.stripe.secret'));
-            try {
-                $paymentIntent = $stripe->paymentIntents->cancel($this->tempOrder->payment_id, [
-                    'cancellation_reason' => 'requested_by_customer'
-                ]);
-            } catch (\Exception $e) {
-                Log::error($e->getMessage());
-                return;
-            }
+        $mustCancelPaymentIntent = !empty($this->tempOrder->payment_id);
 
-            $this->tempOrder->payment_id = null;
+        $this->tempOrder->payment_id = null;
+        $this->tempOrder->checkout_stage = 1;
+        try {
+            $this->tempOrder->save();
+        }  catch (\Exception $e) {
+            Log::error('Error backing to checkout: ' . $e->getMessage());
+            $this->flashMessage('An error occurred, please try again.', 'error');
+            return;
         }
 
-        $this->tempOrder->checkout_stage = 1;
-        $this->tempOrder->save();
-        return redirect()->route('event.checkout', [$this->event->organization->subdomain, $this->event->uniqid]);
+        if($mustCancelPaymentIntent) {
+            try {
+                $stripe = new StripeClient(config('app.stripe.secret'));
+                $stripe->paymentIntents->cancel($this->tempOrder->payment_id, [
+                    'cancellation_reason' => 'requested_by_customer'
+                ]);
+            } catch (\Exception $e) {}
+        }
+
+        redirect()->route('event.checkout', [$this->event->organization->subdomain, $this->event->uniqid]);
     }
 
     public function submitPayment()

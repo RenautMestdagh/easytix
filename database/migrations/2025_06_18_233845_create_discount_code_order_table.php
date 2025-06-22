@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('discount_code_orders', function (Blueprint $table) {
+        Schema::create('discount_code_order', function (Blueprint $table) {
             $table->id();
             $table->foreignId('discount_code_id')->constrained()->cascadeOnDelete();
             $table->foreignId('temporary_order_id')->nullable()->constrained()->cascadeOnDelete();
@@ -24,8 +24,8 @@ return new class extends Migration
         });
 
         DB::statement("
-        ALTER TABLE discount_code_orders
-        ADD CONSTRAINT discount_code_orders_order_xor_temp_order_check
+        ALTER TABLE discount_code_order
+        ADD CONSTRAINT discount_code_order_order_xor_temp_order_check
         CHECK (
             (temporary_order_id IS NOT NULL AND order_id IS NULL) OR
             (temporary_order_id IS NULL AND order_id IS NOT NULL)
@@ -39,7 +39,7 @@ return new class extends Migration
     public function down(): void
     {
         try {
-            DB::statement('ALTER TABLE discount_code_orders DROP CONSTRAINT discount_code_orders_order_xor_temp_order_check');
+            DB::statement('ALTER TABLE discount_code_order DROP CONSTRAINT discount_code_order_order_xor_temp_order_check');
         } catch (\Exception $e) {}
         Schema::dropIfExists('discount_code_order');
     }

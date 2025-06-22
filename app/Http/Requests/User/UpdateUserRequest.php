@@ -4,10 +4,10 @@ namespace App\Http\Requests\User;
 
 class UpdateUserRequest extends UserRequest
 {
-    public function __construct($organizationId = null, $userId = null)
+    public function __construct($role = null, $organizationId = null, $user = null)
     {
         $this->authorizePermission();
-        parent::__construct($organizationId, $userId);
+        parent::__construct($role, $organizationId, $user);
     }
 
     /**

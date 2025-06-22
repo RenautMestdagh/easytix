@@ -29,7 +29,7 @@ class Order extends Model
 
     public function discountCodes()
     {
-        return $this->belongsToMany(DiscountCode::class, 'discount_code_orders', 'order_id')
+        return $this->belongsToMany(DiscountCode::class, 'discount_code_order', 'order_id')
             ->withPivot(['temporary_order_id', 'created_at'])
             ->wherePivotNotNull('order_id');
     }

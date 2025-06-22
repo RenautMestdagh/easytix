@@ -4,6 +4,8 @@ namespace App\Livewire\Backend\Organizations;
 
 use App\Http\Requests\OrganizationMediaRequest;
 use App\Models\Organization;
+use App\Traits\FlashMessage;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Livewire\Component;
@@ -11,7 +13,7 @@ use Livewire\WithFileUploads;
 
 class UploadMedia extends Component
 {
-    use WithFileUploads;
+    use WithFileUploads, FlashMessage;
 
     public Organization $organization;
     public $favicon;
@@ -23,52 +25,54 @@ class UploadMedia extends Component
         $this->organization = $organization;
     }
 
+    public function updated($propertyName)
+    {
+        try {
+            $this->validateOnly(
+                $propertyName,
+                (new OrganizationMediaRequest())->rules(),
+                (new OrganizationMediaRequest())->messages(),
+            );
+        } catch (\Exception $exception) {
+            $this->$propertyName = null;
+            $this->setErrorBag([$propertyName => $exception->validator->getMessageBag()->toArray()[$propertyName][0]]);
+        }
+    }
+
     public function save()
     {
-        $this->validateRequest();
+        $this->validate(
+            (new OrganizationMediaRequest())->rules(),
+            (new OrganizationMediaRequest())->messages(),
+        );
 
         $updated = false;
 
-        if ($this->logo) {
-            $this->uploadLogo();
-            $updated = true;
+        try {
+            if ($this->logo) {
+                $this->uploadLogo();
+                $updated = true;
+            }
+
+            if ($this->background) {
+                $this->uploadBackground();
+                $updated = true;
+            }
+
+            if ($this->favicon) {
+                $this->uploadFavicon();
+                $updated = true;
+            }
+
+            if ($updated) {
+                $this->favicon = $this->logo = $this->background = null;
+                $this->flashMessage('Media updated successfully.');
+            }
+        } catch (\Exception $exception) {
+            Log::error('An error occurred while saving media: ' . $exception->getMessage());
+            $this->flashMessage('An error occurred while saving media.', 'error');
         }
 
-        if ($this->background) {
-            $this->uploadBackground();
-            $updated = true;
-        }
-
-        if ($this->favicon) {
-            $this->uploadFavicon();
-            $updated = true;
-        }
-
-        if ($updated) {
-            $this->favicon = $this->logo = $this->background = null;
-            session()->flash('message', __('Media updated successfully.'));
-            $this->dispatch('flash-message');
-        }
-
-    }
-
-    protected function validateRequest($field = null)
-    {
-        $request = new OrganizationMediaRequest();
-
-        if ($field) {
-            $this->validate(
-                [$field => $request->rules()[$field]],
-                $request->messages(),
-                $request->attributes()
-            );
-        } else {
-            $this->validate(
-                $request->rules(),
-                $request->messages(),
-                $request->attributes()
-            );
-        }
     }
 
     protected function uploadFavicon()
@@ -76,7 +80,6 @@ class UploadMedia extends Component
         $this->deleteExistingFavicon();
 
         $filename = $this->generateUniqueFilename('favicon', $this->favicon->extension());
-
         $this->favicon->storeAs(
             "organizations/{$this->organization->id}",
             $filename,
@@ -91,7 +94,6 @@ class UploadMedia extends Component
         $this->deleteExistingLogo();
 
         $filename = $this->generateUniqueFilename('logo', $this->logo->extension());
-
         $this->logo->storeAs(
             "organizations/{$this->organization->id}",
             $filename,
@@ -106,7 +108,6 @@ class UploadMedia extends Component
         $this->deleteExistingBackground();
 
         $filename = $this->generateUniqueFilename('background', $this->background->extension());
-
         $this->background->storeAs(
             "organizations/{$this->organization->id}",
             $filename,
@@ -131,32 +132,38 @@ class UploadMedia extends Component
 
     public function removeFavicon()
     {
-        $this->deleteExistingFavicon();
-        $this->organization->update(['favicon' => null]);
-        $this->dispatch('notify',
-            type: 'success',
-            content: 'Favicon removed successfully'
-        );
+        try {
+            $this->deleteExistingFavicon();
+            $this->organization->update(['favicon' => null]);
+            $this->flashMessage('Favicon removed successfully.');
+        } catch (\Exception $exception) {
+            Log::error('An error occurred while removing favicon: ' . $exception->getMessage());
+            $this->flashMessage('An error occurred while removing favicon.', 'error');
+        }
     }
 
     public function removeLogo()
     {
-        $this->deleteExistingLogo();
-        $this->organization->update(['logo' => null]);
-        $this->dispatch('notify',
-            type: 'success',
-            content: 'Logo removed successfully'
-        );
+        try {
+            $this->deleteExistingLogo();
+            $this->organization->update(['logo' => null]);
+            $this->flashMessage('Logo removed successfully.');
+        } catch (\Exception $exception) {
+            Log::error('An error occurred while removing logo: ' . $exception->getMessage());
+            $this->flashMessage('An error occurred while removing logo.', 'error');
+        }
     }
 
     public function removeBackground()
     {
-        $this->deleteExistingBackground();
-        $this->organization->update(['background_image' => null]);
-        $this->dispatch('notify',
-            type: 'success',
-            content: 'Background removed successfully'
-        );
+        try {
+            $this->deleteExistingBackground();
+            $this->organization->update(['background_image' => null]);
+            $this->flashMessage('Background image removed successfully.');
+        } catch (\Exception $exception) {
+            Log::error('An error occurred while removing background image: ' . $exception->getMessage());
+            $this->flashMessage('An error occurred while removing background image.', 'error');
+        }
     }
 
     protected function deleteExistingFavicon()

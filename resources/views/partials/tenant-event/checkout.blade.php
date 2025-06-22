@@ -161,6 +161,13 @@
 
     @include('partials.tenant-event.order-summary')
 
+    @if (session()->has('message'))
+        <x-ui.flash-message
+            :message="session('message')"
+            :type="session('message_type', 'success')"
+        />
+    @endif
+
     <div class="flex justify-between mt-6">
         <div>
             <x-ui.button

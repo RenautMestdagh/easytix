@@ -1,4 +1,12 @@
 <div>
+
+    @if (session()->has('message'))
+        <x-ui.flash-message
+            :message="session('message')"
+            :type="session('message_type', 'success')"
+        />
+    @endif
+
     @include('partials.tenant-event.order-summary')
     <div class="flex items-center justify-center p-4">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full">
@@ -129,7 +137,6 @@
                         return_url: '{{ route("stripe.payment.confirmation", [$this->event->organization->subdomain, $this->event->uniqid]) }}',
                     },
                 });
-                return console.log(result);
 
                 if (result.error) {
                     handleError(result.error);

@@ -5,13 +5,16 @@ namespace App\Livewire\Backend\Organizations;
 use App\Http\Requests\Organization\StoreOrganizationRequest;
 use App\Models\Organization;
 use App\Models\User;
+use App\Traits\FlashMessage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Spatie\Permission\Models\Role;
 
 class CreateOrganization extends Component
 {
+    use FlashMessage;
 
     public $organizationName = '';
     public$organizationSubdomain = '';
@@ -85,15 +88,12 @@ class CreateOrganization extends Component
 
             DB::commit();
 
-            session()->flash('message', __('Organisatie succesvol aangemaakt.'));
-            session()->flash('message_type', 'success');
-
-            return redirect()->route('organizations.index');
-
+            $this->flashMessage('Organization successfully created!');
+            redirect()->route('organizations.index');
         } catch (\Exception $e) {
             DB::rollBack();
-            session()->flash('message', __('Er is een fout opgetreden bij het aanmaken van de organisatie.'));
-            session()->flash('message_type', 'error');
+            Log::error('Error creating organization: ' . $e->getMessage());
+            $this->flashMessage('An error occurred while creating the organization.');
         }
     }
 

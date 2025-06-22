@@ -47,21 +47,21 @@ class DiscountCode extends Model
 
     public function orders()
     {
-        return $this->belongsToMany(Order::class, 'discount_code_orders', 'discount_code_id', 'order_id')
+        return $this->belongsToMany(Order::class, 'discount_code_order', 'discount_code_id', 'order_id')
             ->wherePivotNotNull('order_id')
             ->withPivot(['temporary_order_id']);
     }
 
     public function temporaryOrders()
     {
-        return $this->belongsToMany(Order::class, 'discount_code_orders', 'discount_code_id', 'temporary_order_id')
+        return $this->belongsToMany(Order::class, 'discount_code_order', 'discount_code_id', 'temporary_order_id')
             ->wherePivotNotNull('temporary_order_id')
             ->withPivot(['order_id']);
     }
 
     public function getAllUsesCount()
     {
-        return DB::table('discount_code_orders')
+        return DB::table('discount_code_order')
             ->where('discount_code_id', $this->id)
             ->where(function($query) {
                 $query->whereNotNull('order_id')

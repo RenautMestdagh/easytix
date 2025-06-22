@@ -4,12 +4,15 @@ namespace App\Livewire\Backend\Venues;
 
 use App\Http\Requests\Venue\UpdateVenueRequest;
 use App\Models\Venue;
+use App\Traits\FlashMessage;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
 class EditVenue extends Component
 {
-    public Venue $venue;
+    use FlashMessage;
 
+    public Venue $venue;
     public $name = '';
     public $max_capacity = '';
     public $latitude = '';
@@ -48,24 +51,21 @@ class EditVenue extends Component
             (new UpdateVenueRequest())->messages()
         );
 
-        try {
-            $coordinates = (!empty($validatedData['latitude']) && !empty($validatedData['longitude'])) ?
-                $validatedData['latitude'] . ',' . $validatedData['longitude'] : null;
+        $coordinates = (!empty($validatedData['latitude']) && !empty($validatedData['longitude'])) ?
+            $validatedData['latitude'] . ',' . $validatedData['longitude'] : null;
 
+        try {
             $this->venue->update([
                 'name' => $validatedData['name'],
                 'max_capacity' => $validatedData['max_capacity'],
                 'coordinates' => $coordinates,
             ]);
 
-            session()->flash('message', __('Venue successfully updated.'));
-            session()->flash('message_type', 'success');
-
-            return redirect()->route('venues.index');
-
+            $this->flashMessage('Venue updated successfully.');
+            redirect()->route('venues.index');
         } catch (\Exception $e) {
-            session()->flash('message', __('An error occurred while updating the venue'));
-            session()->flash('message_type', 'error');
+            Log::error('An error occurred while updating the venue: ' . $e->getMessage());
+            $this->flashMessage('An error occurred while updating the venue.', 'error');
         }
     }
 

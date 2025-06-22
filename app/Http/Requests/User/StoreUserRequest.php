@@ -4,11 +4,10 @@ namespace App\Http\Requests\User;
 
 class StoreUserRequest extends UserRequest
 {
-    protected $role;
-    public function __construct($organizationId = null)
+    public function __construct($role = null, $organizationId = null)
     {
         $this->authorizePermission();
-        parent::__construct($organizationId);
+        parent::__construct($role, $organizationId);
     }
 
     /**
