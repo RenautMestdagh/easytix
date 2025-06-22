@@ -76,6 +76,6 @@ class EditVenue extends Component
 
     public function render()
     {
-        return view('livewire.venues.edit-venue');
+        return view('livewire.backend.venues.edit-venue');
     }
 }

@@ -24,7 +24,7 @@
     </div>
 
     <!-- Filters -->
-    <div class="my-4 flex items-center gap-4">
+    <div class="my-4 flex items-center gap-6">
         <!-- Search -->
         <div class="relative w-1/3">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -39,16 +39,6 @@
             />
         </div>
 
-        <!-- Event filter -->
-        <x-ui.forms.select wire:model.live="selectedEvent">
-            <option value="">{{ __('All Events') }}</option>
-            @foreach($events as $event)
-                <option value="{{ $event->id }}">
-                    {{ Str::limit($event->name, 30) }} ({{ $event->date->format('M j, Y') }})
-                </option>
-            @endforeach
-        </x-ui.forms.select>
-
         <!-- Status filter -->
         <x-ui.forms.select wire:model.live="statusFilter">
             <option value="all">{{ __('All Statuses') }}</option>
@@ -61,6 +51,42 @@
                 <option value="deleted">{{ __('Deleted') }}</option>
             @endif
         </x-ui.forms.select>
+
+        <!-- Event filter -->
+        <div class="flex gap-4">
+            <div class="flex-1 flex flex-col justify-center">
+                @if($selectedEvent && $event = \App\Models\Event::find($selectedEvent))
+                    <div class="flex justify-between gap-2">
+                        <div class="flex flex-col items-start">
+                            <p>
+                                {{ Str::limit($event->name, 25, '...') }}
+                            </p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                ({{ $event->date->format('M j, Y') }})
+                            </p>
+                        </div>
+                        <button
+                            type="button"
+                            wire:click="$set('selectedEvent', '')"
+                            class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                @else
+                    <p class="text-gray-600 dark:text-gray-400">
+                        {{ __('All Events') }}
+                    </p>
+                @endif
+            </div>
+
+            @livewire('modals.event-picker-modal', [
+                'selectedEventId' => $selectedEvent,
+                'showTriggerButton' => true
+            ], key('event-picker-filter-'.$selectedEvent))
+        </div>
 
         <!-- Include deleted -->
         <label class="flex items-center ml-auto">

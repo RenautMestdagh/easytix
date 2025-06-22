@@ -65,7 +65,7 @@ class ShowTypes extends Component
 
     public function render()
     {
-        return view('livewire.tickettypes.show-types', [
+        return view('livewire.backend.tickettypes.show-types', [
             'event' => $this->event,
             'ticketTypes' => $this->event->ticketTypes, // corrected variable name
         ]);

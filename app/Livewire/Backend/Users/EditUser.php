@@ -112,7 +112,7 @@ class EditUser extends Component
 
     public function render()
     {
-        return view('livewire.users.edit-user', [
+        return view('livewire.backend.users.edit-user', [
             'roles' => $this->roles,
             'organizations' => $this->organizations,
             'adminCount' => $this->adminCount,

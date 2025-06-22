@@ -4,6 +4,7 @@ namespace App\Livewire\Backend\Events;
 
 use App\Http\Requests\Event\StoreEventRequest;
 use App\Models\Event;
+use App\Models\Venue;
 use App\Traits\EventManagementUtilities;
 use App\Traits\FlashMessage;
 use Exception;
@@ -32,6 +33,8 @@ class CreateEvent extends Component
     public $is_published = false;
     public $publish_at = null;
     public $publish_option = 'publish_now';
+
+    protected $listeners = ['venueSelected'];
 
     public function updated($propertyName): void
     {
@@ -62,6 +65,14 @@ class CreateEvent extends Component
         }
 
         $this->validateOnly($propertyName, $fieldRules, $fieldMessages);
+    }
+
+    public function venueSelected($venueId, $venueName)
+    {
+        $this->venue_id = $venueId;
+        $venue = Venue::find($venueId);
+        if(empty($this->max_capacity) && $venue?->max_capacity)
+            $this->max_capacity = $venue->max_capacity;
     }
 
     public function store()
@@ -123,7 +134,9 @@ class CreateEvent extends Component
 
     public function render()
     {
-        return view('livewire.events.create-event');
+        return view('livewire.backend.events.create-event', [
+            'venues' => Venue::orderBy('name')->limit(10)->get(),
+        ]);
     }
 
     public function cancel()

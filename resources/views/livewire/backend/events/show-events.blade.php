@@ -1,3 +1,4 @@
+@php use App\Models\Venue; @endphp
 <div class="mx-auto max-w-10xl p-4 sm:p-6 lg:p-8">
     <div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
@@ -13,18 +14,18 @@
         </div>
         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
             @can('events.create')
-            <x-ui.button href="{{ route('events.create') }}">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
-                {{ __('New Event') }}
-            </x-ui.button>
+                <x-ui.button href="{{ route('events.create') }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    {{ __('New Event') }}
+                </x-ui.button>
             @endcan
         </div>
     </div>
 
     <!-- Filters -->
-    <div class="my-4 flex items-center gap-4">
+    <div class="my-4 flex items-center gap-6">
         <!-- Search -->
         <div class="relative w-1/3">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -61,6 +62,40 @@
             <option value="scheduled">Scheduled</option>
             <option value="draft">Draft</option>
         </x-ui.forms.select>
+
+        <!-- Venue filter -->
+        <div class="flex gap-4">
+            <div class="flex-1 flex flex-col justify-center">
+                @if($venueFilter && $venue = Venue::find($venueFilter))
+                    <div class="flex justify-between">
+                        <div class="flex flex-col items-start">
+                            <p>
+                                {{ Str::limit($venue->name, 15, '...') }}
+                            </p>
+                        </div>
+                        <button
+                            type="button"
+                            wire:click="$set('venueFilter', null)"
+                            class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                @else
+                    <p class="text-gray-600 dark:text-gray-400">
+                        {{ __('All Venues') }}
+                    </p>
+                @endif
+            </div>
+
+            @livewire('modals.venue-picker-modal', [
+                'selectedVenueId' => $venueFilter,
+                'showTriggerButton' => true,
+                'key' => 'venue-filter-picker-'.$venueFilter
+            ])
+        </div>
 
         <!-- Include deleted -->
         <label class="flex items-center ml-auto">
@@ -137,7 +172,13 @@
                         {{ $event->date->format('M j, Y g:i A') }}
                     </td>
                     <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
-                        {{ Str::limit($event->venue?->name, 30) }}
+                        <a href="{{ $event->venue?->getGoogleMapsUrl() }}"
+                           target="_blank"
+                           class="hover:underline"
+                           title="{{ __('View on Google Maps') }}"
+                        >
+                            {{ Str::limit($event->venue?->name, 30, '...') }}
+                        </a>
                     </td>
                     <td class="px-4 py-4 whitespace-nowrap">
                         <div class="flex items-center">
@@ -155,7 +196,7 @@
                                             @if(!$event->max_capacity) width: 100%
                                             @else width: {{ min(100, ($event->tickets->count() / $event->max_capacity * 100)) }}% @endif
                                         "
-                                        >
+                                    >
                                     </div>
                                 </div>
                             </div>
@@ -191,29 +232,29 @@
                         <div class="flex justify-end gap-2">
                             @if($event->trashed())
                                 @can('events.delete')
-                                <button wire:click="restoreEvent({{ $event->id }})"
-                                        class="p-1 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors hover:cursor-pointer"
-                                        title="{{ __('Restore') }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/>
-                                    </svg>
-                                </button>
-                                <x-ui.delete-button
-                                    type="forcedelete"
-                                    method="forceDeleteEvent"
-                                    :args="[$event->id]"
-                                    confirmation="⚠️ Are you sure you want to permanently delete this event?"
-                                    title="{{ __('Delete permanently') }}"
-                                    disabledTitle="Cannot permanently delete events which have sold tickets"
-                                    :disabled="$event->tickets->count() !== 0"
-                                />
+                                    <button wire:click="restoreEvent({{ $event->id }})"
+                                            class="p-1 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors hover:cursor-pointer"
+                                            title="{{ __('Restore') }}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/>
+                                        </svg>
+                                    </button>
+                                    <x-ui.delete-button
+                                        type="forcedelete"
+                                        method="forceDeleteEvent"
+                                        :args="[$event->id]"
+                                        confirmation="⚠️ Are you sure you want to permanently delete this event?"
+                                        title="{{ __('Delete permanently') }}"
+                                        disabledTitle="Cannot permanently delete events which have sold tickets"
+                                        :disabled="$event->tickets->count() !== 0"
+                                    />
                                 @endcan
                             @else
                                 <a href="{{ route('event.tickets', [$event->organization->subdomain, $event->uniqid]) }}" target="_blank"
                                    class="p-1 text-blue-600 hover:text-green-900 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
                                    title="{{ __('Show event') }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/>
                                     </svg>
 
                                 </a>
@@ -221,29 +262,29 @@
                                    class="p-1 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
                                    title="{{ __('Tickets') }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
                                     </svg>
                                 </a>
                                 @can('events.update')
-                                <button
-                                    wire:click="editEvent({{ $event->id }})"
-                                    wire:navigate
-                                   class="p-1 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors hover:cursor-pointer"
-                                   title="{{ __('Edit') }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"/>
-                                    </svg>
-                                </button>
+                                    <button
+                                        wire:click="editEvent({{ $event->id }})"
+                                        wire:navigate
+                                        class="p-1 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors hover:cursor-pointer"
+                                        title="{{ __('Edit') }}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"/>
+                                        </svg>
+                                    </button>
                                 @endcan
                                 @can('events.delete')
-                                <x-ui.delete-button
-                                    type="delete"
-                                    method="deleteEvent"
-                                    :args="[$event->id]"
-                                    confirmation="Are you sure you want to delete this event?"
-                                    title="{{ __('Delete') }}"
-                                />
+                                    <x-ui.delete-button
+                                        type="delete"
+                                        method="deleteEvent"
+                                        :args="[$event->id]"
+                                        confirmation="Are you sure you want to delete this event?"
+                                        title="{{ __('Delete') }}"
+                                    />
                                 @endcan
                             @endif
                         </div>

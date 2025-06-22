@@ -43,7 +43,7 @@ class ShowOrganizations extends Component
 
         $this->resetPage();
 
-        return view('livewire.organizations.show-organizations', compact('organizations'));
+        return view('livewire.backend.organizations.show-organizations', compact('organizations'));
     }
 
     public function sortBy($field)

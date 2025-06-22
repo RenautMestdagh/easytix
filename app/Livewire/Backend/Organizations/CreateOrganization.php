@@ -99,6 +99,6 @@ class CreateOrganization extends Component
 
     public function render()
     {
-        return view('livewire.organizations.create-organization');
+        return view('livewire.backend.organizations.create-organization');
     }
 }

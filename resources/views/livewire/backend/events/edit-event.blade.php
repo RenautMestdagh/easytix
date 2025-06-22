@@ -59,37 +59,66 @@
                             </x-ui.forms.group>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-{{--                                TODO--}}
-{{--                                <x-ui.forms.group label="Location" for="location" error="location">--}}
-{{--                                    <x-ui.forms.input--}}
-{{--                                        wire:model.lazy="location"--}}
-{{--                                        name="location"--}}
-{{--                                        placeholder="Enter event location"--}}
-{{--                                        error="{{ $errors->has('location') }}"--}}
-{{--                                        class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"--}}
-{{--                                    />--}}
-{{--                                </x-ui.forms.group>--}}
+                                <x-ui.forms.group label="Venue" for="venue_id" error="venue_id">
+                                    <div class="flex gap-4">
+                                        <div class="flex-1 flex flex-col justify-center">
+                                            @if($venue_id && $venue = \App\Models\Venue::find($venue_id))
+                                                <div class="flex justify-between">
+                                                    <div class="flex flex-col items-start">
+                                                        <p>
+                                                            {{ Str::limit($venue->name, 25, '...') }}
+                                                        </p>
+                                                        @if($venue->max_capacity)
+                                                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                                                ({{ __('Capacity') }}: {{ $venue->max_capacity }})
+                                                            </p>
+                                                        @endif
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        wire:click="$dispatch('venueSelected', { venueId: null, venueName: '' })"
+                                                        class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                                                    >
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                                        </svg>
+                                                    </button>
+                                                </div>
 
-                                <x-ui.forms.group label="Date & Time" for="date" error="date">
+                                            @else
+                                                <p class="text-gray-600 dark:text-gray-400">
+                                                    {{ __('No venue selected') }}
+                                                </p>
+                                            @endif
+                                        </div>
+
+                                        @livewire('modals.venue-picker-modal', [
+                                            'selectedVenueId' => $venue_id,
+                                            'showTriggerButton' => true
+                                        ], key('venue-picker-'.$venue_id))
+                                    </div>
+                                </x-ui.forms.group>
+
+                                <x-ui.forms.group label="Max Capacity" for="max_capacity" error="max_capacity">
                                     <x-ui.forms.input
-                                        type="datetime-local"
-                                        wire:model.lazy="date"
-                                        name="date"
-                                        error="{{ $errors->has('date') }}"
+                                        type="number"
+                                        wire:model.lazy="max_capacity"
+                                        name="max_capacity"
+                                        placeholder="Leave empty for unlimited"
+                                        min="1"
+                                        error="{{ $errors->has('max_capacity') }}"
                                         class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
                                     />
                                 </x-ui.forms.group>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <x-ui.forms.group label="Max Capacity" for="max_capacity" error="max_capacity">
+                                <x-ui.forms.group label="Date & Time" for="date" error="date">
                                     <x-ui.forms.input
-                                        type="number"
-                                        wire:model.lazy="max_capacity"
-                                        name="max_capacity"
-                                        placeholder="Enter maximum attendees"
-                                        min="1"
-                                        error="{{ $errors->has('max_capacity') }}"
+                                        type="datetime-local"
+                                        wire:model.lazy="date"
+                                        name="date"
+                                        error="{{ $errors->has('date') }}"
                                         class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
                                     />
                                 </x-ui.forms.group>

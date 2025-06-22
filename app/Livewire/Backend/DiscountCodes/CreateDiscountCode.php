@@ -15,13 +15,15 @@ class CreateDiscountCode extends Component
     use FlashMessage;
 
     public ?string $code = null;
-    public ?int $event_id = null;
+    public $event_id = null;
     public $start_date = null;
     public $end_date = null;
     public ?int $max_uses = null;
     public string $discount_type = 'percent';
     public ?int $discount_percent = null;
     public ?string $discount_fixed_euros = null;
+
+    protected $listeners = ['eventSelected'];
 
     public function updated($propertyName)
     {
@@ -46,6 +48,11 @@ class CreateDiscountCode extends Component
         }
 
         $this->validateOnly($propertyName, $fieldRules, $fieldMessages);
+    }
+
+    public function eventSelected($eventId, $eventName)
+    {
+        $this->event_id = $eventId;
     }
 
     public function store()
@@ -103,6 +110,6 @@ class CreateDiscountCode extends Component
 
     public function render()
     {
-        return view('livewire.discount-codes.create-discount-code');
+        return view('livewire.backend.discount-codes.create-discount-code');
     }
 }

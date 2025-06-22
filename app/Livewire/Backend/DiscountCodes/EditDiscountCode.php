@@ -17,13 +17,15 @@ class EditDiscountCode extends Component
 
     public DiscountCode $discountCode;
     public ?string $code = null;
-    public ?int $event_id = null;
+    public $event_id = null;
     public $start_date = null;
     public $end_date = null;
     public ?int $max_uses = null;
     public string $discount_type = 'percent';
     public ?int $discount_percent = null;
     public ?string $discount_fixed_euros = null;
+
+    protected $listeners = ['eventSelected'];
 
     public function mount(DiscountCode $discountCode)
     {
@@ -67,6 +69,11 @@ class EditDiscountCode extends Component
         }
 
         $this->validateOnly($propertyName, $fieldRules, $fieldMessages);
+    }
+
+    public function eventSelected($eventId, $eventName)
+    {
+        $this->event_id = $eventId;
     }
 
     public function update()
@@ -137,6 +144,6 @@ class EditDiscountCode extends Component
 
     public function render()
     {
-        return view('livewire.discount-codes.edit-discount-code');
+        return view('livewire.backend.discount-codes.edit-discount-code');
     }
 }

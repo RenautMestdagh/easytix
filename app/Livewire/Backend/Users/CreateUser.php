@@ -122,7 +122,7 @@ class CreateUser extends Component
 
     public function render()
     {
-        return view('livewire.users.create-user', [
+        return view('livewire.backend.users.create-user', [
             'roles' => $this->roles,
             'organizations' => $this->organizations,
         ]);

@@ -195,6 +195,6 @@ class UploadMedia extends Component
 
     public function render()
     {
-        return view('livewire.organizations.upload-media');
+        return view('livewire.backend.organizations.upload-media');
     }
 }

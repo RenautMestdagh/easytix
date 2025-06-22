@@ -4,6 +4,7 @@ namespace App\Livewire\Backend\Events;
 
 use App\Http\Requests\Event\UpdateEventRequest;
 use App\Models\Event;
+use App\Models\Venue;
 use App\Traits\EventManagementUtilities;
 use App\Traits\FlashMessage;
 use Exception;
@@ -31,6 +32,8 @@ class EditEvent extends Component
     public $is_published;
     public $publish_at;
     public $publish_option;
+
+    protected $listeners = ['venueSelected'];
 
     public function mount(Event $event)
     {
@@ -83,6 +86,14 @@ class EditEvent extends Component
         }
 
         $this->validateOnly($propertyName, $fieldRules, $fieldMessages);
+    }
+
+    public function venueSelected($venueId, $venueName)
+    {
+        $this->venue_id = $venueId;
+        $venue = Venue::find($venueId);
+        if(empty($this->max_capacity) && $venue?->max_capacity)
+            $this->max_capacity = $venue->max_capacity;
     }
 
     public function update()
@@ -158,7 +169,9 @@ class EditEvent extends Component
 
     public function render()
     {
-        return view('livewire.events.edit-event');
+        return view('livewire.backend.events.edit-event', [
+            'venues' => Venue::orderBy('name')->limit(10)->get(),
+        ]);
     }
 
     public function cancel()

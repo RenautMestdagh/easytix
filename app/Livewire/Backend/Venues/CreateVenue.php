@@ -57,6 +57,6 @@ class CreateVenue extends Component
 
     public function render()
     {
-        return view('livewire.venues.create-venue');
+        return view('livewire.backend.venues.create-venue');
     }
 }

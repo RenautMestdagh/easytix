@@ -19,10 +19,12 @@ class ShowEvents extends Component
     public $startDate;
     public $endDate;
     public $statusFilter = 'all';
+    public $venueFilter = null;
     public $sortField = 'date';
     public $sortDirection = 'asc';
     public $perPage = 10;
 
+    protected $listeners = ['venueSelected' => 'venueFilterSelected',];
     public function mount()
     {
         $this->startDate = now()->format('Y-m-d');
@@ -36,7 +38,6 @@ class ShowEvents extends Component
                 $query->where(function ($q) {
                     $q->where('name', 'like', '%' . $this->search . '%')
                         ->orWhere('description', 'like', '%' . $this->search . '%');
-//                        ->orWhere('location', 'like', '%' . $this->search . '%'); TODO
                 });
             })
             ->when($this->startDate, function ($query) {
@@ -44,6 +45,9 @@ class ShowEvents extends Component
             })
             ->when($this->endDate, function ($query) {
                 $query->where('date', '<=', $this->endDate . ' 23:59:59');
+            })
+            ->when($this->venueFilter, function ($query) {
+                $query->where('venue_id', $this->venueFilter);
             })
             ->when($this->statusFilter === 'published', function ($query) {
                 $query->where('is_published', true);
@@ -93,6 +97,12 @@ class ShowEvents extends Component
 
     public function updatedStatusFilter()
     {
+        $this->resetPage();
+    }
+
+    public function venueFilterSelected($venueId, $venueName)
+    {
+        $this->venueFilter = $venueId;
         $this->resetPage();
     }
 
@@ -161,7 +171,7 @@ class ShowEvents extends Component
 
     public function render()
     {
-        return view('livewire.events.show-events', [
+        return view('livewire.backend.events.show-events', [
             'events' => $this->events,
             'organizations' => Organization::all(),
         ]);

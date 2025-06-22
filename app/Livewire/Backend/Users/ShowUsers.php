@@ -125,7 +125,7 @@ class ShowUsers extends Component
 
     public function render()
     {
-        return view('livewire.users.show-users', [
+        return view('livewire.backend.users.show-users', [
             'users' => $this->users,
             'roles' => $this->roles,
             'organizations' => Organization::all(),

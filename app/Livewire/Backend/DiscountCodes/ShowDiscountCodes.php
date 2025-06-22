@@ -23,6 +23,8 @@ class ShowDiscountCodes extends Component
     public $sortDirection = 'asc';
     public $perPage = 10;
 
+    protected $listeners = ['eventSelected'];
+
     public function getDiscountCodesProperty()
     {
         return DiscountCode::query()
@@ -102,10 +104,16 @@ class ShowDiscountCodes extends Component
             ->paginate($this->perPage);
     }
 
+    public function eventSelected($eventId, $eventName)
+    {
+        $this->selectedEvent = $eventId;
+    }
+
     public function getEventsProperty()
     {
-        return Event::where('date', '>=', now()->format('Y-m-d'))
-            ->orderBy('date')
+        return Event::query()
+            ->where('organization_id', auth()->user()->organization_id)
+            ->orderBy('date', 'desc')
             ->get();
     }
 
@@ -197,7 +205,7 @@ class ShowDiscountCodes extends Component
 
     public function render()
     {
-        return view('livewire.discount-codes.show-discount-codes', [
+        return view('livewire.backend.discount-codes.show-discount-codes', [
             'discountCodes' => $this->discountCodes,
             'organizations' => Organization::all(),
             'events' => $this->events,

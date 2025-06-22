@@ -59,18 +59,40 @@
                                 </x-ui.forms.group>
 
                                 <x-ui.forms.group label="Event (Optional)" for="event_id" error="event_id">
-                                    <select
-                                        wire:model="event_id"
-                                        id="event_id"
-                                        class="block w-full rounded-md p-2 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600"
-                                    >
-                                        <option value=""></option>
-                                        @foreach($this->events as $event)
-                                            <option value="{{ $event->id }}" @selected($event->id == $event_id)>
-                                                {{ Str::limit($event->name, 30) }} ({{ $event->date->format('M j, Y') }})
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    <div class="flex gap-4">
+                                        <div class="flex-1 flex flex-col justify-center">
+                                            @if($event_id && $event = \App\Models\Event::find($event_id))
+                                                <div class="flex justify-between">
+                                                    <div class="flex flex-col items-start">
+                                                        <p>
+                                                            {{ Str::limit($event->name, 25, '...') }}
+                                                        </p>
+                                                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                                                            ({{ $event->date->format('M j, Y') }})
+                                                        </p>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        wire:click="$dispatch('eventSelected', { eventId: null, eventName: '' })"
+                                                        class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                                                    >
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            @else
+                                                <p class="text-gray-600 dark:text-gray-400">
+                                                    {{ __('No event selected') }}
+                                                </p>
+                                            @endif
+                                        </div>
+
+                                        @livewire('modals.event-picker-modal', [
+                                            'selectedEventId' => $event_id,
+                                            'showTriggerButton' => true
+                                        ], key('event-picker-'.$event_id))
+                                    </div>
                                 </x-ui.forms.group>
                             </div>
 

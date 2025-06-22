@@ -144,7 +144,7 @@ class EditOrganization extends Component
 
     public function render()
     {
-        return view('livewire.organizations.edit-organization', [
+        return view('livewire.backend.organizations.edit-organization', [
             'users' => $this->users,
             'adminCount' => $this->adminCount,
         ]);

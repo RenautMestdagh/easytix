@@ -64,7 +64,7 @@ class ShowVenues extends Component
 
     public function render()
     {
-        return view('livewire.venues.show-venues', [
+        return view('livewire.backend.venues.show-venues', [
             'venues' => $this->venues,
             'organizations' => Organization::all(),
         ]);

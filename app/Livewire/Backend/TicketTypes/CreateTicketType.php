@@ -87,6 +87,6 @@ class CreateTicketType extends Component
 
     public function render()
     {
-        return view('livewire.tickettypes.create-ticket-type');
+        return view('livewire.backend.tickettypes.create-ticket-type');
     }
 }

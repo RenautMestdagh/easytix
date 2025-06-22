@@ -122,6 +122,6 @@ class EditTicketType extends Component
 
     public function render()
     {
-        return view('livewire.tickettypes.edit-ticket-type');
+        return view('livewire.backend.tickettypes.edit-ticket-type');
     }
 }
