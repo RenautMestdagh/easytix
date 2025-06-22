@@ -66,13 +66,13 @@
                             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                 <thead class="bg-gray-50 dark:bg-gray-700/50">
                                 <tr>
-                                    <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-white sm:pl-6 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700" wire:click="sortBy('name')">
+                                    <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-white sm:pl-6 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 ease-in-out" wire:click="sortBy('name')">
                                         {{ __('Name') }}
                                         <span class="text-xs ml-1" style="visibility: {{ $sortField == 'name' ? 'visible' : 'hidden' }};">
                                             {{ $sortDirection == 'asc' ? '↑' : '↓' }}
                                         </span>
                                     </th>
-                                    <th scope="col" class="py-3.5 pl-3 pr-4 text-left text-sm font-semibold text-gray-900 dark:text-white sm:pl-6 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700" wire:click="sortBy('max_capacity')">
+                                    <th scope="col" class="py-3.5 pl-3 pr-4 text-left text-sm font-semibold text-gray-900 dark:text-white sm:pl-6 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 ease-in-out" wire:click="sortBy('max_capacity')">
                                         {{ __('Capacity') }}
                                         <span class="text-xs ml-1" style="visibility: {{ $sortField == 'max_capacity' ? 'visible' : 'hidden' }};">
                                             {{ $sortDirection == 'asc' ? '↑' : '↓' }}
@@ -88,7 +88,7 @@
                                 </thead>
                                 <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                                 @forelse($venues as $venue)
-                                    <tr wire:key="venue-{{ $venue->id }}" class="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition duration-150">
+                                    <tr wire:key="venue-{{ $venue->id }}" class="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-all duration-300 ease-in-out">
                                         <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 dark:text-white sm:pl-6">
                                             <div class="flex items-center gap-2">
                                                 {{ $venue->name }}
@@ -108,7 +108,7 @@
                                                     @if(!empty($venue->coordinates))
                                                         <a href="{{ $venue->getGoogleMapsUrl() }}"
                                                            target="_blank"
-                                                           class="p-1 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                                                           class="p-1 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all duration-300 ease-in-out"
                                                            title="{{ __('View on Google Maps') }}"
                                                         >
                                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -122,7 +122,7 @@
                                                             <!-- Restore Button -->
                                                             <button type="button"
                                                                     wire:click="restoreVenue({{ $venue->id }})"
-                                                                    class="p-1 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors hover:cursor-pointer"
+                                                                    class="p-1 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all duration-300 ease-in-out hover:cursor-pointer"
                                                                     title="{{ __('Restore') }}"
                                                             >
                                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -143,7 +143,7 @@
                                                             <!-- Edit Button -->
                                                             <a href="{{ route('venues.update', $venue) }}"
                                                                wire:navigate
-                                                               class="p-1 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                                                               class="p-1 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all duration-300 ease-in-out"
                                                                title="{{ __('Edit') }}"
                                                             >
                                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">

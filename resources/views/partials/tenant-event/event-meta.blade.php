@@ -20,7 +20,7 @@
             @if(!empty($event->venue->coordinates))
                 <a href="{{ $event->venue->getGoogleMapsUrl() }}"
                    target="_blank"
-                   class="hover:underline"
+                   class="hover:underline transition-all duration-300 ease-in-out"
                    title="{{ __('View on Google Maps') }}"
                 >
                     {{ Str::limit($event->venue->name, 50, '...') }}

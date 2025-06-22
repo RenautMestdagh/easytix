@@ -4,7 +4,7 @@
         <button
             type="button"
             wire:click="openEventPicker(@js($selectedEventId))"
-            class="inline-flex items-center px-2 py-2 bg-indigo-600 border border-transparent rounded-2xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 hover:cursor-pointer"
+            class="inline-flex items-center px-2 py-2 bg-indigo-600 border border-transparent rounded-2xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-300 ease-in-out hover:cursor-pointer"
         >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
@@ -80,7 +80,7 @@
                                     <div
                                         wire:key="event-{{ $event->id }}"
                                         wire:click="selectEvent('{{ $event->id }}', '{{ $event->name }}')"
-                                        class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors border-b border-gray-200 dark:border-gray-700 last:border-b-0"
+                                        class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-all duration-300 ease-in-out border-b border-gray-200 dark:border-gray-700 last:border-b-0"
                                     >
                                         <div class="flex justify-between items-center">
                                             <div>
@@ -127,7 +127,7 @@
                     <button
                         type="button"
                         wire:click="$set('showModal', false)"
-                        class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-300 ease-in-out"
                     >
                         {{ __('Cancel') }}
                     </button>

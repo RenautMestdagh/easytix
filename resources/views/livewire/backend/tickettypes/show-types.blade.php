@@ -14,7 +14,7 @@
                         <button
                            wire:click="editEvent({{ $event->id }})"
                            wire:navigate
-                           class="p-1 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors hover:cursor-pointer"
+                           class="p-1 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all duration-300 ease-in-out hover:cursor-pointer"
                            title="{{ __('Edit') }}">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"/>
@@ -22,7 +22,7 @@
                         </button>
                         @endcan
                         <a href="{{ route('event.tickets', [$event->organization->subdomain, $event->uniqid]) }}" target="_blank"
-                           class="p-1 pt-0 text-blue-600 hover:text-green-900 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                           class="p-1 pt-0 text-blue-600 hover:text-green-900 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all duration-300 ease-in-out"
                            title="{{ __('Show event') }}">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
@@ -33,7 +33,7 @@
                 </div>
             </div>
         </div>
-        <a href="{{ route('events.index') }}" class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center transition-all duration-300">
+        <a href="{{ route('events.index') }}" class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center transition-all duration-300 ease-in-out">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
             </svg>
@@ -163,7 +163,7 @@
             </thead>
             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
             @forelse($event->ticketTypes as $ticketType)
-                <tr wire:key="ticket-type-{{ $ticketType->id }}" class="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition duration-150">
+                <tr wire:key="ticket-type-{{ $ticketType->id }}" class="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-all duration-300 ease-in-out">
                     <td class="px-4 py-4 whitespace-nowrap">
                         <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $ticketType->name }}</div>
                     </td>
@@ -225,7 +225,7 @@
                         <div class="flex justify-end gap-2">
                             @can('ticket-types.update')
                             <a href="{{ route('ticket-types.update', ['event' => $event, 'ticketType' => $ticketType]) }}" wire:navigate
-                               class="p-1 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                               class="p-1 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all duration-300 ease-in-out"
                                title="{{ __('Edit') }}">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"/>

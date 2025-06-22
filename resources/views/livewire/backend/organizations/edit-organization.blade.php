@@ -11,7 +11,7 @@
                 </p>
             </div>
             @role('superadmin')
-            <a href="{{ route('organizations.index') }}" class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center transition-all duration-300">
+            <a href="{{ route('organizations.index') }}" class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center transition-all duration-300 ease-in-out">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                 </svg>
@@ -28,7 +28,7 @@
         @endif
 
         <!-- Organization and Users Section -->
-        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm rounded-xl transition-all duration-300 hover:border-indigo-800">
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm rounded-xl transition-all duration-300 ease-in-out hover:border-indigo-800">
             <div class="p-8 space-y-8">
 
                 <!-- Form: Organization Details -->
@@ -46,7 +46,7 @@
                         <div class="flex gap-2">
 
                             @if ($saveButtonVisible)
-                                <button type="submit" class="px-6 my-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300">
+                                <button type="submit" class="px-6 my-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300 ease-in-out">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-floppy" viewBox="0 0 16 16">
                                         <path d="M11 2H9v3h2z"/>
                                         <path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/>
@@ -147,13 +147,13 @@
                                     <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                         <thead class="bg-gray-50 dark:bg-gray-700/50">
                                         <tr>
-                                            <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-white sm:pl-6 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700" wire:click="sortUsersBy('name')">
+                                            <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-white sm:pl-6 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 ease-in-out" wire:click="sortUsersBy('name')">
                                                 {{ __('Name') }}
                                                 <span class="text-xs ml-1" style="visibility: {{ $userSortField == 'name' ? 'visible' : 'hidden' }};">
                                                     {{ $userSortDirection == 'asc' ? '↑' : '↓' }}
                                                 </span>
                                             </th>
-                                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700" wire:click="sortUsersBy('email')">
+                                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 ease-in-out" wire:click="sortUsersBy('email')">
                                                 {{ __('Email') }}
                                                 <span class="text-xs ml-1" style="visibility: {{ $userSortField == 'email' ? 'visible' : 'hidden' }};">
                                                     {{ $userSortDirection == 'asc' ? '↑' : '↓' }}
@@ -171,7 +171,7 @@
                                         </thead>
                                         <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                                         @forelse($users as $user)
-                                            <tr wire:key="user-{{ $user->id }}" class="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition duration-150">
+                                            <tr wire:key="user-{{ $user->id }}" class="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-all duration-300 ease-in-out">
                                                 <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 dark:text-white sm:pl-6">
                                                     <div class="flex items-center gap-2">
                                                         {{ $user->name }}
@@ -196,7 +196,7 @@
                                                                     <!-- Restore Button -->
                                                                     <button type="button"
                                                                             wire:click="restoreUser({{ $user->id }})"
-                                                                            class="p-1 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                                                                            class="p-1 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all duration-300 ease-in-out"
                                                                             title="{{ __('Restore') }}"
                                                                     >
                                                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -207,7 +207,7 @@
                                                                     <!-- Force Delete Button -->
                                                                     <button type="button"
                                                                             onclick="confirmUserForceDelete({{ $user->id }}, '{{ addslashes($user->name) }}')"
-                                                                            class="p-1 bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 text-white rounded transition-colors"
+                                                                            class="p-1 bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 text-white rounded transition-all duration-300 ease-in-out"
                                                                             title="{{ __('Delete permanently') }}"
                                                                     >
                                                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
@@ -220,7 +220,7 @@
                                                                     <!-- Edit Button -->
                                                                     <a href="{{ route('users.update', $user) }}"
                                                                        wire:navigate
-                                                                       class="p-1 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                                                                       class="p-1 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all duration-300 ease-in-out"
                                                                        title="{{ __('Edit') }}"
                                                                     >
                                                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -237,7 +237,7 @@
                                                                     <button type="button"
                                                                             @if($isDeletionDisabled) disabled @endif
                                                                             onclick="@unless($isDeletionDisabled) confirmSoftDelete({{ $user->id }}, '{{ addslashes($user->name) }}') @endunless"
-                                                                            class="p-1 rounded-full transition-colors
+                                                                            class="p-1 rounded-full transition-all duration-300 ease-in-out
                                                                             @if($isDeletionDisabled)
                                                                                 text-gray-400 dark:text-gray-500 cursor-not-allowed
                                                                             @else

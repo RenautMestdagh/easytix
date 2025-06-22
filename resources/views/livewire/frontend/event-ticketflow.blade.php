@@ -11,7 +11,7 @@
                 <p class="text-gray-600 mb-6">Your order has expired. Please refresh the page to start a new order.</p>
                 <a
                     href="{{ route('event.tickets', [$this->event->organization->subdomain, $this->event->uniqid]) }}"
-                    class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+                    class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 ease-in-out"
                 >
                     Refresh Page
                 </a>

@@ -9,7 +9,7 @@
                     {{ __('Update discount code details') }}
                 </p>
             </div>
-            <a href="{{ route('discount-codes.index') }}" class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center transition-all duration-300">
+            <a href="{{ route('discount-codes.index') }}" class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center transition-all duration-300 ease-in-out">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                 </svg>
@@ -24,7 +24,7 @@
             />
         @endif
 
-        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm rounded-xl transition-all duration-300 hover:border-indigo-800">
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm rounded-xl transition-all duration-300 ease-in-out hover:border-indigo-800">
             <div class="p-8">
                 <form wire:submit.prevent="update">
                     <div class="space-y-8">
@@ -71,15 +71,7 @@
                                                             ({{ $event->date->format('M j, Y') }})
                                                         </p>
                                                     </div>
-                                                    <button
-                                                        type="button"
-                                                        wire:click="$dispatch('eventSelected', { eventId: null, eventName: '' })"
-                                                        class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
-                                                    >
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                                        </svg>
-                                                    </button>
+                                                    <x-ui.cross-button wireClick="$dispatch('eventSelected', { eventId: null, eventName: '' })" />
                                                 </div>
                                             @else
                                                 <p class="text-gray-600 dark:text-gray-400">

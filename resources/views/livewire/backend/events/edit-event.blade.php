@@ -9,7 +9,7 @@
                     {{ __('Update the details for your event') }}
                 </p>
             </div>
-            <button wire:click="cancel" class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center transition-all duration-300 hover:cursor-pointer">
+            <button wire:click="cancel" class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center transition-all duration-300 ease-in-out hover:cursor-pointer">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                 </svg>
@@ -24,7 +24,7 @@
             />
         @endif
 
-        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm rounded-xl transition-all duration-300 hover:border-indigo-800">
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm rounded-xl transition-all duration-300 ease-in-out hover:border-indigo-800">
             <div class="p-8">
                 <form wire:submit.prevent="update">
                     <div class="space-y-8">
@@ -74,17 +74,8 @@
                                                             </p>
                                                         @endif
                                                     </div>
-                                                    <button
-                                                        type="button"
-                                                        wire:click="$dispatch('venueSelected', { venueId: null, venueName: '' })"
-                                                        class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
-                                                    >
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                                        </svg>
-                                                    </button>
+                                                    <x-ui.cross-button wireClick="$dispatch('venueSelected', { venueId: null, venueName: '' })" />
                                                 </div>
-
                                             @else
                                                 <p class="text-gray-600 dark:text-gray-400">
                                                     {{ __('No venue selected') }}
@@ -142,7 +133,7 @@
                                     </label>
                                     <input type="file" wire:model="event_image" id="event-image-upload" class="hidden">
                                     <label for="event-image-upload" class="cursor-pointer">
-                                        <div class="border-2 border-dashed @error('event_image') border-red-500 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg p-4 text-center hover:border-indigo-500 transition duration-200">
+                                        <div class="border-2 border-dashed @error('event_image') border-red-500 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg p-4 text-center hover:border-indigo-500 transition-all duration-300 ease-in-out">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                                             </svg>
@@ -174,13 +165,7 @@
                                                     {{ $event_image ? round($event_image->getSize() / 1024, 2) : '' }} KB
                                                 </p>
                                             </div>
-                                            <button wire:click.prevent="removeImage('event_image', 'Event image removed successfully.')"
-                                                    type="button"
-                                                    class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                                </svg>
-                                            </button>
+                                            <x-ui.cross-button wireClick="removeImage('event_image', 'Event image removed successfully.')" />
                                         </div>
                                     @endif
                                 </div>
@@ -192,7 +177,7 @@
                                     </label>
                                     <input type="file" wire:model="header_image" id="header-image-upload" class="hidden">
                                     <label for="header-image-upload" class="cursor-pointer">
-                                        <div class="border-2 border-dashed @error('header_image') border-red-500 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg p-4 text-center hover:border-purple-500 transition duration-200">
+                                        <div class="border-2 border-dashed @error('header_image') border-red-500 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg p-4 text-center hover:border-purple-500 transition-all duration-300 ease-in-out">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                                             </svg>
@@ -224,13 +209,7 @@
                                                     {{ $header_image ? round($header_image->getSize() / 1024, 2) : '' }} KB
                                                 </p>
                                             </div>
-                                            <button wire:click.prevent="removeImage('header_image', 'Header image removed successfully.')"
-                                                    type="button"
-                                                    class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                                </svg>
-                                            </button>
+                                            <x-ui.cross-button wireClick="removeImage('header_image', 'Header image removed successfully.')" />
                                         </div>
                                     @endif
                                 </div>
@@ -242,7 +221,7 @@
                                     </label>
                                     <input type="file" wire:model="background_image" id="background-image-upload" class="hidden">
                                     <label for="background-image-upload" class="cursor-pointer">
-                                        <div class="border-2 border-dashed @error('background_image') border-red-500 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg p-4 text-center hover:border-purple-500 transition duration-200">
+                                        <div class="border-2 border-dashed @error('background_image') border-red-500 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg p-4 text-center hover:border-purple-500 transition-all duration-300 ease-in-out">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                                             </svg>
@@ -274,13 +253,7 @@
                                                     {{ $background_image ? round($background_image->getSize() / 1024, 2) : '' }} KB
                                                 </p>
                                             </div>
-                                            <button wire:click.prevent="removeImage('background_image', 'Background image removed successfully.')"
-                                                    type="button"
-                                                    class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                                </svg>
-                                            </button>
+                                            <x-ui.cross-button wireClick="removeImage('background_image', 'Background image removed successfully.')" />
                                         </div>
                                     @endif
                                 </div>

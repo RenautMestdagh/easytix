@@ -46,7 +46,7 @@
                             @if(!empty($event->venue->coordinates))
                                 <a href="{{ $event->venue->getGoogleMapsUrl() }}"
                                    target="_blank"
-                                   class="hover:underline"
+                                   class="hover:underline transition-all duration-300 ease-in-out"
                                    title="{{ __('View on Google Maps') }}"
                                 >
                                     {{ Str::limit($event->venue->name, 50, '...') }}
@@ -134,14 +134,14 @@
                 </div>
 
                 <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-8">
-                    <a href="{{ route('tickets.download', [$event->organization->subdomain, $order->uniqid]) }}" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200">
+                    <a href="{{ route('tickets.download', [$event->organization->subdomain, $order->uniqid]) }}" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-300 ease-in-out">
                         <svg class="-ml-1 mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                         </svg>
                         Download Tickets
                     </a>
 
-                    <a href="{{ url()->previous() }}" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md shadow-sm text-gray-700 dark:text-gray-200 bg-white dark:bg-zinc-600 hover:bg-gray-50 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200">
+                    <a href="{{ url()->previous() }}" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md shadow-sm text-gray-700 dark:text-gray-200 bg-white dark:bg-zinc-600 hover:bg-gray-50 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-300 ease-in-out">
                         Back to Event
                     </a>
                 </div>

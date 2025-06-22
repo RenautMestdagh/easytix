@@ -65,15 +65,7 @@
                                 ({{ $event->date->format('M j, Y') }})
                             </p>
                         </div>
-                        <button
-                            type="button"
-                            wire:click="$set('selectedEvent', '')"
-                            class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                        </button>
+                        <x-ui.cross-button wireClick="$set('selectedEvent', '')" />
                     </div>
                 @else
                     <p class="text-gray-600 dark:text-gray-400">
@@ -107,7 +99,7 @@
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead class="bg-gray-50 dark:bg-gray-700/50">
             <tr>
-                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" wire:click="sortBy('code')">
+                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300 transition-all duration-300 ease-in-out cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700" wire:click="sortBy('code')">
                     <div class="flex items-center">
                         {{ __('Code') }}
                         <span class="ml-1 text-xs" style="visibility: {{ $sortField == 'code' ? 'visible' : 'hidden' }};">
@@ -124,7 +116,7 @@
                 <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
                     {{ __('Usage') }}
                 </th>
-                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" wire:click="sortBy('start_date')">
+                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 ease-in-out" wire:click="sortBy('start_date')">
                     <div class="flex items-center">
                         {{ __('Start Date') }}
                         <span class="ml-1 text-xs" style="visibility: {{ $sortField == 'start_date' ? 'visible' : 'hidden' }};">
@@ -132,7 +124,7 @@
         </span>
                     </div>
                 </th>
-                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" wire:click="sortBy('end_date')">
+                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 ease-in-out" wire:click="sortBy('end_date')">
                     <div class="flex items-center">
                         {{ __('End Date') }}
                         <span class="ml-1 text-xs" style="visibility: {{ $sortField == 'end_date' ? 'visible' : 'hidden' }};">
@@ -150,7 +142,7 @@
             </thead>
             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
             @forelse($discountCodes as $discountCode)
-                <tr wire:key="discount-code-{{ $discountCode->id }}" class="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition duration-150">
+                <tr wire:key="discount-code-{{ $discountCode->id }}" class="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-all duration-300 ease-in-out">
                     <td class="px-4 py-4 whitespace-nowrap">
                         <div class="text-sm font-medium text-gray-900 dark:text-white">
                             <code>{{ $discountCode->code }}</code>
@@ -234,7 +226,7 @@
                             @if($discountCode->trashed())
                                 @can('discount-codes.delete')
                                 <button wire:click="restoreDiscountCode({{ $discountCode->id }})"
-                                        class="p-1 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors hover:cursor-pointer"
+                                        class="p-1 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all duration-300 ease-in-out hover:cursor-pointer"
                                         title="{{ __('Restore') }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/>
@@ -258,7 +250,7 @@
                                         onclick="window.location.href='{{ route('discount-codes.update', $discountCode) }}'"
                                     @endif
                                     @disabled($discountCode->getAllUsesCount() > 0)
-                                    class="p-1 rounded-full transition-colors
+                                    class="p-1 rounded-full transition-all duration-300 ease-in-out
                                     @if($discountCode->getAllUsesCount() > 0)
                                         opacity-50 cursor-not-allowed
                                     @else
