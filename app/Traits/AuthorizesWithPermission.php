@@ -21,7 +21,7 @@ trait AuthorizesWithPermission
                 $routeName = $route->getName();
             }
         }
-        $permission = $routeName;
+        $permission = implode('.', array_slice(explode('.', $routeName), 0, 2));
         if (!auth()->user()->can($permission)) {
             throw new AuthorizationException;
         }

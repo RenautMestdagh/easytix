@@ -1,6 +1,7 @@
-@props(['message', 'type' => 'success'])
-
 @php
+$message = session()->pull('message', 'Message');
+$type = session()->pull('message_type', 'success');
+
 $colors = [
     'success' => [
         'bg' => 'bg-green-100',

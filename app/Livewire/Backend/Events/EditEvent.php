@@ -74,6 +74,9 @@ class EditEvent extends Component
     {
         if (empty($this->event->{$attribute})) {
             return [];
+        } else if (!Storage::disk('public')->exists("events/{$this->event->id}/{$this->event->{$attribute}}")) {
+            $this->event->update([$attribute => null]);
+            return [];
         }
 
         $storagePath = "events/{$this->event->id}/{$this->event->{$attribute}}";
@@ -166,15 +169,15 @@ class EditEvent extends Component
                 foreach (['event_image', 'header_image', 'background_image'] as $mediaType) {
                     $inputField = $mediaType . 'Input';
                     $oldField = "old_{$mediaType}";
-                    if(!$oldField) continue;
-
+                    if($$oldField) {
+                        $deleted = $this->removeUpload($this->event, $mediaType);
+                        if($deleted)
+                            $this->event->$mediaType = null;
+                    }
                     if ($this->$inputField) {
                         $this->event->$mediaType = $this->saveMedia($mediaType, $this->event->id);
                         $this->$inputField = null;
                         $this->$mediaType = null;
-                    } else {
-                        $this->event->$mediaType = null;
-                        $this->removeUpload($this->event, $mediaType);
                     }
                 }
                 $this->event->save();

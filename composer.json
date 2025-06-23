@@ -11,6 +11,7 @@
     "require": {
         "php": "^8.2",
         "ext-redis": "*",
+        "asantibanez/livewire-charts": "dev-l12-compatibility",
         "dasundev/livewire-dropzone": "^2.0",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
@@ -86,5 +87,11 @@
         }
     },
     "minimum-stability": "stable",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/laravel-shift/livewire-charts.git"
+        }
+    ]
 }

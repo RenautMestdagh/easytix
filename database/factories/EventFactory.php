@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Organization;
+use App\Models\Venue;
 use DateTime;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -35,7 +36,7 @@ class EventFactory extends Factory
             'organization_id' => $organization->id,
             'name' => $this->faker->words(3, true),
             'description' => $this->faker->paragraph,
-            'venue_id' => $organization->venues()->where('organization_id', $organization->id)->inRandomOrder()->first()?->id ?? null,
+            'venue_id' => Venue::where('organization_id', $organization->id)->inRandomOrder()->first()?->id ?? Venue::factory()->forOrganization($organization->id)->create(),
             'use_venue_capacity' => $this->faker->boolean(),
             'date' => $date,
             'event_image' => null,

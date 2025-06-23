@@ -129,7 +129,11 @@ class Event extends Model
 
     public function getCapacityAttribute()
     {
-        return $this->use_venue_capacity ? $this->venue->max_capacity : $this->max_capacity;
+        try{
+            return $this->use_venue_capacity ? $this->venue?->max_capacity : $this->max_capacity;
+        } catch (\Throwable $th) {
+            dd($this, $this->max_capacity);
+        }
     }
 
     /**

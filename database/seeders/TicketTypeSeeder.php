@@ -24,18 +24,21 @@ class TicketTypeSeeder extends Seeder
             $remaining = $totalCapacity;
 
             for ($i = 0; $i < $ticketTypeCount; $i++) {
+                $count = $remaining * (mt_rand(0, 150) / 100);
                 if ($i === $ticketTypeCount - 1) {
-                    $quantities[] = $remaining;
+
+                    $quantities[] = $count;
                 } else {
                     $max = max(10, min(500, $remaining - ($ticketTypeCount - $i - 1) * 10));
                     $qty = fake()->numberBetween(10, $max);
                     $quantities[] = $qty;
-                    $remaining -= $qty;
+                    $remaining -= max($qty, $count);
                 }
             }
 
             // Create ticket types with calculated quantities
             foreach ($quantities as $quantity) {
+                if($quantity <= 0) continue;
                 TicketType::factory()->create([
                     'event_id' => $event->id,
                     'available_quantity' => $quantity,

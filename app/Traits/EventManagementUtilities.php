@@ -52,14 +52,13 @@ trait EventManagementUtilities
             if ($event->{$fieldName})
                 Storage::disk('public')->delete("events/{$event->id}/{$event->{$fieldName}}");
 
-            $event->update([$fieldName => null]); // Update field in db
-            $this->reset($fieldName); // Reset the file input
-
             if ($successMessage)
                 $this->flashMessage($successMessage);
+            return true;
         } catch (\Exception $e) {
             Log::error('Error deleting image: ' . $e->getMessage());
             $this->flashMessage('Error while deleting image.', 'error');
+            return false;
         }
     }
 

@@ -1,10 +1,7 @@
 <div class="py-16">
     <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
         @if (session()->has('message'))
-            <x-ui.flash-message
-                :message="session('message')"
-                :type="session('message_type', 'success')"
-            />
+            <x-ui.flash-message/>
         @endif
 
         <div class="flex justify-between items-center mb-10">

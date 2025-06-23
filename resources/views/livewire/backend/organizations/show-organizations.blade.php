@@ -52,10 +52,7 @@
         </div>
 
         @if (session()->has('message'))
-            <x-ui.flash-message
-                :message="session('message')"
-                :type="session('message_type', 'success')"
-            />
+            <x-ui.flash-message/>
         @endif
 
         <!-- Organization Table -->

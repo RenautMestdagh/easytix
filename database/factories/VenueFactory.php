@@ -23,4 +23,19 @@ class VenueFactory extends Factory
             'coordinates' => null,
         ];
     }
+
+    /**
+     * Set the organization for the venue.
+     *
+     * @param  int  $organizationId
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
+    public function forOrganization(int $organizationId)
+    {
+        return $this->state(function (array $attributes) use ($organizationId) {
+            return [
+                'organization_id' => $organizationId,
+            ];
+        });
+    }
 }

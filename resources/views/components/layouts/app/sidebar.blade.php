@@ -24,7 +24,7 @@
             <flux:navlist.item
                 icon="calendar"
                 :href="route('events.index')"
-                :current="request()->routeIs('events.*')"
+                :current="request()->routeIs(['events.*', 'ticket-types.*'])"
                 wire:navigate
             >
                 {{ __('Events') }}

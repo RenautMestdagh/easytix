@@ -3,9 +3,8 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Log;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
 class RoleSeeder extends Seeder
@@ -46,6 +45,7 @@ class RoleSeeder extends Seeder
             'superadmin' => [],
             'admin' => ['show', 'use'],
             'organizer' => ['show', 'use'],
+            'scanner' => ['show', 'use'],
         ],
         'login-as' => [
             'superadmin' => ['use'],

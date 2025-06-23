@@ -14,6 +14,7 @@
         'danger' => 'text-white bg-red-600 hover:bg-red-700 focus:ring-red-500',
         'purple' => 'text-white bg-purple-600 hover:bg-purple-700 focus:ring-purple-500',
         'indigo' => 'text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500',
+        'success' => 'text-white bg-green-600 hover:bg-green-700 focus:ring-green-500',
     ];
 
     $classes = $base . ' ' . ($variants[$variant] ?? $variants['primary']);

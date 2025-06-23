@@ -13,6 +13,7 @@ use App\Livewire\Backend\DiscountCodes\ShowDiscountCodes;
 use App\Livewire\Backend\Events\CreateEvent;
 use App\Livewire\Backend\Events\EditEvent;
 use App\Livewire\Backend\Events\ShowEvents;
+use App\Livewire\Backend\Events\ShowStats;
 use App\Livewire\Backend\Organizations\CreateOrganization;
 use App\Livewire\Backend\Organizations\EditOrganization;
 use App\Livewire\Backend\Organizations\ShowOrganizations;
@@ -92,6 +93,7 @@ Route::middleware(['auth', 'verified', CheckPermissionMiddleware::class, Subdoma
     Route::get('/events', ShowEvents::class)->name('events.index');
     Route::get('/events/create', CreateEvent::class)->name('events.create');
     Route::get('/events/{event}/edit', EditEvent::class)->name('events.update');
+    Route::get('/events/{event}/stats', ShowStats::class)->name('events.index.stats');
 
     Route::get('/events/{event}/tickets', ShowTypes::class)->name('ticket-types.index');
     Route::get('/events/{event}/tickets/create', CreateTicketType::class)->name('ticket-types.create');

@@ -112,9 +112,10 @@ class EditUser extends Component
                     $this->flashMessage('Cannot remove the last admin from this organization.', 'error');
                     return;
                 }
-                $this->user->update(['organization_id' => $validatedData['organization_id']]);
-                $this->user->syncRoles([$validatedData['role']]);
             }
+
+            $this->user->update(['organization_id' => $validatedData['organization_id']]);
+            $this->user->syncRoles([$validatedData['role']]);
 
             DB::commit();
 

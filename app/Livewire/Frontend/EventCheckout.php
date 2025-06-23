@@ -130,7 +130,6 @@ class EventCheckout extends Component
 
         try {
             $discount = DiscountCode::whereRaw('BINARY code = ?', [$this->discountCode])
-                ->withCount('allOrders')
                 ->where('organization_id', $this->event->organization_id)
                 ->where(function ($query) {
                     $query->whereNull('event_id')
