@@ -8,8 +8,10 @@ use App\Models\Venue;
 use App\Traits\EventManagementUtilities;
 use App\Traits\FlashMessage;
 use Exception;
+use Illuminate\Http\File;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -28,6 +30,9 @@ class CreateEvent extends Component
     public $event_image;
     public $header_image;
     public $background_image;
+    public $event_imageInput;
+    public $header_imageInput;
+    public $background_imageInput;
 
     public $is_published = false;
     public $publish_at = null;
@@ -37,6 +42,11 @@ class CreateEvent extends Component
 
     public function updated($propertyName): void
     {
+        // Only check images on submit. They are already checked by dropzone
+        if (str_ends_with($propertyName, 'Input')) {
+            return;
+        }
+
         if($propertyName === 'publish_option') {
             $this->resetErrorBag('publish_at');
             if($this->publish_option !== 'schedule')
@@ -49,16 +59,6 @@ class CreateEvent extends Component
         ))->rules();
         $fieldMessages = (new StoreEventRequest())->messages();
 
-        if($propertyName === 'event_image' || $propertyName === 'background_image' || $propertyName === 'header_image') {
-            try {
-                $this->validateOnly($propertyName, $fieldRules, $fieldMessages);
-            } catch (Exception $e) {
-                $this->$propertyName = null;
-                $this->setErrorBag([$propertyName => $e->validator->getMessageBag()->toArray()[$propertyName][0]]);
-            }
-            return;
-        }
-
         if (!array_key_exists($propertyName, $fieldRules)) {
             return; // skip validation if no rule is defined
         }
@@ -66,21 +66,14 @@ class CreateEvent extends Component
         $this->validateOnly($propertyName, $fieldRules, $fieldMessages);
     }
 
-    public function venueSelected($venueId, $venueName)
-    {
-        $venue = Venue::find($venueId);
-        if(!$venue)
-            $this->use_venue_capacity = false;
-        else if(empty($this->max_capacity))
-            $this->use_venue_capacity = true;
-
-        $this->venue_id = $venueId;
-    }
-
     public function store()
     {
         if($this->publish_option !== 'schedule')
             $this->publish_at = null;
+
+        $this->event_image = $this->event_imageInput ? new File($this->event_imageInput[0]['path']) : null;
+        $this->header_image = $this->header_imageInput ? new File($this->header_imageInput[0]['path']) : null;
+        $this->background_image = $this->background_imageInput ? new File($this->background_imageInput[0]['path']) : null;
 
         // Validate all fields
         $validatedData = $this->validate(
@@ -109,15 +102,24 @@ class CreateEvent extends Component
 
             // Handle file uploads
             try{
-                if ($this->event_image)
-                    $this->uploadImage($event, 'event_image');
-                if ($this->header_image)
-                    $this->uploadImage($event, 'header_image');
-                if ($this->background_image)
-                    $this->uploadImage($event, 'background_image');
+                foreach (['event_image', 'header_image', 'background_image'] as $mediaType) {
+                    $inputField = $mediaType . 'Input';
+
+                    if ($this->$inputField) {
+                        $event->$mediaType = $this->saveMedia($mediaType, $event->id);
+                        $this->$inputField = null;
+                        $this->$mediaType = null;
+                    }
+                }
+                $event->save();
             } catch (Exception $e) {
                 Log::error('An error occurred while uploading images: ' . $e->getMessage());
                 $this->flashMessage('Error while uploading images.', 'error');
+
+                $event->event_image = null;
+                $event->header_image = null;
+                $event->background_image = null;
+                Storage::disk('public')->deleteDirectory("events/$event->id");
             }
 
             redirect()->route('ticket-types.index', $event);

@@ -38,9 +38,9 @@ class EventRequest extends FormRequest
             ],
             'use_venue_capacity' => 'boolean',
             'date' => ['required', 'date'],
-            'event_image' => 'nullable|image|max:2048',
-            'header_image' => 'nullable|image|max:2048',
-            'background_image' => 'nullable|image|max:5120',
+            'event_image' => ['nullable', 'image', 'max:2048'],
+            'header_image' => ['nullable', 'image', 'max:2048'],
+            'background_image' => ['nullable', 'image', 'max:5120'],
             'max_capacity' => ['nullable', 'integer', 'min:1'],
             'publish_option' => 'required|in:publish_now,schedule,unlisted',
             'publish_at' => [

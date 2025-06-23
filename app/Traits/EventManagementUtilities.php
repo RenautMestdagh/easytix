@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Models\Venue;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -20,53 +21,31 @@ trait EventManagementUtilities
         };
     }
 
-    /**
-     * Universal method for uploading images
-     *
-     * @param \App\Models\Event $event The event model
-     * @param string $fieldName The name of the image field (e.g., 'event_image', 'header_image')
-     * @param string $prefix Optional prefix for the filename (defaults to field name)
-     */
-    protected function uploadImage($event, string $fieldName, string $prefix = null)
+    public function venueSelected($venueId, $venueName)
     {
-        if ($event->{$fieldName}) {
-            Storage::disk('public')->delete("events/$event->id/$event->$fieldName");
-        }
-        $prefix = $prefix ?? $fieldName;
-        $file = $this->{$fieldName};
+        $venue = Venue::find($venueId);
+        if(!$venue)
+            $this->use_venue_capacity = false;
+        else if(empty($this->max_capacity))
+            $this->use_venue_capacity = true;
 
-        $filename = $this->generateUniqueFilename(
-            $prefix,
-            $file->extension(),
-            $event->id
-        );
-
-        $file->storeAs(
-            "events/$event->id",
-            $filename,
-            'public'
-        );
-
-        $event->update([$fieldName => $filename]);
+        $this->venue_id = $venueId;
     }
 
-    protected function generateUniqueFilename($prefix, $extension, $eventId)
+    protected function saveMedia($mediaType, $eventId)
     {
-        $filename = "{$prefix}.{$extension}";
+        $storedPath = Storage::disk('public')->putFile(
+            "events/{$eventId}",
+            $this->$mediaType
+        );
 
-        // If file exists, append a random string
-        if (Storage::disk('public')->exists("events/{$eventId}/{$filename}")) {
-            $random = Str::random(8);
-            $filename = "{$prefix}_{$random}.{$extension}";
-        }
-
-        return $filename;
+        return Str::afterLast($storedPath, '/');
     }
 
     /**
      * Remove an image from storage and update the event
      */
-    public function removeImage($event, string $fieldName, string $successMessage)
+    public function removeUpload($event, string $fieldName, ?string $successMessage = null)
     {
         try {
             // Delete the file from storage if it exists
@@ -76,10 +55,17 @@ trait EventManagementUtilities
             $event->update([$fieldName => null]); // Update field in db
             $this->reset($fieldName); // Reset the file input
 
-            $this->flashMessage($successMessage);
+            if ($successMessage)
+                $this->flashMessage($successMessage);
         } catch (\Exception $e) {
             Log::error('Error deleting image: ' . $e->getMessage());
             $this->flashMessage('Error while deleting image.', 'error');
         }
+    }
+
+    public function handleFileRemoval($dbField)
+    {
+        $inputVar = $dbField . 'Input';
+        $this->$inputVar = [];
     }
 }

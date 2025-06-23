@@ -152,43 +152,15 @@
                                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                         {{ __('Event Image') }}
                                     </label>
-                                    <input type="file" wire:model="event_image" id="event-image-upload" class="hidden">
-                                    <label for="event-image-upload" class="cursor-pointer">
-                                        <div class="border-2 border-dashed @error('event_image') border-red-500 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg p-4 text-center hover:border-indigo-500 transition-colors duration-300 ease-in-out">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                                            </svg>
-                                            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                                                <span class="font-medium text-indigo-600 dark:text-indigo-400">{{ __('Click to upload') }}</span>
-                                                {{ __('or drag and drop') }}
-                                            </p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                                PNG, JPG up to 2MB (Recommended: 800x450px)
-                                            </p>
-                                        </div>
-                                    </label>
-                                    @error('event_image')
-                                    <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
-                                    @enderror
-
-                                    @if($event_image || $event->event_image)
-                                        <div class="flex items-center gap-4 mt-4">
-                                            <div class="flex-shrink-0">
-                                                <img class="h-12 w-12 rounded-md object-cover"
-                                                     src="{{ $event_image ? $event_image->temporaryUrl() : Storage::url("events/{$event->id}/{$event->event_image}") }}"
-                                                     alt="Event image preview">
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <p class="text-sm font-medium text-gray-900 dark:text-gray-200 truncate">
-                                                    {{ $event_image ? $event_image->getClientOriginalName() : $event->event_image }}
-                                                </p>
-                                                <p class="text-xs text-gray-500 dark:text-gray-400">
-                                                    {{ $event_image ? round($event_image->getSize() / 1024, 2) : '' }} KB
-                                                </p>
-                                            </div>
-                                            <x-ui.cross-button wire:click="removeImage('event_image', 'Event image removed successfully.')" />
-                                        </div>
-                                    @endif
+                                    <livewire:improved-dropzone
+                                        wire:model="event_imageInput"
+                                        :rules="(new \App\Http\Requests\Event\EventRequest())->rules()['event_image']"
+                                        :messages="(new \App\Http\Requests\Event\EventRequest())->messages()"
+                                        :multiple="false"
+                                        key="event_image"
+                                        accentColor="#138eff"
+                                        :files="$event_imageInput"
+                                    />
                                 </div>
 
                                 <!-- Header Image Upload -->
@@ -196,43 +168,15 @@
                                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                         {{ __('Header Image') }}
                                     </label>
-                                    <input type="file" wire:model="header_image" id="header-image-upload" class="hidden">
-                                    <label for="header-image-upload" class="cursor-pointer">
-                                        <div class="border-2 border-dashed @error('header_image') border-red-500 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg p-4 text-center hover:border-purple-500 transition-colors duration-300 ease-in-out">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                                            </svg>
-                                            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                                                <span class="font-medium text-purple-600 dark:text-purple-400">{{ __('Click to upload') }}</span>
-                                                {{ __('or drag and drop') }}
-                                            </p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                                PNG, JPG up to 2MB (Recommended: 800x450px)
-                                            </p>
-                                        </div>
-                                    </label>
-                                    @error('header_image')
-                                    <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
-                                    @enderror
-
-                                    @if($header_image || $event->header_image)
-                                        <div class="flex items-center gap-4 mt-4">
-                                            <div class="flex-shrink-0">
-                                                <img class="h-12 w-20 rounded-md object-cover"
-                                                     src="{{ $header_image ? $header_image->temporaryUrl() : Storage::url("events/{$event->id}/{$event->header_image}") }}"
-                                                     alt="Header image preview">
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <p class="text-sm font-medium text-gray-900 dark:text-gray-200 truncate">
-                                                    {{ $header_image ? $header_image->getClientOriginalName() : $event->header_image }}
-                                                </p>
-                                                <p class="text-xs text-gray-500 dark:text-gray-400">
-                                                    {{ $header_image ? round($header_image->getSize() / 1024, 2) : '' }} KB
-                                                </p>
-                                            </div>
-                                            <x-ui.cross-button wire:click="removeImage('header_image', 'Header image removed successfully.')" />
-                                        </div>
-                                    @endif
+                                    <livewire:improved-dropzone
+                                        wire:model="header_imageInput"
+                                        :rules="(new \App\Http\Requests\Event\EventRequest())->rules()['header_image']"
+                                        :messages="(new \App\Http\Requests\Event\EventRequest())->messages()"
+                                        :multiple="false"
+                                        key="header_image"
+                                        accentColor="#737cff"
+                                        :files="$header_imageInput"
+                                    />
                                 </div>
 
                                 <!-- Background Image Upload -->
@@ -240,43 +184,15 @@
                                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                         {{ __('Background Image') }}
                                     </label>
-                                    <input type="file" wire:model="background_image" id="background-image-upload" class="hidden">
-                                    <label for="background-image-upload" class="cursor-pointer">
-                                        <div class="border-2 border-dashed @error('background_image') border-red-500 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg p-4 text-center hover:border-purple-500 transition-colors duration-300 ease-in-out">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                                            </svg>
-                                            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                                                <span class="font-medium text-purple-600 dark:text-purple-400">{{ __('Click to upload') }}</span>
-                                                {{ __('or drag and drop') }}
-                                            </p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                                PNG, JPG up to 5MB (Recommended: 1920x1080px)
-                                            </p>
-                                        </div>
-                                    </label>
-                                    @error('background_image')
-                                    <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
-                                    @enderror
-
-                                    @if($background_image || $event->background_image)
-                                        <div class="flex items-center gap-4 mt-4">
-                                            <div class="flex-shrink-0">
-                                                <img class="h-12 w-20 rounded-md object-cover"
-                                                     src="{{ $background_image ? $background_image->temporaryUrl() : Storage::url("events/{$event->id}/{$event->background_image}") }}"
-                                                     alt="Background image preview">
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <p class="text-sm font-medium text-gray-900 dark:text-gray-200 truncate">
-                                                    {{ $background_image ? $background_image->getClientOriginalName() : $event->background_image }}
-                                                </p>
-                                                <p class="text-xs text-gray-500 dark:text-gray-400">
-                                                    {{ $background_image ? round($background_image->getSize() / 1024, 2) : '' }} KB
-                                                </p>
-                                            </div>
-                                            <x-ui.cross-button wire:click="removeImage('background_image', 'Background image removed successfully.')" />
-                                        </div>
-                                    @endif
+                                    <livewire:improved-dropzone
+                                        wire:model="background_imageInput"
+                                        :rules="(new \App\Http\Requests\Event\EventRequest())->rules()['background_image']"
+                                        :messages="(new \App\Http\Requests\Event\EventRequest())->messages()"
+                                        :multiple="false"
+                                        key="background_image"
+                                        accentColor="#ce6cff"
+                                        :files="$background_imageInput"
+                                    />
                                 </div>
                             </div>
                         </div>

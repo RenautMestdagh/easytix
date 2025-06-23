@@ -8,7 +8,9 @@ use App\Models\Venue;
 use App\Traits\EventManagementUtilities;
 use App\Traits\FlashMessage;
 use Exception;
+use Illuminate\Http\File;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -29,12 +31,18 @@ class EditEvent extends Component
     public $event_image;
     public $header_image;
     public $background_image;
+    public $event_imageInput;
+    public $header_imageInput;
+    public $background_imageInput;
 
     public $is_published;
     public $publish_at;
     public $publish_option;
 
-    protected $listeners = ['venueSelected'];
+    protected $listeners = [
+        'venueSelected',
+        'fileRemoved' => 'handleFileRemoval'
+    ];
 
     public function mount(Event $event)
     {
@@ -48,6 +56,10 @@ class EditEvent extends Component
         $this->is_published = $event->is_published;
         $this->publish_at = $event->publish_at ? $event->publish_at->format('Y-m-d\TH:i') : null;
 
+        $this->event_imageInput = $this->getFileInputData('event_image');
+        $this->header_imageInput = $this->getFileInputData('header_image');
+        $this->background_imageInput = $this->getFileInputData('background_image');
+
         // Set publish option based on current status
         if ($event->is_published) {
             $this->publish_option = 'publish_now';
@@ -56,6 +68,27 @@ class EditEvent extends Component
         } else {
             $this->publish_option = 'unlisted';
         }
+    }
+
+    protected function getFileInputData($attribute)
+    {
+        if (empty($this->event->{$attribute})) {
+            return [];
+        }
+
+        $storagePath = "events/{$this->event->id}/{$this->event->{$attribute}}";
+
+        return [
+            [
+                'path' => Storage::disk('public')->path($storagePath),
+                'size' => Storage::disk('public')->size($storagePath),
+                'extension' => pathinfo($this->event->{$attribute}, PATHINFO_EXTENSION),
+                'type' => Storage::disk('public')->mimeType($storagePath),
+                'tmpFilename' => Storage::disk('public')->path($storagePath),
+                'temporaryUrl'  => Storage::disk('public')->url($storagePath),
+                'dbField' => $attribute,
+            ]
+        ];
     }
 
     public function updated($propertyName): void
@@ -90,21 +123,17 @@ class EditEvent extends Component
         $this->validateOnly($propertyName, $fieldRules, $fieldMessages);
     }
 
-    public function venueSelected($venueId, $venueName)
-    {
-        $venue = Venue::find($venueId);
-        if(!$venue)
-            $this->use_venue_capacity = false;
-        else if(empty($this->max_capacity))
-            $this->use_venue_capacity = true;
-
-        $this->venue_id = $venueId;
-    }
-
     public function update()
     {
         if($this->publish_option !== 'schedule')
             $this->publish_at = null;
+
+        $old_event_image = $this->event->event_image;
+        $old_header_image = $this->event->header_image;
+        $old_background_image = $this->event->background_image;
+        $this->event_image = $this->event_imageInput ? new File($this->event_imageInput[0]['path']) : null;
+        $this->header_image = $this->header_imageInput ? new File($this->header_imageInput[0]['path']) : null;
+        $this->background_image = $this->background_imageInput ? new File($this->background_imageInput[0]['path']) : null;
 
         // Validate all fields
         $validatedData = $this->validate(
@@ -134,15 +163,29 @@ class EditEvent extends Component
             $this->flashMessage('Event updated successfully.');
 
             try{
-                if ($this->event_image)
-                    $this->uploadImage($this->event, 'event_image');
-                if ($this->header_image)
-                    $this->uploadImage($this->event, 'header_image');
-                if ($this->background_image)
-                    $this->uploadImage($this->event, 'background_image');
+                foreach (['event_image', 'header_image', 'background_image'] as $mediaType) {
+                    $inputField = $mediaType . 'Input';
+                    $oldField = "old_{$mediaType}";
+                    if(!$oldField) continue;
+
+                    if ($this->$inputField) {
+                        $this->event->$mediaType = $this->saveMedia($mediaType, $this->event->id);
+                        $this->$inputField = null;
+                        $this->$mediaType = null;
+                    } else {
+                        $this->event->$mediaType = null;
+                        $this->removeUpload($this->event, $mediaType);
+                    }
+                }
+                $this->event->save();
             } catch (Exception $e) {
                 Log::error('An error occurred while uploading images: ' . $e->getMessage());
                 $this->flashMessage('Error while uploading images.', 'error');
+
+                $this->event->event_image = null;
+                $this->event->header_image = null;
+                $this->event->background_image = null;
+                Storage::disk('public')->deleteDirectory("events/$this->event->id");
             }
 
             redirect(session()->pull('events.edit.referrer', route('events.index')));

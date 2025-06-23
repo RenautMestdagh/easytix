@@ -20,10 +20,13 @@
                 :type="session('message_type', 'success')"
             />
         @endif
+        @error('favicon')
+        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+        @enderror
 
         <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm rounded-xl transition-colors duration-300 ease-in-out hover:border-indigo-800">
-            <div class="p-8 space-y-8">
-
+            <form wire:submit.prevent="uploadMedia" class="p-8 space-y-8">
+                @csrf
                 <div class="flex flex-col gap-6">
                     <!-- Favicon Section -->
                     <div>
@@ -43,7 +46,7 @@
                                             <img src="{{ $organization->favicon_url }}?{{ time() }}"
                                                  alt="Favicon"
                                                  class="w-16 h-16 rounded-lg object-contain border border-gray-200 dark:border-gray-700">
-                                            <button wire:click="removeFavicon"
+                                            <button wire:click="removeMedia('favicon')"
                                                     class="absolute top-0 right-0 -mt-2 -mr-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -73,44 +76,15 @@
                                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                             {{ __('Upload New Favicon') }}
                                         </label>
-                                        <input type="file" wire:model="favicon" id="favicon-upload" class="hidden">
-                                        <label for="favicon-upload" class="cursor-pointer">
-                                            <div class="border-2 border-dashed @error('favicon') border-red-500 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg p-4 text-center hover:border-blue-500 transition-colors duration-300 ease-in-out">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                                                </svg>
-                                                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                                                    <span class="font-medium text-blue-600 dark:text-blue-400">{{ __('Click to upload') }}</span>
-                                                    {{ __('or drag and drop') }}
-                                                </p>
-                                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                                    PNG or ICO up to 1MB (Must be exactly 32x32px)
-                                                </p>
-                                            </div>
-                                        </label>
-                                        @error('favicon')
-                                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
-                                        @enderror
+                                        <livewire:improved-dropzone
+                                            wire:model="faviconInput"
+                                            :rules="(new \App\Http\Requests\OrganizationMediaRequest())->rules()['favicon']"
+                                            :messages="(new \App\Http\Requests\OrganizationMediaRequest())->messages()"
+                                            :multiple="false"
+                                            key="favicon"
+                                            accentColor="#138eff"
+                                        />
                                     </div>
-
-                                    @if($favicon)
-                                        <div class="flex items-center gap-4">
-                                            <div class="flex-shrink-0">
-                                                <img class="h-12 w-12 rounded-md object-cover"
-                                                     src="{{ $favicon->temporaryUrl() }}"
-                                                     alt="Favicon preview">
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <p class="text-sm font-medium text-gray-900 dark:text-gray-200 truncate">
-                                                    {{ $favicon->getClientOriginalName() }}
-                                                </p>
-                                                <p class="text-xs text-gray-500 dark:text-gray-400">
-                                                    {{ round($favicon->getSize() / 1024, 2) }} KB
-                                                </p>
-                                            </div>
-                                            <x-ui.cross-button wire:click="$set('favicon', null)" />
-                                        </div>
-                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -136,7 +110,7 @@
                                             <img src="{{ $organization->logo_url }}?{{ time() }}"
                                                  alt="Organization Logo"
                                                  class="w-32 rounded-lg object-contain border border-gray-200 dark:border-gray-700">
-                                            <button wire:click="removeLogo"
+                                            <button wire:click="removeMedia('logo')"
                                                     class="absolute top-0 right-0 -mt-2 -mr-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -166,44 +140,15 @@
                                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                             {{ __('Upload New Logo') }}
                                         </label>
-                                        <input type="file" wire:model="logo" id="logo-upload" class="hidden">
-                                        <label for="logo-upload" class="cursor-pointer">
-                                            <div class="border-2 border-dashed @error('logo') border-red-500 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg p-4 text-center hover:border-indigo-500 transition-colors duration-300 ease-in-out">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                                                </svg>
-                                                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                                                    <span class="font-medium text-indigo-600 dark:text-indigo-400">{{ __('Click to upload') }}</span>
-                                                    {{ __('or drag and drop') }}
-                                                </p>
-                                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                                    PNG, JPG up to 2MB (Recommended: 500x500px)
-                                                </p>
-                                            </div>
-                                        </label>
-                                        @error('logo')
-                                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
-                                        @enderror
+                                        <livewire:improved-dropzone
+                                            wire:model="logoInput"
+                                            :rules="(new \App\Http\Requests\OrganizationMediaRequest())->rules()['logo']"
+                                            :messages="(new \App\Http\Requests\OrganizationMediaRequest())->messages()"
+                                            :multiple="false"
+                                            key="logo"
+                                            accentColor="#737cff"
+                                        />
                                     </div>
-
-                                    @if($logo)
-                                        <div class="flex items-center gap-4">
-                                            <div class="flex-shrink-0">
-                                                <img class="h-12 w-12 rounded-md object-cover"
-                                                     src="{{ $logo->temporaryUrl() }}"
-                                                     alt="Logo preview">
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <p class="text-sm font-medium text-gray-900 dark:text-gray-200 truncate">
-                                                    {{ $logo->getClientOriginalName() }}
-                                                </p>
-                                                <p class="text-xs text-gray-500 dark:text-gray-400">
-                                                    {{ round($logo->getSize() / 1024, 2) }} KB
-                                                </p>
-                                            </div>
-                                            <x-ui.cross-button wire:click="$set('logo', null)" />
-                                        </div>
-                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -229,7 +174,7 @@
                                             <img src="{{ $organization->background_url }}?{{ time() }}"
                                                  alt="Background Image"
                                                  class="w-full h-32 rounded-lg object-cover border border-gray-200 dark:border-gray-700">
-                                            <button wire:click="removeBackground"
+                                            <button wire:click="removeMedia('background')"
                                                     class="absolute top-0 right-0 -mt-2 -mr-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -259,44 +204,15 @@
                                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                             {{ __('Upload New Background') }}
                                         </label>
-                                        <input type="file" wire:model="background" id="background-upload" class="hidden">
-                                        <label for="background-upload" class="cursor-pointer">
-                                            <div class="border-2 border-dashed @error('background') border-red-500 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg p-4 text-center hover:border-purple-500 transition-colors duration-300 ease-in-out">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                                                </svg>
-                                                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                                                    <span class="font-medium text-purple-600 dark:text-purple-400">{{ __('Click to upload') }}</span>
-                                                    {{ __('or drag and drop') }}
-                                                </p>
-                                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                                    PNG, JPG up to 5MB (Recommended: 1920x1080px)
-                                                </p>
-                                            </div>
-                                        </label>
-                                        @error('background')
-                                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
-                                        @enderror
+                                        <livewire:improved-dropzone
+                                            wire:model="backgroundInput"
+                                            :rules="(new \App\Http\Requests\OrganizationMediaRequest())->rules()['background']"
+                                            :messages="(new \App\Http\Requests\OrganizationMediaRequest())->messages()"
+                                            :multiple="false"
+                                            key="background"
+                                            accentColor="#ce6cff"
+                                        />
                                     </div>
-
-                                    @if($background)
-                                        <div class="flex items-center gap-4">
-                                            <div class="flex-shrink-0">
-                                                <img class="h-12 w-20 rounded-md object-cover"
-                                                     src="{{ $background->temporaryUrl() }}"
-                                                     alt="Background preview">
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <p class="text-sm font-medium text-gray-900 dark:text-gray-200 truncate">
-                                                    {{ $background->getClientOriginalName() }}
-                                                </p>
-                                                <p class="text-xs text-gray-500 dark:text-gray-400">
-                                                    {{ round($background->getSize() / 1024, 2) }} KB
-                                                </p>
-                                            </div>
-                                            <x-ui.cross-button wire:click="$set('background', null)" />
-                                        </div>
-                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -305,9 +221,11 @@
 
                 <!-- Save Button -->
                 <div class="flex justify-end pt-6">
-                    <button wire:click="save"
-                            wire:loading.attr="disabled"
-                            class="px-6 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors duration-300 ease-in-out flex items-center">
+                    <button
+                        type="submit"
+                        wire:loading.attr="disabled"
+                        class="px-6 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors duration-300 ease-in-out flex items-center"
+                    >
                         <svg wire:loading wire:target="save" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -315,7 +233,7 @@
                         {{ __('Save Changes') }}
                     </button>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 </div>
