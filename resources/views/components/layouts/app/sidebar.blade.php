@@ -170,7 +170,10 @@
 
         <!-- Mobile User Menu -->
         <flux:header class="flex flex-col lg:hidden">
-            @include('partials.logged-in-as')
+            <div class="w-screen relative">
+                @include('partials.logged-in-as')
+            </div>
+
             <flux:header class="lg:hidden w-full">
                 <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
 

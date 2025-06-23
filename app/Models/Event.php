@@ -87,6 +87,11 @@ class Event extends Model
         return $this->hasMany(TicketType::class);
     }
 
+    public function publishedTicketTypes()
+    {
+        return $this->hasMany(TicketType::class)->where('is_published', true);
+    }
+
     /**
      * Get the discount codes associated with the event.
      */

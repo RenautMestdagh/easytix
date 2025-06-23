@@ -11,7 +11,7 @@ class OrganizationController extends Controller
     public function show(Request $request)
     {
         $organization = Organization::find(session('organization_id')); // injected by SubdomainOrganizationMiddleware
-        $events = Event::with('venue')->where('is_published', true)
+        $events = Event::with('venue', 'publishedTicketTypes')->where('is_published', true)
             ->where('date', '>=', now()->format('Y-m-d'))
             ->orderBy('date')
             ->get();

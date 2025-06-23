@@ -1,6 +1,6 @@
 @if(auth()->check() && session()->has('original_user_id'))
-    <div class="z-50 bg-orange-400 bg-opacity-100 dark:bg-yellow-600 text-black dark:text-white p-2 shadow-md w-full">
-        <div class="container mx-auto flex items-center justify-between">
+    <div class="z-50 bg-orange-400 bg-opacity-100 dark:bg-yellow-600 text-black dark:text-white p-2 shadow-md w-full px-2">
+        <div class="container mx-auto flex items-center justify-between gap-2">
             <div class="flex items-center space-x-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9z" clip-rule="evenodd" />
