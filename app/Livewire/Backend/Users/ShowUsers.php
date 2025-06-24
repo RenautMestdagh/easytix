@@ -201,10 +201,9 @@ class ShowUsers extends Component
             throw new AccessDeniedHttpException;
         }
 
-        $originalUser = User::findOrFail(session('original_user_id'));
+        $originalUser = User::findOrFail(session()->pull('original_user_id'));
 
         auth()->login($originalUser);
-        session()->forget('original_user_id');
         session()->forget('organization_id');
 
         $this->flashMessage('Switched back to your original account.');

@@ -33,7 +33,7 @@ class SubdomainOrganizationMiddleware
             $organization = Organization::where('subdomain', $subdomain)->firstOrFail();
         } else if (session('original_user_id')) {
             // This means we are superadmin but currently logged in as user
-            $organization = auth()->user()->organization;
+            $organization = auth()->user()?->organization ?? null;
         }
 
         // Share the organization id with the request
