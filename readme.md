@@ -58,6 +58,8 @@ This project is a robust ticketing system designed to streamline event managemen
 * **Events are One Day**: Events can only be set for one specific date and time; support for multi-day events or events with multiple time slots on different days is not present.
 * **No Map Pinning for Locations**: When creating a location (venue), coordinates can be entered manually, but there is no interactive map integration to visually pin the location.
 * **Single Language, Currency, and Timezone**: The system currently supports only one language and one currency. Event publishing is tied to the server's timezone, without options for specific event timezones.
+* **No Possibility to Include Transaction Fees**: There is no functionality to include transaction fees in the ticket price or as a separate charge.
+
 
 ---
 
@@ -151,6 +153,7 @@ Follow the steps below to set up the project locally:
     * For each organization, between 2 and 20 events are created.
     * The first two events created for each organization will have predefined subdomains: `event1` and `event2`.
 
+
 6.  **Install NPM dependencies and compile assets:**
     ```bash
     npm install
@@ -175,6 +178,7 @@ Follow the steps below to set up the project locally:
 
     * **Add Aliases (for Subdomains)**:
         This project extensively uses subdomains. To make them work locally with Herd, you need to set up aliases. Go to your site's settings in Herd (click on the site name in the list). In the `Domains` tab, you can add extra domains. Wildcards are not supported, so each subdomain must be precisely configured. Add aliases here that you want to make available locally (don't forget to click the padlock again to ensure HTTPS is used).
+
 
 8.  **Database Management with DBngin:**
 

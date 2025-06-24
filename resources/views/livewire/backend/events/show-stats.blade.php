@@ -187,12 +187,17 @@
             <h2 class="text-lg font-medium text-gray-900 dark:text-white">{{ __('Attendees') }}</h2>
             <div class="flex items-center">
                 <span class="text-sm text-gray-500 dark:text-gray-400 mr-2">{{ __('Per page:') }}</span>
-                <select wire:model.live="perPage" class="rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 shadow-sm text-sm">
+                <x-ui.forms.select
+                    wire:model.live="perPage"
+                    name="perPage"
+                    error="{{ $errors->has('perPage') }}"
+                    class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
+                >
                     <option value="10">10</option>
                     <option value="15">15</option>
                     <option value="25">25</option>
                     <option value="50">50</option>
-                </select>
+                </x-ui.forms.select>
             </div>
         </div>
 
@@ -281,8 +286,15 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
-                            {{ __('No attendees found') }}
+                        <td colspan="6" class="px-6 py-4 text-center text-sm">
+                            <div class="flex flex-col items-center justify-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-gray-400">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                                <span class="text-gray-500 dark:text-gray-400">
+                                    {{ __('No attendees found') }}
+                                </span>
+                            </div>
                         </td>
                     </tr>
                 @endforelse
@@ -290,8 +302,10 @@
             </table>
         </div>
 
+        @if(!$customers->isEmpty())
         <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
             {{ $customers->links() }}
         </div>
+        @endif
     </div>
 </div>
