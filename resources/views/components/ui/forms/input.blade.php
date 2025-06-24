@@ -10,7 +10,7 @@
 @php
     $baseClasses = 'w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300';
     $errorClasses = $error ? 'border-red-500' : 'border-gray-300';
-    $disabledClasses = $disabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : '';
+    $disabledClasses = $disabled ? 'opacity-50 pointer-events-none' : '';
 @endphp
 
 <input

@@ -38,7 +38,7 @@
                     Buy Tickets
                 </a>
             @else
-                <span class="inline-flex justify-center items-center px-6 py-3 md:py-2 w-full md:w-auto bg-black dark:bg-white text-white dark:text-black text-sm font-medium rounded-lg opacity-50">
+                <span class="inline-flex justify-center items-center px-6 py-3 md:py-2 w-full md:w-auto bg-black dark:bg-white text-white dark:text-black text-sm font-medium rounded-lg opacity-50 hover:cursor-default">
                 No Tickets
             </span>
             @endif

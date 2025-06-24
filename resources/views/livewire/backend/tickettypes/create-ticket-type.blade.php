@@ -52,17 +52,12 @@
                                     />
                                 </x-ui.forms.group>
 
-                                @php
-                                    $alreadyAvailableTickets = $this->event->ticketTypes->sum('available_quantity');
-                                    $this->event->capacity - $alreadyAvailableTickets;
-                                    $placeholder = $event->capacity ? 'Remaining: ' . ($event->capacity - $alreadyAvailableTickets) : "Leave empty for unlimited";
-                                @endphp
                                 <x-ui.forms.group label="Available Quantity" for="available_quantity" error="available_quantity">
                                     <x-ui.forms.input
                                         type="number"
                                         wire:model.lazy="available_quantity"
                                         name="available_quantity"
-                                        placeholder="{{$placeholder}}"
+                                        placeholder="Unlimited"
                                         min="1"
                                         error="{{ $errors->has('available_quantity') }}"
                                         class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"

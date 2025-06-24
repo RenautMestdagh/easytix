@@ -26,7 +26,7 @@
     ];
 
     // Disabled classes
-    $disabledClasses = 'opacity-50 cursor-not-allowed';
+    $disabledClasses = 'opacity-50';
 
     // Combine classes
     $classes = $baseClasses . ' ' . ($sizeClasses[$size] ?? $sizeClasses['md']) . ' ' . ($variantClasses[$variant] ?? $variantClasses['danger']);

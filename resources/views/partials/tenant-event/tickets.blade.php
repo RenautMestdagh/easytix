@@ -30,7 +30,7 @@
 
                         <div class="flex items-center justify-between w-full sm:w-auto mt-2 sm:mt-0">
                             <p class="text-gray-600 dark:text-gray-400 sm:mr-6 md:mr-12 lg:mr-24">€{{ number_format($ticketType->price_cents / 100, 2) }}</p>
-                            @if(!$remainingQuantities[$ticketType->id]->soldout)
+                            @if(!$remainingQuantities[$ticketType->id]->soldout || $quantities[$ticketType->id]->amount)
                                 <div class="flex items-center">
                                     <button
                                         wire:click="decrement({{ $ticketType->id }})"
@@ -74,7 +74,7 @@
                                     </button>
                                 </div>
                             @else
-                                <div class="flex items-center">
+                                <div class="flex items-center hover:cursor-default">
                                     <span class="bg-gray-100 px-4 py-2 text-gray-800 tabular-nums rounded-sm opacity-60">
                                         SOLD OUT
                                     </span>
@@ -107,8 +107,9 @@
     @if($event->ticketTypes->isNotEmpty())
         <!-- Checkout -->
         <button
-            class="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 transition-colors duration-300 ease-in-out rounded-lg shadow-lg overflow-hidden mb-8 w-full"
+            class="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 transition-colors duration-300 ease-in-out rounded-lg shadow-lg overflow-hidden mb-8 w-full disabled:opacity-50 disabled:hover:bg-blue-500"
             wire:click="proceedToCheckout"
+            @disabled(array_filter($remainingQuantities, fn($t) => !empty($t->soldout)))
         >
             <div class="p-4 flex gap-3 justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">

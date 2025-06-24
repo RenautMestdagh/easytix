@@ -72,7 +72,7 @@ class EventTicketsSelector extends Component
 
     protected function determineAvailability($ticketType, $reserved, $sold)
     {
-        $soldTickets = $this->event->sold_tickets_count;
+        $soldTickets = $this->event->tickets_count;
         $reservedTickets = $this->event->reserved_tickets_count;
         $ticketTypeMaxQuantity = $ticketType->available_quantity;
 
@@ -107,25 +107,14 @@ class EventTicketsSelector extends Component
                 $availability['plusDisabledFrom'] = $ticketTypeMaxQuantity - $sold;
             }
 
-            $availability['soldout'] = $availability['soldout'] || ($sold >= $ticketTypeMaxQuantity);
+            $availability['soldout'] |= ($sold >= $ticketTypeMaxQuantity);
         }
 
-        if($availability['soldout'] && $this->quantities[$ticketType->id]->amount) {
-            $this->handleSoldOutTicketType($ticketType);
-        }
+        if($this->event->tickets_count >= $this->event->capacity && !$this->quantities[$ticketType->id]->amount)
+            $availability['soldout'] = true;
 
         return (object) $availability;
 
-    }
-
-    protected function handleSoldOutTicketType($ticketType)
-    {
-        $this->quantities[$ticketType->id]->amount = 0;
-        $this->tempOrder->tickets
-            ->where('ticket_type_id', $ticketType->id)
-            ->each(function($ticket) {
-                $ticket->delete();
-            });
     }
 
     public function increment($ticketTypeId)

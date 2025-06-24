@@ -24,7 +24,7 @@
     $colorClasses = 'text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 hover:bg-gray-100 dark:hover:bg-gray-700';
 
     // Disabled classes
-    $disabledClasses = 'opacity-50 cursor-not-allowed';
+    $disabledClasses = 'opacity-50';
 
     // Icon size classes
     $iconSizeClasses = [

@@ -54,7 +54,7 @@
             @role('superadmin')
             <x-ui.forms.select
                 wire:model.live="selectedOrganization"
-                class="{{ $selectedRole === 'superadmin' ? 'opacity-50 cursor-not-allowed' : '' }}"
+                class="{{ $selectedRole === 'superadmin' ? 'opacity-50' : '' }}"
                 :disabled="$selectedRole === 'superadmin'"
             >
                 <option value="">No organization selected</option>
