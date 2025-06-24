@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="resources/images/noBgColor.png" alt="Easytix Logo" width="200"/>
+</p>
+
 # Easytix - ticketing service voor evenementen
 
 Dit project is een robuust ticketing systeem, ontworpen om evenementbeheer, ticketverkoop, betalingsverwerking en bezoekersanalyse te stroomlijnen. Het systeem biedt organisatoren een eigen dashboard voor efficiënt beheer van hun evenementen en de mogelijkheid om evenementen onder hun eigen (sub)domein te hosten.
