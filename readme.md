@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="resources/images/noBgColor.png" alt="Easytix Logo" width="200"/>
+</p>
+
 # Easytix - Event Ticketing Service
 
 This project is a robust ticketing system designed to streamline event management, ticket sales, payment processing, and visitor analytics. The system provides organizers with a dedicated dashboard for efficient management of their events and the ability to host events under their own (sub)domain.
