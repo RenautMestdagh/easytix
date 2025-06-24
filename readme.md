@@ -145,7 +145,7 @@ Follow the steps below to set up the project locally:
 
     **Events:**
     * For each organization, between 2 and 20 events are created.
-    * The first two events created for each organization will have predefined subdomains: "event1" and "event2".
+    * The first two events created for each organization will have predefined subdomains: `event1` and `event2`.
 
 6.  **Install NPM dependencies and compile assets:**
     ```bash
