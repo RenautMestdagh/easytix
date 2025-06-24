@@ -220,7 +220,3 @@ Volg de onderstaande stappen om het project lokaal in te stellen:
 ## Live Demo
 
 Een live versie van dit project is beschikbaar op: [https://easytix.duckdns.org/](https://easytix.duckdns.org/)
-
-## Licentie
-
-[Voeg hier de licentie-informatie toe, bijv. MIT License]
