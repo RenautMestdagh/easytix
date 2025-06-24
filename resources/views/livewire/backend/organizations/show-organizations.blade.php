@@ -157,15 +157,6 @@
                                                         />
                                                     @endcan
                                                 @else
-                                                    @can('organizations.update')
-                                                        <!-- Edit Button -->
-                                                        <x-ui.edit-button
-                                                            route="organizations.update"
-                                                            :routeParams="['organization' => $organization->id]"
-                                                            title="{{ __('Edit') }}"
-                                                        />
-                                                    @endcan
-
                                                     @can('organizations.delete')
                                                         <!-- Soft Delete Button -->
                                                         <x-ui.delete-button

@@ -4,8 +4,8 @@ namespace App\Livewire\Backend\Users;
 
 use App\Models\Organization;
 use App\Models\User;
-use App\Traits\DeleteUser;
 use App\Traits\FlashMessage;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Spatie\Permission\Models\Role;
@@ -13,7 +13,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class ShowUsers extends Component
 {
-    use WithPagination, DeleteUser, FlashMessage;
+    use WithPagination, FlashMessage;
 
     public $includeDeleted = false; // Flag to include soft-deleted organizations
     public $search = '';
@@ -118,6 +118,48 @@ class ShowUsers extends Component
             ->havingRaw('COUNT(*) = 1')
             ->pluck('organization_id')
             ->toArray();
+    }
+
+    public function deleteUser($id)
+    {
+        $this->authorize('users.delete');
+
+        if (auth()->id() === (int) $id) {
+            $this->flashMessage('You cannot delete your own account.', 'error');
+            return;
+        }
+
+        try{
+            User::findOrFail($id)->delete();
+            $this->flashMessage('User deleted successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error deleting User: ' . $e->getMessage());
+            $this->flashMessage('Error while deleting User.', 'error');
+        }
+    }
+
+    public function forceDeleteUser($id)
+    {
+        $this->authorize('users.delete');
+        try {
+            User::withTrashed()->findOrFail($id)->forceDelete();
+            $this->flashMessage('User permanently deleted.');
+        } catch (\Exception $e) {
+            Log::error('Error permanently deleting user: ' . $e->getMessage());
+            $this->flashMessage('Error while permanently deleting user.', 'error');
+        }
+    }
+
+    public function restoreUser($id)
+    {
+        $this->authorize('users.delete');
+        try{
+            User::withTrashed()->findOrFail($id)->restore();
+            $this->flashMessage('User restored successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error restoring user: ' . $e->getMessage());
+            $this->flashMessage('Error restoring user.', 'error');
+        }
     }
 
     public function render()

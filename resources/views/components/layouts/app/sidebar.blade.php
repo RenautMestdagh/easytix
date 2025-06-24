@@ -79,7 +79,7 @@
             <flux:navlist.item
                 icon="briefcase"
                 :href="route('organizations.index')"
-                :current="request()->routeIs(['organizations.index', 'organizations.create', 'organizations.update'])"
+                :current="request()->routeIs('organizations.*')"
                 wire:navigate
             >
                 {{ __('Organizations') }}
@@ -91,7 +91,7 @@
             @can('organizations.media')
             <flux:navlist.item
                 icon="paint-brush"
-                :href="route('organizations.media', $organization)"
+                :href="route('organizations.media')"
                 :current="request()->routeIs('organizations.media')"
                 wire:navigate
             >
@@ -103,7 +103,7 @@
             @can('organizations.update')
             <flux:navlist.item
                 icon="cog-6-tooth"
-                :href="route('organizations.update', $organization)"
+                :href="route('organizations.update')"
                 :current="request()->routeIs('organizations.update')"
                 wire:navigate
             >

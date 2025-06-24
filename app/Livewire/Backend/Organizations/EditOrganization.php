@@ -4,7 +4,6 @@ namespace App\Livewire\Backend\Organizations;
 
 use App\Http\Requests\Organization\UpdateOrganizationRequest;
 use App\Models\Organization;
-use App\Traits\DeleteUser;
 use App\Traits\FlashMessage;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
@@ -12,31 +11,20 @@ use Livewire\WithPagination;
 
 class EditOrganization extends Component
 {
-    use WithPagination, DeleteUser, FlashMessage;
+    use WithPagination, FlashMessage;
 
     public Organization $organization;
     public $organizationName = '';
     public $organizationSubdomain = '';
 
-    public $adminCount;
     public $saveButtonVisible = false;
 
-    // For users table
-    public $includeDeletedUsers = false;
-    public $userSearch = '';
-    public $userRole = '';
-    public $userSortField = 'name';
-    public $userSortDirection = 'asc';
-    public $perPage = 10;
-
-    public function mount(Organization $organization)
+    public function mount()
     {
-        $this->organization = $organization;
+        $this->organization = Organization::findOrFail(session('organization_id'));
 
-        $this->organizationName = $organization->name;
-        $this->organizationSubdomain = $organization->subdomain;
-
-        $this->adminCount = $this->organization->admins()->count();
+        $this->organizationName = $this->organization->name;
+        $this->organizationSubdomain = $this->organization->subdomain;
     }
 
     public function updated($propertyName): void
@@ -88,7 +76,7 @@ class EditOrganization extends Component
             $newHost = $newSubdomain . '.' . $domain;
 
             // Build relative path to edit page
-            $path = route('organizations.update', $this->organization->id, false);
+            $path = route('organizations.update', false);
 
             // Full new URL with port if present
             $newUrl = $scheme . '://' . $newHost . $port . $path;
@@ -97,55 +85,9 @@ class EditOrganization extends Component
         }
     }
 
-    public function sortUsersBy($field)
-    {
-        $this->resetPage();
-        if ($this->userSortField === $field) {
-            $this->userSortDirection = $this->userSortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            $this->userSortField = $field;
-            $this->userSortDirection = 'asc';
-        }
-    }
-
-    public function getUsersProperty()
-    {
-        return $this->organization->users()
-            ->with('roles')
-            ->when($this->userSearch, function ($query) {
-                $query->where(function ($q) {
-                    $q->where('name', 'like', '%' . $this->userSearch . '%')
-                        ->orWhere('email', 'like', '%' . $this->userSearch . '%');
-                });
-            })
-            ->when($this->userRole && $this->userRole !== 'all', function ($query) {
-                $query->whereHas('roles', function ($q) {
-                    $q->where('name', $this->userRole);
-                });
-            })
-            ->when($this->includeDeletedUsers, function ($query) {
-                $query->withTrashed();
-            })
-            ->orderBy($this->userSortField, $this->userSortDirection)
-            ->paginate($this->perPage);
-    }
-
-    public function updatedUserSearch()
-    {
-        $this->resetPage();
-    }
-
-    public function updatedUserRole()
-    {
-        $this->resetPage();
-    }
-
 
     public function render()
     {
-        return view('livewire.backend.organizations.edit-organization', [
-            'users' => $this->users,
-            'adminCount' => $this->adminCount,
-        ]);
+        return view('livewire.backend.organizations.edit-organization');
     }
 }

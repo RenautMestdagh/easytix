@@ -17,7 +17,7 @@ class RoleSeeder extends Seeder
             'organizer' => [],
         ],
         'organizations' => [
-            'superadmin' => ['index', 'create', 'update', 'delete'],
+            'superadmin' => ['index', 'create', 'delete'],
             'admin' => ['update', 'media'],
             'organizer' => [],
         ],

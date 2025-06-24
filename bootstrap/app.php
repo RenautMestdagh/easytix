@@ -26,7 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Handle 404 - Not Found
         $exceptions->render(function (NotFoundHttpException $e, $request) {
             if (!app()->environment('production')) {
-                throw $e;
+                return;
             }
 
             logger()->error("404 - Not Found: " . $e->getMessage(), [
@@ -53,7 +53,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Handle 403 - Unauthorized (Forbidden)
         $exceptions->render(function (AccessDeniedHttpException $e, $request) {
             if (!app()->environment('production')) {
-                throw $e;
+                return;
             }
 
             logger()->error("Unauthorized request: " . $e->getMessage(), [
@@ -72,7 +72,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $exceptions->render(function (Throwable $e, $request) {
             if (!app()->environment('production')) {
-                throw $e;
+                return;
             }
 
             logger()->error("Unhandled exception: " . $e->getMessage(), [

@@ -80,8 +80,9 @@ Route::middleware(['auth', 'verified', CheckPermissionMiddleware::class])->group
 
     Route::get('/organizations', ShowOrganizations::class)->name('organizations.index');
     Route::get('/organizations/create', CreateOrganization::class)->name('organizations.create');
-    Route::get('/organizations/{organization}/edit', EditOrganization::class)->name('organizations.update');
-    Route::get('/organizations/{organization}/media', UploadMedia::class)->name('organizations.media');
+    Route::get('/organization/edit', EditOrganization::class)->name('organizations.update');
+
+    Route::get('/organization/media', UploadMedia::class)->name('organizations.media');
 
     Route::get('/users', ShowUsers::class)->name('users.index');
     Route::get('/users/create', CreateUser::class)->name('users.create');

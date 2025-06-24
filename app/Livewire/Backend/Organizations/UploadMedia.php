@@ -24,9 +24,9 @@ class UploadMedia extends Component
     public $logoInput;
     public $backgroundInput;
 
-    public function mount(Organization $organization)
+    public function mount()
     {
-        $this->organization = $organization;
+        $this->organization = Organization::findOrFail(session('organization_id'));
     }
 
     public function uploadMedia()

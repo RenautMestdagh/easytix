@@ -89,7 +89,7 @@
                             </div>
                             @if($adminCount <= 1 && $user->hasRole('admin'))
                                 <div class="mb-4 text-sm text-yellow-600 dark:text-yellow-400">
-                                    {{ __('Cannot change role or organization. This is the last admin in the organization.') }}
+                                    {{ __('Cannot change role' . (is_null($organization) ? ' or organization' : '') . '. This is the last admin in the organization.') }}
                                 </div>
                             @elseif($role === 'superadmin')
                                 <div class="mb-4 text-sm text-blue-600 dark:text-blue-400">
