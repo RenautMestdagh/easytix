@@ -65,21 +65,15 @@ class EditOrganization extends Component
         $oldSubdomain = $this->organization->subdomain;
         $newSubdomain = $validated['organizationSubdomain'];
         if ($oldSubdomain !== $newSubdomain && session('organization_id')) {
-            $baseUrl = config('app.url');
-            $hostParts = parse_url($baseUrl);
-
-            $scheme = $hostParts['scheme'] ?? 'http';
-            $domain = $hostParts['host'] ?? 'localhost';
-            $port = isset($hostParts['port']) ? ':' . $hostParts['port'] : '';
 
             // Construct new host: newsub.localeasytix.org
-            $newHost = $newSubdomain . '.' . $domain;
+            $newHost = $newSubdomain . '.' . config('app.domain');
 
             // Build relative path to edit page
             $path = route('organizations.update', false);
 
             // Full new URL with port if present
-            $newUrl = $scheme . '://' . $newHost . $port . $path;
+            $newUrl = request()->getScheme()  . '://' . $newHost . $path;
 
             redirect()->away($newUrl);
         }
