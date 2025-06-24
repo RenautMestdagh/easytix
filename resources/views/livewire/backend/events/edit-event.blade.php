@@ -21,6 +21,10 @@
             <x-ui.flash-message/>
         @endif
 
+        @error('event_image_validation')
+            @dd("{$message}")
+        @enderror
+
         <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm rounded-xl transition-colors duration-300 ease-in-out hover:border-indigo-800">
             <div class="p-8">
                 <form wire:submit.prevent="update">
@@ -169,13 +173,21 @@
                                     </label>
                                     <livewire:improved-dropzone
                                         wire:model="event_imageInput"
-                                        :rules="(new \App\Http\Requests\Event\EventRequest())->rules()['event_image']"
+                                        :rules="(new \App\Http\Requests\Event\EventRequest())->rules()['event_image_validation']"
                                         :messages="(new \App\Http\Requests\Event\EventRequest())->messages()"
                                         :multiple="false"
                                         key="event_image"
                                         accentColor="#138eff"
-                                        :files="$event_imageInput"
+                                        dbField="event_image"
                                     />
+                                    @if(!empty($current_images['event_image']) && empty($event_imageInput))
+                                        <x-ui.uploaded-file
+                                            :file="$current_images['event_image']"
+                                            :dbField="$current_images['event_image']['dbField'] ?? null"
+                                            :tmpFilename="$current_images['event_image']['tmpFilename'] ?? null"
+                                            class="current_event_image"
+                                        />
+                                    @endif
                                 </div>
 
                                 <!-- Header Image Upload -->
@@ -185,13 +197,21 @@
                                     </label>
                                     <livewire:improved-dropzone
                                         wire:model="header_imageInput"
-                                        :rules="(new \App\Http\Requests\Event\EventRequest())->rules()['header_image']"
+                                        :rules="(new \App\Http\Requests\Event\EventRequest())->rules()['header_image_validation']"
                                         :messages="(new \App\Http\Requests\Event\EventRequest())->messages()"
                                         :multiple="false"
                                         key="header_image"
                                         accentColor="#737cff"
-                                        :files="$header_imageInput"
+                                        dbField="header_image"
                                     />
+                                    @if(!empty($current_images['header_image']) && empty($header_imageInput))
+                                        <x-ui.uploaded-file
+                                            :file="$current_images['header_image']"
+                                            :dbField="$current_images['header_image']['dbField'] ?? null"
+                                            :tmpFilename="$current_images['header_image']['tmpFilename'] ?? null"
+                                            class="current_header_image"
+                                        />
+                                    @endif
                                 </div>
 
                                 <!-- Background Image Upload -->
@@ -201,13 +221,21 @@
                                     </label>
                                     <livewire:improved-dropzone
                                         wire:model="background_imageInput"
-                                        :rules="(new \App\Http\Requests\Event\EventRequest())->rules()['background_image']"
+                                        :rules="(new \App\Http\Requests\Event\EventRequest())->rules()['background_image_validation']"
                                         :messages="(new \App\Http\Requests\Event\EventRequest())->messages()"
                                         :multiple="false"
                                         key="background_image"
                                         accentColor="#ce6cff"
-                                        :files="$background_imageInput"
+                                        dbField="background_image"
                                     />
+                                    @if(!empty($current_images['background_image']) && empty($background_imageInput))
+                                        <x-ui.uploaded-file
+                                            :file="$current_images['background_image']"
+                                            :dbField="$current_images['background_image']['dbField'] ?? null"
+                                            :tmpFilename="$current_images['background_image']['tmpFilename'] ?? null"
+                                            class="current_background_image"
+                                        />
+                                    @endif
                                 </div>
                             </div>
                         </div>

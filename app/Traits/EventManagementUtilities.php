@@ -3,9 +3,7 @@
 namespace App\Traits;
 
 use App\Models\Venue;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 trait EventManagementUtilities
 {
@@ -32,39 +30,30 @@ trait EventManagementUtilities
         $this->venue_id = $venueId;
     }
 
-    protected function saveMedia($mediaType, $eventId)
+    protected function saveMedia($uploadedFile, $eventId)
     {
-        $storedPath = Storage::disk('public')->putFile(
-            "events/{$eventId}",
-            $this->$mediaType
-        );
+        $destinationDirectory = "events/{$eventId}";
+        $destinationPath = Storage::disk('public')->path($destinationDirectory);
+        if (!file_exists($destinationPath))
+            Storage::disk('public')->makeDirectory($destinationDirectory);
 
-        return Str::afterLast($storedPath, '/');
-    }
+        $destinationFile = "events/{$eventId}/{$uploadedFile['name']}";
+        $counter = 1;
 
-    /**
-     * Remove an image from storage and update the event
-     */
-    public function removeUpload($event, string $fieldName, ?string $successMessage = null)
-    {
-        try {
-            // Delete the file from storage if it exists
-            if ($event->{$fieldName})
-                Storage::disk('public')->delete("events/{$event->id}/{$event->{$fieldName}}");
-
-            if ($successMessage)
-                $this->flashMessage($successMessage);
-            return true;
-        } catch (\Exception $e) {
-            Log::error('Error deleting image: ' . $e->getMessage());
-            $this->flashMessage('Error while deleting image.', 'error');
-            return false;
+        // Check if file exists and add suffix if needed
+        $pathInfo = pathinfo($uploadedFile['name']);
+        while (Storage::disk('public')->exists($destinationFile)) {
+            $uploadedFile['name'] = "{$pathInfo['filename']}_$counter.{$pathInfo['extension']}";
+            $destinationFile = "events/{$eventId}/{$uploadedFile['name']}";
+            $counter++;
         }
-    }
 
-    public function handleFileRemoval($dbField)
-    {
-        $inputVar = $dbField . 'Input';
-        $this->$inputVar = [];
+        $succeeded = rename(
+            $uploadedFile['path'],
+            Storage::disk('public')->path($destinationFile)
+        );
+        if($succeeded)
+            return $uploadedFile['name'];
+        return null;
     }
 }

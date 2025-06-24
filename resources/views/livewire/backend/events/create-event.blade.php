@@ -166,7 +166,7 @@
                                     </label>
                                     <livewire:improved-dropzone
                                         wire:model="event_imageInput"
-                                        :rules="(new \App\Http\Requests\Event\EventRequest())->rules()['event_image']"
+                                        :rules="(new \App\Http\Requests\Event\EventRequest())->rules()['event_image_validation']"
                                         :messages="(new \App\Http\Requests\Event\EventRequest())->messages()"
                                         :multiple="false"
                                         key="event_image"
@@ -181,7 +181,7 @@
                                     </label>
                                     <livewire:improved-dropzone
                                         wire:model="header_imageInput"
-                                        :rules="(new \App\Http\Requests\Event\EventRequest())->rules()['header_image']"
+                                        :rules="(new \App\Http\Requests\Event\EventRequest())->rules()['header_image_validation']"
                                         :messages="(new \App\Http\Requests\Event\EventRequest())->messages()"
                                         :multiple="false"
                                         key="header_image"
@@ -196,7 +196,7 @@
                                     </label>
                                     <livewire:improved-dropzone
                                         wire:model="background_imageInput"
-                                        :rules="(new \App\Http\Requests\Event\EventRequest())->rules()['background_image']"
+                                        :rules="(new \App\Http\Requests\Event\EventRequest())->rules()['background_image_validation']"
                                         :messages="(new \App\Http\Requests\Event\EventRequest())->messages()"
                                         :multiple="false"
                                         key="background_image"

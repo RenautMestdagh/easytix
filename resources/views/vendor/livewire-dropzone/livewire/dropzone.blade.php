@@ -4,6 +4,7 @@
         _this: @this,
         uuid: @js($uuid),
         multiple: @js($multiple),
+        dbField: @js($dbField),
     })"
     @dragenter.prevent="onDragenter($event)"
     @dragleave.prevent="onDragleave($event)"
@@ -87,43 +88,13 @@
         </div>
 
         @if(isset($files) && count($files) > 0)
-        <div class="flex flex-wrap gap-x-10 gap-y-2 justify-start w-full mt-2">
+        <div class="flex flex-wrap gap-x-10 gap-y-2 justify-start w-full">
             @foreach($files as $file)
-                <div class="flex items-center gap-4 border border-gray-200 dark:border-gray-700 rounded-md p-1">
-                    @if($this->isImageMime($file['extension']))
-                    <div class="flex-shrink-0">
-                        <img
-                            class="h-12 w-12 rounded-md object-cover"
-                            src="{{ $file['temporaryUrl'] }}"
-                            @if(array_key_exists('name', $file))
-                                alt="{{ $file['name'] }}"
-                            @endif
-                        >
-                    </div>
-                    @else
-                    <div class="flex justify-center items-center w-14 h-14 bg-gray-100 dark:bg-gray-700 rounded">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="w-8 h-8 text-gray-500">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-                        </svg>
-                    </div>
-                    @endif
-                    <div class="flex-1 min-w-0">
-                        @if(array_key_exists('name', $file))
-                            <p class="text-sm font-medium text-gray-900 dark:text-gray-200 truncate">
-                                {{ $file['name'] }}
-                            </p>
-                        @endif
-                        @if(array_key_exists('size', $file))
-                            <p class="text-xs text-gray-500 dark:text-gray-400">
-                                {{ \Illuminate\Support\Number::fileSize($file['size']) }}
-                            </p>
-                        @endif
-                    </div>
-                    <x-ui.cross-button
-                        wire:click="removeFile('{{$file['dbField'] ?? null}}')"
-                        @click="removeUpload('{{ $file['tmpFilename'] }}')"
-                    />
-                </div>
+                <x-ui.uploaded-file
+                    :file="$file"
+                    :dbField="$file['dbField'] ?? null"
+                    :tmpFilename="$file['tmpFilename'] ?? null"
+                />
             @endforeach
         </div>
         @endif
@@ -131,7 +102,7 @@
 
     @script
     <script>
-        Alpine.data('dropzone', ({ _this, uuid, multiple }) => {
+        Alpine.data('dropzone', ({ _this, uuid, multiple, dbField }) => {
             return ({
                 isDragging: false,
                 isDropped: false,
@@ -146,6 +117,11 @@
                     const args = ['upload', file, () => {
                         // Upload completed
                         this.isLoading = false
+
+                        // find elements in the dom with class 'current_' + dbField and hide them
+                        document.querySelectorAll('.current_' + dbField).forEach(element => {
+                            element.classList.add('hidden')
+                        })
                     }, (error) => {
                         // An error occurred while uploading
                         console.log('livewire-dropzone upload error', error);
@@ -173,7 +149,8 @@
                 },
                 removeUpload(tmpFilename) {
                     // Dispatch an event to remove the temporarily uploaded file
-                    _this.dispatch(uuid + ':fileRemoved', { tmpFilename })
+                    if(tmpFilename)
+                        _this.dispatch(uuid + ':fileRemoved', { tmpFilename })
                 },
             });
         })

@@ -12,11 +12,13 @@ class ImprovedDropzone extends BaseDropzone
     #[Locked]
     public array $messages;
     public string $accentColor = '#138eff';
-    public function mount(array $rules = [], bool $multiple = false, array $files = [], array $messages = [], string $accentColor = '#138eff'): void
+    public string $dbField;
+    public function mount(array $rules = [], bool $multiple = false, array $files = [], array $messages = [], string $accentColor = '#138eff', string $dbField = ''): void
     {
         parent::mount($rules, $multiple, $files);
         $this->messages = $messages;
         $this->accentColor = $accentColor;
+        $this->dbField = $dbField;
     }
 
     #[Computed]
@@ -42,9 +44,9 @@ class ImprovedDropzone extends BaseDropzone
             ->join(' × ');
     }
 
-    public function removeFile($dbField)
+
+    // just empty function so no error gets thrown
+    public function markFileRemoved($dbField)
     {
-        // Handle the file removal logic here
-        $this->dispatch('fileRemoved', $dbField);
     }
 }

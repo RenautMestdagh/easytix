@@ -13,6 +13,7 @@ use Illuminate\Http\File;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use League\Flysystem\UnableToMoveFile;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -31,12 +32,12 @@ class CreateEvent extends Component
     public $date = '';
     public $max_capacity = null;
 
-    public $event_image;
-    public $header_image;
-    public $background_image;
     public $event_imageInput;
     public $header_imageInput;
     public $background_imageInput;
+    public $event_image_validation;
+    public $header_image_validation;
+    public $background_image_validation;
 
     public $is_published = false;
     public $publish_at = null;
@@ -51,11 +52,6 @@ class CreateEvent extends Component
 
     public function updated($propertyName): void
     {
-        // Only check images on submit. They are already checked by dropzone
-        if (str_ends_with($propertyName, 'Input')) {
-            return;
-        }
-
         if($propertyName === 'publish_option') {
             $this->resetErrorBag('publish_at');
             if($this->publish_option !== 'schedule')
@@ -67,6 +63,20 @@ class CreateEvent extends Component
             $this->date,
         ))->rules();
         $fieldMessages = (new StoreEventRequest())->messages();
+
+        if($propertyName === 'event_imageInput' || $propertyName === 'header_imageInput' || $propertyName === 'background_imageInput') {
+            $validationField = str_replace('Input', '_validation', $propertyName);
+            $this->{$validationField} = new File($this->{$propertyName}[0]['path']);
+
+            try {
+                $this->validateOnly($validationField, $fieldRules, $fieldMessages);
+            } catch (Exception $e) {
+                $this->$propertyName = null;
+                $this->setErrorBag([$validationField => $e->validator->getMessageBag()->toArray()[$validationField][0]]);
+            }
+            $this->{$validationField} = null;
+            return;
+        }
 
         if (!array_key_exists($propertyName, $fieldRules)) {
             return; // skip validation if no rule is defined
@@ -80,9 +90,12 @@ class CreateEvent extends Component
         if($this->publish_option !== 'schedule')
             $this->publish_at = null;
 
-        $this->event_image = $this->event_imageInput ? new File($this->event_imageInput[0]['path']) : null;
-        $this->header_image = $this->header_imageInput ? new File($this->header_imageInput[0]['path']) : null;
-        $this->background_image = $this->background_imageInput ? new File($this->background_imageInput[0]['path']) : null;
+        $this->event_imageInput = $this->event_imageInput[0] ?? null;
+        $this->header_imageInput = $this->header_imageInput[0] ?? null;
+        $this->background_imageInput = $this->background_imageInput[0] ?? null;
+        $this->event_image_validation = $this->event_imageInput ? new File($this->event_imageInput['path']) : null;
+        $this->header_image_validation = $this->header_imageInput ? new File($this->header_imageInput['path']) : null;
+        $this->background_image_validation = $this->background_imageInput ? new File($this->background_imageInput['path']) : null;
 
         // Validate all fields
         $validatedData = $this->validate(
@@ -92,6 +105,11 @@ class CreateEvent extends Component
             ))->rules(),
             (new StoreEventRequest())->messages(),
         );
+
+        // Necessary because Laravel throws error otherwise. "Property type not supported in Livewire for property: [{}]"
+        $this->event_image_validation = null;
+        $this->header_image_validation = null;
+        $this->background_image_validation = null;
 
         $publishStatus = $this->determinePublishStatus();
         try {
@@ -115,13 +133,13 @@ class CreateEvent extends Component
                 foreach (['event_image', 'header_image', 'background_image'] as $mediaType) {
                     $inputField = $mediaType . 'Input';
 
-                    if ($this->$inputField) {
-                        $event->$mediaType = $this->saveMedia($mediaType, $event->id);
-                        $this->$inputField = null;
-                        $this->$mediaType = null;
+                    if($this->{$inputField}) {
+                        $fileName = $this->saveMedia($this->{$inputField}, $event->id);
+                        if(!$fileName)
+                            throw new UnableToMoveFile('Unable to save uploaded file.');
+                        $event->{$mediaType} = $fileName;
                     }
                 }
-                $event->save();
             } catch (Exception $e) {
                 Log::error('An error occurred while uploading images: ' . $e->getMessage());
                 $this->flashMessage('Error while uploading images.', 'error');
@@ -132,8 +150,12 @@ class CreateEvent extends Component
                 Storage::disk('public')->deleteDirectory("events/$event->id");
             }
 
+            $event->save();
             redirect()->route('ticket-types.index', $event);
         } catch (Exception $e) {
+            $this->event_imageInput = [$this->event_imageInput];
+            $this->header_imageInput = [$this->header_imageInput];
+            $this->background_imageInput = [$this->background_imageInput];
             Log::error('An error occurred while creating the event: ' . $e->getMessage());
             $this->flashMessage('Error while creating event.', 'error');
         }
