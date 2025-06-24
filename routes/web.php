@@ -36,7 +36,7 @@ use Livewire\Volt\Volt;
 
 
 // Subdomain Routes
-Route::domain('{subdomain}.'.config('app.domain'))->group(function () {
+Route::domain('{subdomain}.' . config('app.domain'))->group(function () {
     // Public routes for subdomain
     Route::get('/', [OrganizationController::class, 'show'])->name('organization.home');
 
@@ -50,7 +50,7 @@ Route::domain('{subdomain}.'.config('app.domain'))->group(function () {
 });
 
 
-Route::domain('{eventsubdomain}.{subdomain}.'.config('app.domain'))->middleware([SubdomainEventMiddleware::class,])->group(function () {
+Route::domain('{eventsubdomain}.{subdomain}.' . config('app.domain'))->middleware([SubdomainEventMiddleware::class,])->group(function () {
     Route::get('/', EventTicketsSelector::class)->name('event.subdomain.tickets');
     Route::get('/checkout', EventCheckout::class)->name('event.subdomain.checkout');
     Route::get('/payment', EventPayment::class)->name('event.subdomain.payment');

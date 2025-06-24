@@ -16,8 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->append(ForceHttps::class);
-        $middleware->append(SubdomainOrganizationMiddleware::class);
+        $middleware->web(append: [
+            ForceHttps::class,
+            SubdomainOrganizationMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
 

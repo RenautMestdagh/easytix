@@ -103,7 +103,7 @@
             @can('organizations.update')
             <flux:navlist.item
                 icon="cog-6-tooth"
-                :href="route('organizations.update', $organization->id)"
+                :href="route('organizations.update', $organization)"
                 :current="request()->routeIs('organizations.update')"
                 wire:navigate
             >

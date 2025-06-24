@@ -19,15 +19,16 @@ class SubdomainOrganizationMiddleware
         // eg. null or kompass
         $subdomain = $request->route('subdomain');
         // eg. easytix.test
-        $mainDomain = config('app.domain');
+        $rootdomain = config('app.domain');
         if(!$subdomain) {
             // eg. easytix.test or test456.easytix.test
             $host = $request->getHost();
             // try to replace '.easytix.test' with ''. $subdomain becomes easytix.test or test456
-            $subdomain = str_replace('.' . $mainDomain, '', $host);
+            $subdomain = str_replace('.' . $rootdomain, '', $host);
         }
 
-        if ($subdomain !== $mainDomain) {
+        $organization = null;
+        if ($subdomain !== $rootdomain) {
             // Find the organization by subdomain
             $organization = Organization::where('subdomain', $subdomain)->firstOrFail();
         } else if (session('original_user_id')) {
