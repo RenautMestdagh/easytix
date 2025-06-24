@@ -45,19 +45,19 @@ class TicketTypeRequest extends FormRequest
                 'integer',
                 'min:1',
                 'max:4294967295',
-                function ($attribute, $value, $fail) {
-                    if($this->event->capacity === null)
-                        return;
-
-                    $ticketTypes = $this->event->ticketTypes;
-                    if ($this->currentTicketType !== null)
-                        $ticketTypes = $ticketTypes->where('id', '!=', $this->currentTicketType->id);
-                    $alreadyAvailableTickets = $ticketTypes->sum('available_quantity');
-
-                    if ($value > $this->event->capacity - $alreadyAvailableTickets) {
-                        $fail(__('The available quantity must not exceed the event capacity.'));
-                    }
-                },
+//                function ($attribute, $value, $fail) {
+//                    if($this->event->capacity === null)
+//                        return;
+//
+//                    $ticketTypes = $this->event->ticketTypes;
+//                    if ($this->currentTicketType !== null)
+//                        $ticketTypes = $ticketTypes->where('id', '!=', $this->currentTicketType->id);
+//                    $alreadyAvailableTickets = $ticketTypes->sum('available_quantity');
+//
+//                    if ($value > $this->event->capacity - $alreadyAvailableTickets) {
+//                        $fail(__('The available quantity must not exceed the event capacity.'));
+//                    }
+//                },
             ],
             'publish_option' => 'required|in:publish_now,schedule,draft,with_event',
             'publish_at' => [

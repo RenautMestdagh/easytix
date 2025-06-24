@@ -28,12 +28,12 @@ class UpdateEventRequest extends EventRequest
             }
         };
 
-        $parentRules['max_capacity'][] = function ($attribute, $value, $fail) {
-            $publishedTickets = $this->event->ticketTypes->sum('available_quantity');
-            if ($value !== null && $value < $publishedTickets) {
-                $fail(__("The maximum capacity must be greater than or equal to the number of published tickets ($publishedTickets)."));
-            }
-        };
+//        $parentRules['max_capacity'][] = function ($attribute, $value, $fail) {
+//            $publishedTickets = $this->event->ticketTypes->sum('available_quantity');
+//            if ($value !== null && $value < $publishedTickets) {
+//                $fail(__("The maximum capacity must be greater than or equal to the number of published tickets ($publishedTickets)."));
+//            }
+//        };
 
         return $parentRules;
     }

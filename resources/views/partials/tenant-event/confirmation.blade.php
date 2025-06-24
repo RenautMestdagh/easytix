@@ -24,6 +24,24 @@
                 </a>
             </div>
 
+        @elseif($this->redirect_status === 'free')
+            {{-- Success State but free--}}
+            <div class="text-center">
+                <div class="flex justify-center mb-4">
+                    <svg class="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">Order Successful!</h2>
+                <p class="text-gray-600 dark:text-gray-400 mb-6">Your order has been processed successfully. You will receive a confirmation email shortly.</p>
+                <a
+                    href="{{ route('organization.home', $this->event->organization->subdomain) }}"
+                    class="inline-block bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-300 ease-in-out"
+                >
+                    Return to Agenda
+                </a>
+            </div>
+
         @elseif($this->redirect_status === 'failed')
             {{-- Failed State --}}
             <div class="text-center">

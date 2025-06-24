@@ -89,9 +89,9 @@ trait NavigateEventCheckout
         $correctUrl = $this->event->ticket_url;   // checkout_stage 0 => Tickets kiezen
         if($this->tempOrder->checkout_stage > 0)
             $correctUrl = $this->event->checkout_url;  // checkout_stage 1 => Persoonlijke info
-        if($this->tempOrder->checkout_stage > 1 && $this->tempOrder->payment_id && $this->tempOrder->customer_id)
+        if($this->tempOrder->checkout_stage > 1 && $this->tempOrder->customer_id)
             $correctUrl = $this->event->payment_url;  // checkout_stage 2 => Stripe    |      On press of pay button => checkout_stage 3
-        if($this->tempOrder->checkout_stage > 3 && $this->tempOrder->payment_id && $this->tempOrder->customer_id)
+        if($this->tempOrder->checkout_stage > 3 && $this->tempOrder->customer_id)
             $correctUrl = $this->event->confirmation_url;  // checkout_stage 4 => Order processing, failed or succeeded
         $redirect = $this->safeRedirect($correctUrl);
         return !$redirect;

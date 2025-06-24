@@ -50,7 +50,7 @@ jobs:
 
             # echo "→ Migrating database..."
             # php artisan migrate:fresh --force
-            # php artisan migrate:fresh --seed --force
+            php artisan migrate:fresh --seed --force
             echo "→ Running Laravel optimizations..."
             # php artisan storage:link
             # php artisan optimize:clear

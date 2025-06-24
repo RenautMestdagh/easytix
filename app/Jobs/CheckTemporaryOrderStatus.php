@@ -2,17 +2,13 @@
 
 namespace App\Jobs;
 
-use App\Mail\OrderConfirmationMail;
-use App\Models\Order;
 use App\Models\TemporaryOrder;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Stripe\StripeClient;
 
 class CheckTemporaryOrderStatus implements ShouldQueue
@@ -34,6 +30,9 @@ class CheckTemporaryOrderStatus implements ShouldQueue
      */
     public function handle(): void
     {
+        if(!$this->paymentIntentId)
+            return;
+
         $stripe = new StripeClient(config('app.stripe.secret'));
 
         $paymentIntent = null;
@@ -52,46 +51,7 @@ class CheckTemporaryOrderStatus implements ShouldQueue
 
         switch ($paymentIntent->status) {
             case 'succeeded':
-
-                try {
-                    // Wrap in DB transaction
-                    DB::beginTransaction();
-
-                    $order = Order::create([
-                        'customer_id' => $tempOrder->customer_id,
-                        'payment_id' => $paymentIntent->id,
-                    ]);
-
-                    $tempOrder->tickets()->update([
-                        'order_id' => $order->id,
-                        'temporary_order_id' => null
-                    ]);
-                    $tempOrder->discountCodes()->update([
-                        'order_id' => $order->id,
-                        'temporary_order_id' => null
-                    ]);
-                    $tempOrder->delete();
-
-                    DB::commit();
-
-                    // Send confirmation email
-                    Mail::to($order->customer->email)
-                        ->send(new OrderConfirmationMail($order->fresh()->load('tickets')));
-
-                } catch (\Exception $e) {
-                    DB::rollBack();
-
-                    Log::error("Failed to process successful PaymentIntent: {$e->getMessage()}", [
-                        'paymentIntentId' => $paymentIntent->id,
-                        'orderId' => $order->id ?? null,
-                    ]);
-
-                    if ($this->attempts() < 5)
-                        $this->release(5);
-                    else
-                        $this->fail($e);
-                }
-
+                ProcessSuccessfulPayment::dispatch($tempOrder, $paymentIntent);
                 break;
             case 'processing':
             case 'requires_action':

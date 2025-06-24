@@ -3,6 +3,7 @@
 namespace App\Livewire\Frontend;
 
 use App\Jobs\CheckTemporaryOrderStatus;
+use App\Jobs\ProcessSuccessfulPayment;
 use App\Models\Event;
 use App\Models\TemporaryOrder;
 use App\Traits\FlashMessage;
@@ -24,7 +25,7 @@ class PaymentConfirmation extends Component
         if(
             request()->header('Referer') !== route('event.payment', [$subdomain, $eventuniqid]) &&
             request()->header('Referer') !== "https://payments.stripe.com/" &&
-            !session()->pull('payment_succeeded', false)
+            !session('payment_succeeded', false)
         ) {
             throw new AccessDeniedHttpException();
         }
@@ -40,18 +41,25 @@ class PaymentConfirmation extends Component
         $this->tempOrderId = session("temporary_order_id_{$eventuniqid}");
         $this->tempOrder = TemporaryOrder::find($this->tempOrderId);
         session()->forget("temporary_order_id_{$eventuniqid}");
+        session()->forget("payment_succeeded");
 
         if($this->tempOrder) {
             if($this->tempOrder->checkout_stage == 3) {
+                // If you come from stripe checkout
                 $this->tempOrder->checkout_stage = 4;
                 $this->tempOrder->save();
                 CheckTemporaryOrderStatus::dispatch(request('payment_intent'));
+            } else if($this->tempOrder->checkout_stage == 5) {
+                // Order total was 0
+                ProcessSuccessfulPayment::dispatch($this->tempOrder, null);
+                $this->redirect_status = 'free';
             }
             if(!$this->checkCorrectFlow())
                 return;
         }
         $this->tempOrder_checkout_stage = 4;
-        $this->redirect_status = request('redirect_status');
+        if(!$this->redirect_status)
+            $this->redirect_status = request('redirect_status');
     }
 
     public function backToPayment()

@@ -2,8 +2,8 @@
 
 use App\Jobs\CheckTemporaryOrderStatus;
 use App\Jobs\CleanExpiredOrdersJob;
-use App\Models\TemporaryOrder;
 use App\Models\Event;
+use App\Models\TemporaryOrder;
 use App\Models\TicketType;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -24,10 +24,7 @@ Schedule::call(function () {
 Schedule::call(function () {
     $temporaryOrders = TemporaryOrder::where('checkout_stage', '>', 3)->get();
     foreach ($temporaryOrders as $order) {
-        if($order->payment_id)
-            CheckTemporaryOrderStatus::dispatch($order->payment_id);
-        else
-            $order->delete();
+        CheckTemporaryOrderStatus::dispatch($order->payment_id);
     }
 
 //})->everyMinute();

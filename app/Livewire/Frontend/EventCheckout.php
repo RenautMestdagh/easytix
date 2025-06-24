@@ -226,26 +226,39 @@ class EventCheckout extends Component
     public function proceedToPayment()
     {
         try {
+            DB::beginTransaction();
+            $this->tempOrder->lockForUpdate();
+
             $this->saveAllCustomerData();
             $this->calculateOrderTotal();
 
             if(!$this->tempOrder->payment_id) {
-                // Create Stripe payment intent
-                $stripe = new StripeClient(config('app.stripe.secret'));
-                $paymentIntent = $stripe->paymentIntents->create([
-                    'amount' => $this->orderTotal,
-                    'currency' => 'eur',
-                    'automatic_payment_methods' => ['enabled' => true],
-                ]);
+                if($this->orderTotal > 0) {
+                    // Create Stripe payment intent
+                    $stripe = new StripeClient(config('app.stripe.secret'));
+                    $paymentIntent = $stripe->paymentIntents->create([
+                        'amount' => $this->orderTotal,
+                        'currency' => 'eur',
+                        'automatic_payment_methods' => ['enabled' => true],
+                    ]);
 
-                $this->tempOrder->payment_id = $paymentIntent->id;
+                    $this->tempOrder->payment_id = $paymentIntent->id;
+                } else {
+                    $this->tempOrder->checkout_stage = 5;
+                    $this->tempOrder->save();
+                    DB::commit();
+                    session()->put('payment_succeeded', true);
+                    return redirect($this->event->confirmation_url);
+                }
             }
 
             $this->tempOrder->checkout_stage = 2;
             $this->tempOrder->save();
 
+            DB::commit();
             redirect($this->event->payment_url);
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error('Error proceeding to payment: ' . $e->getMessage());
             $this->flashMessage('An error occurred, please try again.', 'error');
         }

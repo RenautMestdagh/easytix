@@ -118,18 +118,20 @@
                         <p class="text-gray-700 dark:text-gray-200">{{ $order->uniqid }}</p>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 @if($order->payment_id) md:grid-cols-2 @endif gap-4">
                         <div class="bg-gray-50 dark:bg-zinc-600 p-4 rounded-lg">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">Customer Details</h3>
                             <p class="text-gray-700 dark:text-gray-200">{{ $order->customer->first_name }} {{ $order->customer->last_name }}</p>
                             <p class="text-gray-700 dark:text-gray-200">{{ $order->customer->email }}</p>
                         </div>
 
+                        @if($order->payment_id)
                         <div class="bg-gray-50 dark:bg-zinc-600 p-4 rounded-lg">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">Payment Information</h3>
                             <p class="text-gray-700 dark:text-gray-200">Payment ID: ****{{ substr($order->payment_id, -4) }}</p>
                             <p class="text-gray-700 dark:text-gray-200">Status: <span class="text-green-600 dark:text-green-400 font-semibold">Completed</span></p>
                         </div>
+                        @endif
                     </div>
                 </div>
 

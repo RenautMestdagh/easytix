@@ -52,10 +52,22 @@
         </div>
     </div>
 
+    @php
+        $publishedTickets = $event->ticketTypes->filter(fn($type) => $type->is_published);
+        $hasUnlimited = $publishedTickets->contains(fn($type) => is_null($type->available_quantity));
+        $totalRemaining = $publishedTickets->sum(function($ticketType) {
+            return max(0, $ticketType->available_quantity - $ticketType->tickets_count);
+        });
+        if($hasUnlimited)
+            $totalRemaining = $event->capacity - $event->tickets->count();
+        $totalRemaining = max(0, $totalRemaining);
+        $totalRemaining = min($event->capacity, $totalRemaining);
+    @endphp
+
     <!-- Ticket Summary -->
     <div class="mt-6 bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6 mb-6">
         <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4">{{ __('Ticket Summary') }}</h2>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-300">{{ __('Total Capacity') }}</p>
                 <p class="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">
@@ -68,30 +80,19 @@
                     {{ number_format($event->tickets->count(), 0, ',', '.') }}
                 </p>
             </div>
-            @php
-                $publishedTickets = $event->ticketTypes->filter(fn($type) => $type->is_published);
-                $hasUnlimited = $publishedTickets->contains(fn($type) => is_null($type->available_quantity));
-                $totalRemaining = $event->ticketTypes->sum(function($ticketType) {
-                    return max(0, $ticketType->available_quantity - $ticketType->tickets_count);
-                });
-                if($hasUnlimited)
-                    $totalRemaining = $event->capacity - $event->tickets->count();
-                $totalRemaining = max(0, $totalRemaining);
-            @endphp
             <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-300">{{ __('Tickets Remaining') }}</p>
                 <p class="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">
                     {{ !$event->capacity && $hasUnlimited ? '∞' : number_format($totalRemaining, 0, ',', '.') }}
                 </p>
             </div>
-            <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-                <p class="text-sm font-medium text-gray-500 dark:text-gray-300">{{ __('Total Published Tickets') }}</p>
-                <p class="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">
-                    {{ $hasUnlimited ? '∞' : number_format($publishedTickets->sum('available_quantity'), 0, ',', '.') }}
-                </p>
-            </div>
         </div>
     </div>
+    @if(true)
+    <p class="text-sm text-red-600 dark:text-red-400">
+        You
+    </p>
+    @endif
 
     @if (session()->has('message'))
         <x-ui.flash-message/>

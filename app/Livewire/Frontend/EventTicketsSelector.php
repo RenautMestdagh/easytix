@@ -130,7 +130,7 @@ class EventTicketsSelector extends Component
 
     public function increment($ticketTypeId)
     {
-        if ($this->tempOrder->payment_id) return;
+        if($this->tempOrder->checkout_stage !== 0) return;
 
         $ticketType = $this->event->ticketTypes->firstWhere('id', $ticketTypeId);
         if (!$ticketType) return;
@@ -197,7 +197,7 @@ class EventTicketsSelector extends Component
 
     public function decrement($ticketTypeId)
     {
-        if($this->tempOrder->payment_id) return;
+        if($this->tempOrder->checkout_stage !== 0) return;
 
         $deleted = false;
         try{

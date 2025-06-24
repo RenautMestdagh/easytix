@@ -369,10 +369,12 @@
                 <th>Order Number</th>
                 <td><strong>{{ $order->uniqid }}</strong></td>
             </tr>
+            @if($order->payment_id)
             <tr>
                 <th>Transaction ID</th>
                 <td>****{{ substr($order->payment_id, -4) }}</td>
             </tr>
+            @endif
             <tr>
                 <th>Status</th>
                 <td class="status-completed">

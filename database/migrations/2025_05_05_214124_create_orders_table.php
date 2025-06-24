@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('uniqid')->unique();
             $table->foreignId('customer_id')->constrained('customers');
-            $table->string('payment_id')->unique();
+            $table->string('payment_id')->nullable()->unique();
             $table->timestamps();
         });
     }
