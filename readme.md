@@ -59,6 +59,7 @@ This project is a robust ticketing system designed to streamline event managemen
 * **No Map Pinning for Locations**: When creating a location (venue), coordinates can be entered manually, but there is no interactive map integration to visually pin the location.
 * **Single Language, Currency, and Timezone**: The system currently supports only one language and one currency. Event publishing is tied to the server's timezone, without options for specific event timezones.
 * **No Possibility to Include Transaction Fees**: There is no functionality to include transaction fees in the ticket price or as a separate charge.
+* **No Custom Roles and Permissions**: The system does not allow for the creation or modification of custom roles and permissions, limiting granular access control for different users.
 
 
 ---
