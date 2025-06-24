@@ -23,7 +23,7 @@ class VenueRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'max_capacity' => 'nullable|integer|min:1',
+            'max_capacity' => 'nullable|integer|min:1|max:4294967295',
             'latitude' => 'required_with:longitude|numeric|between:-90,90',
             'longitude' => 'required_with:latitude|numeric|between:-180,180',
         ];
@@ -38,6 +38,7 @@ class VenueRequest extends FormRequest
 
             'max_capacity.integer' => 'The maximum capacity must be an integer.',
             'max_capacity.min' => 'The maximum capacity must be at least 1.',
+            'max_capacity.max' => 'The maximum capacity may not be greater than 4294967295.',
 
             'latitude.required_with' => 'The latitude is required when longitude is present.',
             'latitude.numeric' => 'The latitude must be a number.',

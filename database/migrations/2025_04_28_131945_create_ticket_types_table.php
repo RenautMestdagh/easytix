@@ -16,8 +16,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('event_id')->constrained('events')->onDelete('cascade');
             $table->string('name');
-            $table->integer('price_cents');
-            $table->integer('available_quantity')->nullable();
+            $table->unsignedInteger('price_cents');
+            $table->unsignedInteger('available_quantity')->nullable();
             $table->boolean('is_published')->default(false)->index();
             $table->timestamp('publish_at')->nullable();
             $table->boolean('publish_with_event')->default(false);

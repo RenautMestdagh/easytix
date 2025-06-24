@@ -18,9 +18,9 @@ return new class extends Migration
             $table->foreignId('event_id')->nullable()->constrained('events')->onDelete('cascade'); // Link to event
             $table->timestamp('start_date')->nullable(); // Start date of the discount code
             $table->timestamp('end_date')->nullable();
-            $table->integer('max_uses')->nullable(); // Max uses for the discount code
-            $table->integer('discount_percent')->nullable(); // Percentage discount
-            $table->integer('discount_fixed_cents')->nullable(); // Fixed amount discount
+            $table->unsignedInteger('max_uses')->nullable(); // Max uses for the discount code
+            $table->tinyInteger('discount_percent')->nullable(); // Percentage discount
+            $table->unsignedInteger('discount_fixed_cents')->nullable(); // Fixed amount discount
             $table->timestamps();
             $table->softDeletes();
 

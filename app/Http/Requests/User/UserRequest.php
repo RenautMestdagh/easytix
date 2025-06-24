@@ -59,7 +59,7 @@ class UserRequest extends FormRequest
             'userPassword' => [
                 'string',
                 Password::defaults(),
-                'confirmed'
+                'confirmed',
             ],
             'userEmail' => [
                 'required',

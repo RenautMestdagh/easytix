@@ -32,7 +32,8 @@ class TicketTypeRequest extends FormRequest
             'price_euros' => [
                 'required',
                 'numeric',
-                'min:0',
+                'min:0.01',
+                'max:42949672.95',
                 function ($attribute, $value, $fail) {
                     if (str_contains($value, ',')) {
                         $fail('Please use a dot (.) as decimal separator.');
@@ -43,6 +44,7 @@ class TicketTypeRequest extends FormRequest
                 'nullable',
                 'integer',
                 'min:1',
+                'max:4294967295',
                 function ($attribute, $value, $fail) {
                     if($this->event->capacity === null)
                         return;
@@ -71,6 +73,29 @@ class TicketTypeRequest extends FormRequest
 
     public function messages(): array
     {
-        return [];
+        return [
+            'name.required' => 'The ticket type name is required.',
+            'name.string' => 'The ticket type name must be a string.',
+            'name.max' => 'The ticket type name may not be greater than 255 characters.',
+
+            'price_euros.required' => 'The price is required.',
+            'price_euros.numeric' => 'The price must be a number.',
+            'price_euros.min' => 'The price must be at least €0,01.',
+            'price_euros.max' => 'The price may not be greater than €42949672,95.',
+
+            'available_quantity.integer' => 'The available quantity must be an integer.',
+            'available_quantity.min' => 'The available quantity must be at least 1.',
+            'available_quantity.max' => 'The available quantity may not be greater than 4294967295.',
+
+            'publish_option.required' => 'The publish option is required.',
+            'publish_option.in' => 'The selected publish option is invalid.',
+
+            'publish_at.required_if' => 'The publish date is required when scheduling.',
+            'publish_at.prohibited_unless' => 'The publish date should only be provided when scheduling.',
+            'publish_at.date' => 'The publish date must be a valid date.',
+            'publish_at.after' => 'The publish date must be in the future.',
+
+            'publish_with_event.boolean' => 'The publish with event field must be true or false.',
+        ];
     }
 }

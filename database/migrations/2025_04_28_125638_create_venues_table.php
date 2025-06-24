@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('organization_id')->constrained()->onDelete('cascade');
             $table->string('name');
-            $table->integer('max_capacity')->nullable();
+            $table->unsignedInteger('max_capacity')->nullable();
             $table->string('coordinates')->nullable(); // For spatial data
             $table->timestamps();
             $table->softDeletes();

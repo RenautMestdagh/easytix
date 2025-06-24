@@ -33,7 +33,7 @@ class EventRequest extends FormRequest
 
         return [
             'name' => 'required|string|max:255',
-            'description' => 'string',
+            'description' => 'string|max:65535',
             'venue_id' => [
                 'nullable',
                 Rule::exists('venues', 'id')->where(function ($query) {
@@ -56,7 +56,7 @@ class EventRequest extends FormRequest
             'event_image_validation' => ['nullable', 'image', 'max:2048'],
             'header_image_validation' => ['nullable', 'image', 'max:2048'],
             'background_image_validation' => ['nullable', 'image', 'max:5120'],
-            'max_capacity' => ['nullable', 'integer', 'min:1'],
+            'max_capacity' => ['nullable', 'integer', 'min:1', 'max:4294967295'],
             'publish_option' => 'required|in:publish_now,schedule,unlisted',
             'publish_at' => [
                 'nullable',
@@ -81,6 +81,7 @@ class EventRequest extends FormRequest
             'name.max' => 'The event name may not be greater than 255 characters.',
 
             'description.string' => 'The description must be a string.',
+            'description.max' => 'The event description may not be greater than 65535 characters.',
 
             'venue_id.exists' => 'The selected venue does not exist.',
 
@@ -98,6 +99,7 @@ class EventRequest extends FormRequest
 
             'max_capacity.integer' => 'The maximum capacity must be an integer.',
             'max_capacity.min' => 'The maximum capacity must be at least 1.',
+            'max_capacity.max' => 'The maximum capacity may not be greater than 4294967295.',
 
             'publish_option.required' => 'The publish option is required.',
             'publish_option.in' => 'The publish option must be one of: publish now, schedule, or unlisted.',

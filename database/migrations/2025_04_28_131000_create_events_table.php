@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('subdomain')->nullable();
             $table->foreignId('venue_id')->nullable()->constrained('venues')->onDelete('set null');
             $table->boolean('use_venue_capacity')->default(false);
-            $table->integer('max_capacity')->nullable();
+            $table->unsignedInteger('max_capacity')->nullable();
             $table->dateTime('date')->index();
             $table->string('event_image')->nullable(); // For line-up, date, location display
             $table->string('header_image')->nullable(); // For purchasing page header

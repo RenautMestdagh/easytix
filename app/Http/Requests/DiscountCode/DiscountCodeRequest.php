@@ -53,7 +53,7 @@ class DiscountCodeRequest extends FormRequest
                     'after_or_equal:start_date'
                 ),
             ],
-            'max_uses' => 'nullable|integer|min:0',
+            'max_uses' => 'nullable|integer|min:0|max:4294967295',
             'discount_type' => 'required|in:percent,fixed',
             'discount_percent' => [
                 'nullable',
@@ -69,6 +69,7 @@ class DiscountCodeRequest extends FormRequest
                 'prohibited_unless:discount_type,fixed',
                 'numeric',
                 'min:0.01',
+                'max:42949672.95',
             ],
         ];
     }
@@ -90,6 +91,7 @@ class DiscountCodeRequest extends FormRequest
 
             'max_uses.integer' => 'The maximum uses must be an integer.',
             'max_uses.min' => 'The maximum uses must be at least 1.',
+            'max_uses.max' => 'The maximum uses may not be greater than 4294967295.',
 
             'discount_type.required' => 'The discount type is required.',
             'discount_type.in' => 'The discount type must be either percent or fixed.',
@@ -97,13 +99,14 @@ class DiscountCodeRequest extends FormRequest
             'discount_percent.required_if' => 'The discount percent is required when discount type is percent.',
             'discount_percent.prohibited_unless' => 'The discount percent should only be provided when discount type is percent.',
             'discount_percent.integer' => 'The discount percent must be an integer.',
-            'discount_percent.min' => 'The discount percent must be at least 1%.',
-            'discount_percent.max' => 'The discount percent may not be greater than 100%.',
+            'discount_percent.min' => 'The discount must be at least 1%.',
+            'discount_percent.max' => 'The discount may not be greater than 100%.',
 
             'discount_fixed_euros.required_if' => 'The fixed discount amount is required when discount type is fixed.',
             'discount_fixed_euros.prohibited_unless' => 'The fixed discount amount should only be provided when discount type is fixed.',
-            'discount_fixed_euros.numeric' => 'The fixed discount amount must be a number.',
-            'discount_fixed_euros.min' => 'The fixed discount amount must be at least 0.01.',
+            'discount_fixed_euros.numeric' => 'The discount amount must be a number.',
+            'discount_fixed_euros.min' => 'The discount amount must be at least €0,01.',
+            'discount_fixed_euros.max' => 'The discount amount may not be greater than €42949672,95.',
         ];
     }
 }
