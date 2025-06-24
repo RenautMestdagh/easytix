@@ -10,6 +10,7 @@ use App\Traits\NavigateEventCheckout;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Livewire\Component;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class PaymentConfirmation extends Component
 {
@@ -25,7 +26,7 @@ class PaymentConfirmation extends Component
             request()->header('Referer') !== "https://payments.stripe.com/" &&
             !session()->pull('payment_succeeded', false)
         ) {
-            return redirect('/');
+            throw new AccessDeniedHttpException();
         }
 
 
@@ -67,7 +68,7 @@ class PaymentConfirmation extends Component
         try {
             $this->tempOrder->save();
             session()->put("temporary_order_id_{$this->event->uniqid}", $this->tempOrder->id);
-            redirect()->route('event.payment', [$this->event->organization->subdomain, $this->event->uniqid]);
+            redirect($this->event->payment_url);
         } catch (\Exception $e) {
             Log::error('Error backing to payment: ' . $e->getMessage());
             $this->flashMessage('An error occurred, please try again.', 'error');

@@ -25,6 +25,7 @@ class Event extends Model
         'uniqid',
         'name',
         'description',
+        'subdomain',
         'venue_id',
         'use_venue_capacity',
         'max_capacity',
@@ -166,5 +167,54 @@ class Event extends Model
     {
         if (!$this->background_image) return null;
         return Storage::disk('public')->url("events/{$this->id}/{$this->background_image}");
+    }
+
+    public function getTicketUrlAttribute(): string
+    {
+        return $this->getEventRoute('tickets');
+    }
+
+    public function getCheckoutUrlAttribute(): string
+    {
+        return $this->getEventRoute('checkout');
+    }
+
+    public function getPaymentUrlAttribute(): string
+    {
+        return $this->getEventRoute('payment');
+    }
+
+    public function getConfirmationUrlAttribute(): string
+    {
+        return $this->getEventRoute('confirmation');
+    }
+
+    protected function getEventRoute(string $routeName): string
+    {
+        $organization = request()->get('organization')->subdomain;
+
+        if ($routeName === 'confirmation') {
+            // Special case for Stripe confirmation route
+            $route = $this->subdomain
+                ? 'stripe.subdomain.payment.confirmation'
+                : 'stripe.payment.confirmation';
+
+            $params = $this->subdomain
+                ? [$this->subdomain, $organization]
+                : [$organization, $this->uniqid];
+
+            return route($route, $params);
+        }
+
+        // Standard pattern for tickets/checkout/payment routes
+        $route = $this->subdomain
+            ? "event.subdomain.{$routeName}"
+            : "event.{$routeName}";
+
+        $params = $this->subdomain
+            ? [$this->subdomain, $organization]
+            : [$organization, $this->uniqid];
+
+        return route($route, $params);
     }
 }

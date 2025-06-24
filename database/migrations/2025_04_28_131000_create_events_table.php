@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('uniqid')->unique();
             $table->string('name');
             $table->text('description')->nullable();
+            $table->string('subdomain')->nullable();
             $table->foreignId('venue_id')->nullable()->constrained('venues')->onDelete('set null');
             $table->boolean('use_venue_capacity')->default(false);
             $table->integer('max_capacity')->nullable();

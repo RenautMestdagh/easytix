@@ -26,9 +26,10 @@ trait NavigateEventCheckout
     {
         if(empty($this->event)) {
             $this->toShowPartial = Str::afterLast(request()->route()->getName(), '.');
-            $this->event = Event::with(['ticketTypes' => function($query) {
-                $query->published()->with('tickets');
-            }])
+            $this->event = Event::withCount(['tickets', 'reserved_tickets'])
+                ->with(['ticketTypes' => function($query) {
+                    $query->published()->with('tickets');
+                }])
                 ->where('uniqid', request()->route('eventuniqid'))
                 ->firstOrFail();
 
@@ -85,13 +86,13 @@ trait NavigateEventCheckout
         // Livewire calls pass here as well, they dont contain subdomain variable.
         $subdomain = request()->route('subdomain') ?? $this->event->organization->subdomain;
 
-        $correctUrl = route('event.tickets', [$subdomain, $this->event->uniqid]);   // checkout_stage 0 => Tickets kiezen
+        $correctUrl = $this->event->ticket_url;   // checkout_stage 0 => Tickets kiezen
         if($this->tempOrder->checkout_stage > 0)
-            $correctUrl = route('event.checkout', [$subdomain, $this->event->uniqid]);  // checkout_stage 1 => Persoonlijke info
+            $correctUrl = $this->event->checkout_url;  // checkout_stage 1 => Persoonlijke info
         if($this->tempOrder->checkout_stage > 1 && $this->tempOrder->payment_id && $this->tempOrder->customer_id)
-            $correctUrl = route('event.payment', [$subdomain, $this->event->uniqid]);  // checkout_stage 2 => Stripe    checkout_stage 3 => At checkout page
+            $correctUrl = $this->event->payment_url;  // checkout_stage 2 => Stripe    |      On press of pay button => checkout_stage 3
         if($this->tempOrder->checkout_stage > 3 && $this->tempOrder->payment_id && $this->tempOrder->customer_id)
-            $correctUrl = route('stripe.payment.confirmation', [$subdomain, $this->event->uniqid]);  // checkout_stage 4 => Order processing, failed or succeeded
+            $correctUrl = $this->event->confirmation_url;  // checkout_stage 4 => Order processing, failed or succeeded
         $redirect = $this->safeRedirect($correctUrl);
         return !$redirect;
     }

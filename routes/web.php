@@ -6,7 +6,7 @@ use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\ScanController;
 use App\Http\Controllers\TicketController;
 use App\Http\Middleware\CheckPermissionMiddleware;
-use App\Http\Middleware\SubdomainOrganizationMiddleware;
+use App\Http\Middleware\SubdomainEventMiddleware;
 use App\Livewire\Backend\DiscountCodes\CreateDiscountCode;
 use App\Livewire\Backend\DiscountCodes\EditDiscountCode;
 use App\Livewire\Backend\DiscountCodes\ShowDiscountCodes;
@@ -34,21 +34,28 @@ use App\Livewire\Frontend\PaymentConfirmation;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
+
 // Subdomain Routes
-Route::domain('{subdomain}.'.config('app.domain'))
-    ->middleware(SubdomainOrganizationMiddleware::class)
-    ->group(function () {
-        // Public routes for subdomain
-        Route::get('/', [OrganizationController::class, 'show'])->name('organization.home');
+Route::domain('{subdomain}.'.config('app.domain'))->group(function () {
+    // Public routes for subdomain
+    Route::get('/', [OrganizationController::class, 'show'])->name('organization.home');
 
-        Route::get('/event/{eventuniqid}', EventTicketsSelector::class)->name('event.tickets');
-        Route::get('/event/{eventuniqid}/checkout', EventCheckout::class)->name('event.checkout');
-        Route::get('/event/{eventuniqid}/payment', EventPayment::class)->name('event.payment');
-        Route::get('/event/{eventuniqid}/payment/confirmation', PaymentConfirmation::class)->name('stripe.payment.confirmation');
+    Route::get('/event/{eventuniqid}', EventTicketsSelector::class)->name('event.tickets');
+    Route::get('/event/{eventuniqid}/checkout', EventCheckout::class)->name('event.checkout');
+    Route::get('/event/{eventuniqid}/payment', EventPayment::class)->name('event.payment');
+    Route::get('/event/{eventuniqid}/payment/confirmation', PaymentConfirmation::class)->name('stripe.payment.confirmation');
 
-        Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
-        Route::get('/tickets/{order}/download', [TicketController::class, 'download'])->name('tickets.download');
-    });
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::get('/tickets/{order}/download', [TicketController::class, 'download'])->name('tickets.download');
+});
+
+
+Route::domain('{eventsubdomain}.{subdomain}.'.config('app.domain'))->middleware([SubdomainEventMiddleware::class,])->group(function () {
+    Route::get('/', EventTicketsSelector::class)->name('event.subdomain.tickets');
+    Route::get('/checkout', EventCheckout::class)->name('event.subdomain.checkout');
+    Route::get('/payment', EventPayment::class)->name('event.subdomain.payment');
+    Route::get('/payment/confirmation', PaymentConfirmation::class)->name('stripe.subdomain.payment.confirmation');
+});
 
 // Main domain routes
 Route::get('/', function () {
@@ -56,19 +63,14 @@ Route::get('/', function () {
 })->name('home');
 
 // Main domain guest routes
-Route::middleware(['guest', SubdomainOrganizationMiddleware::class])->group(function () {
-    Volt::route('login', 'auth.login')
-        ->name('login');
-
-    Volt::route('forgot-password', 'auth.forgot-password')
-        ->name('password.request');
-
-    Volt::route('reset-password/{token}', 'auth.reset-password')
-        ->name('password.reset');
+Route::middleware(['guest'])->group(function () {
+    Volt::route('login', 'auth.login')->name('login');
+    Volt::route('forgot-password', 'auth.forgot-password')->name('password.request');
+    Volt::route('reset-password/{token}', 'auth.reset-password')->name('password.reset');
 });
 
 // Main domain auth routes
-Route::middleware(['auth', 'verified', CheckPermissionMiddleware::class, SubdomainOrganizationMiddleware::class])->group(function () {
+Route::middleware(['auth', 'verified', CheckPermissionMiddleware::class])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::redirect('settings', 'settings/profile');

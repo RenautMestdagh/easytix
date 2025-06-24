@@ -49,7 +49,7 @@ class TicketTypeRequest extends FormRequest
 
                     $ticketTypes = $this->event->ticketTypes;
                     if ($this->currentTicketType !== null)
-                        $ticketTypes = $ticketTypes->where('id', '!=', $this->currentTicketType);
+                        $ticketTypes = $ticketTypes->where('id', '!=', $this->currentTicketType->id);
                     $alreadyAvailableTickets = $ticketTypes->sum('available_quantity');
 
                     if ($value > $this->event->capacity - $alreadyAvailableTickets) {

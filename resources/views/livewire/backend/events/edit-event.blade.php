@@ -55,6 +55,24 @@
                                 />
                             </x-ui.forms.group>
 
+                            <x-ui.forms.group label="Subdomain" for="subdomain" error="subdomain">
+                                <div class="flex">
+                                    <x-ui.forms.input
+                                        wire:model.live="subdomain"
+                                        name="subdomain"
+                                        placeholder="the-event"
+                                        error="{{ $errors->has('subdomain') }}"
+                                        class="rounded-l-xl shadow-md focus:ring-2 focus:ring-indigo-500"
+                                    />
+                                    <span class="inline-flex items-center px-3 bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 border border-l-0 border-gray-300 dark:border-gray-700 rounded-r-xl">
+                                    .{{$event->organization->subdomain}}.{{ config('app.domain', 'example.com') }}
+                                </span>
+                                </div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                                    {{ __('Only lowercase letters, numbers, and hyphens are allowed.') }}
+                                </p>
+                            </x-ui.forms.group>
+
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <x-ui.forms.group label="Venue" for="venue_id" error="venue_id">
                                     <div class="flex gap-4">

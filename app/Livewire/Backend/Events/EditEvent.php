@@ -23,6 +23,7 @@ class EditEvent extends Component
     // Event fields
     public $name;
     public $description;
+    public $subdomain = null;
     public $venue_id;
     public $use_venue_capacity = false;
     public $date;
@@ -49,6 +50,7 @@ class EditEvent extends Component
         $this->event = $event;
         $this->name = $event->name;
         $this->description = $event->description;
+        $this->subdomain = $event->subdomain;
         $this->venue_id = $event->venue_id;
         $this->use_venue_capacity = $event->use_venue_capacity;
         $this->date = $event->date->format('Y-m-d\TH:i');
@@ -156,6 +158,7 @@ class EditEvent extends Component
             $this->event->update([
                 'name' => $validatedData['name'],
                 'description' => $validatedData['description'],
+                'subdomain' => $validatedData['subdomain'],
                 'venue_id' => $validatedData['venue_id'],
                 'use_venue_capacity' => $validatedData['use_venue_capacity'],
                 'date' => $validatedData['date'],

@@ -16,21 +16,20 @@ class SubdomainOrganizationMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
+        // eg. null or kompass
         $subdomain = $request->route('subdomain');
+        // eg. easytix.test
         $mainDomain = config('app.domain');
         if(!$subdomain) {
+            // eg. easytix.test or test456.easytix.test
             $host = $request->getHost();
+            // try to replace '.easytix.test' with ''. $subdomain becomes easytix.test or test456
             $subdomain = str_replace('.' . $mainDomain, '', $host);
         }
 
         if ($subdomain !== $mainDomain) {
             // Find the organization by subdomain
-            $organization = Organization::where('subdomain', $subdomain)->first();
-            if (!$organization) {
-                // Redirect to main domain if subdomain doesn't exist
-                $mainUrl = $request->getScheme() . '://' . config('app.domain');
-                return redirect($mainUrl);
-            }
+            $organization = Organization::where('subdomain', $subdomain)->firstOrFail();
         } else if (session('original_user_id')) {
             // This means we are superadmin but currently logged in as user
             $organization = auth()->user()->organization;

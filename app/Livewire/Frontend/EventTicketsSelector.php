@@ -41,6 +41,7 @@ class EventTicketsSelector extends Component
             ->get()
             ->keyBy('ticket_type_id');
 
+        $this->event->loadCount(['tickets', 'reserved_tickets']);
         foreach ($this->event->ticketTypes as $type) {
             $reserved = $counts[$type->id]->reserved ?? 0;
             $sold = $counts[$type->id]->sold ?? 0;
@@ -64,13 +65,15 @@ class EventTicketsSelector extends Component
 
         $reserved = $counts->reserved ?? 0;
         $sold = $counts->sold ?? 0;
+
+        $this->event->loadCount(['tickets', 'reserved_tickets']);
         $this->remainingQuantities[$ticketType->id] = $this->determineAvailability($ticketType, $reserved, $sold);
     }
 
     protected function determineAvailability($ticketType, $reserved, $sold)
     {
-        $soldTickets = $this->event->tickets->count();
-        $reservedTickets = $this->event->reserved_tickets->count();
+        $soldTickets = $this->event->sold_tickets_count;
+        $reservedTickets = $this->event->reserved_tickets_count;
         $ticketTypeMaxQuantity = $ticketType->available_quantity;
 
         // Initialize availability variables
@@ -156,7 +159,7 @@ class EventTicketsSelector extends Component
                     $this->event->capacity && $totalTickets >= $this->event->capacity
                 ) {
                     DB::rollBack();
-                    $this->flashMessage('No more tickets available', 'error');
+//                    $this->flashMessage('No more tickets available', 'error');
                     return;
                 }
 
@@ -223,7 +226,7 @@ class EventTicketsSelector extends Component
         $this->tempOrder->checkout_stage = 1;
         try {
             $this->tempOrder->save();
-            redirect()->route('event.checkout', [$this->event->organization->subdomain, $this->event->uniqid]);
+            redirect($this->event->checkout_url);
         } catch (QueryException $e) {
             $this->flashMessage('An error occurred, please try again.', 'error');
         }

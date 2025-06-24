@@ -36,7 +36,7 @@ class DiscountCodeRequest extends FormRequest
                     ->where(function ($query) {
                         return $query->where('organization_id', session('organization_id'));
                     })
-                    ->ignore($this->ignoreId),
+                    ->ignore($this->ignoreId)
             ],
             'event_id' => [
                 'nullable',
@@ -79,7 +79,7 @@ class DiscountCodeRequest extends FormRequest
             'code.required' => 'The discount code is required.',
             'code.string' => 'The discount code must be a string.',
             'code.max' => 'The discount code may not be greater than 50 characters.',
-            'code.unique' => 'This discount code already exists for your organization.',
+            'code.unique' => 'This discount code already exists.',
 
             'event_id.exists' => 'The selected event does not exist or does not belong to your organization.',
 

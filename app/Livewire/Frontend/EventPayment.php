@@ -35,7 +35,7 @@ class EventPayment extends Component
 
         if($paymentIntent->status === 'succeeded'){
             session()->put('payment_succeeded', true);
-            return redirect()->route('stripe.payment.confirmation', [$subdomain, $eventuniqid]);
+            return redirect($this->event->confirmation_url);
         }
 
         $this->stripeClientSecret = $paymentIntent->client_secret;
@@ -64,7 +64,7 @@ class EventPayment extends Component
             } catch (\Exception $e) {}
         }
 
-        redirect()->route('event.checkout', [$this->event->organization->subdomain, $this->event->uniqid]);
+        redirect($this->event->checkout_url);
     }
 
     public function submitPayment()

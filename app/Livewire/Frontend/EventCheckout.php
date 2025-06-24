@@ -216,7 +216,7 @@ class EventCheckout extends Component
         try {
             try {$this->saveAllCustomerData();} catch (\Exception $e) {}
             $this->tempOrder->save();
-            redirect()->route('event.tickets', [$this->event->organization->subdomain, $this->event->uniqid]);
+            redirect($this->event->ticket_url);
         } catch (\Exception $e) {
             Log::error('Error backing to tickets: ' . $e->getMessage());
             $this->flashMessage('An error occurred, please try again.', 'error');
@@ -244,7 +244,7 @@ class EventCheckout extends Component
             $this->tempOrder->checkout_stage = 2;
             $this->tempOrder->save();
 
-            redirect()->route('event.payment', [$this->event->organization->subdomain, $this->event->uniqid]);
+            redirect($this->event->payment_url);
         } catch (\Exception $e) {
             Log::error('Error proceeding to payment: ' . $e->getMessage());
             $this->flashMessage('An error occurred, please try again.', 'error');

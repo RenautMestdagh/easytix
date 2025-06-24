@@ -4,6 +4,7 @@ namespace App\Livewire\Backend\Events;
 
 use App\Http\Requests\Event\StoreEventRequest;
 use App\Models\Event;
+use App\Models\Organization;
 use App\Models\Venue;
 use App\Traits\EventManagementUtilities;
 use App\Traits\FlashMessage;
@@ -19,9 +20,12 @@ class CreateEvent extends Component
 {
     use WithFileUploads, EventManagementUtilities, FlashMessage;
 
+    public $orgSubdomain;
+
     // Event fields
     public $name = '';
     public $description = '';
+    public $subdomain = null;
     public $venue_id = null;
     public $use_venue_capacity = false;
     public $date = '';
@@ -39,6 +43,11 @@ class CreateEvent extends Component
     public $publish_option = 'publish_now';
 
     protected $listeners = ['venueSelected'];
+
+    public function mount()
+    {
+        $this->orgSubdomain = Organization::first()->subdomain;
+    }
 
     public function updated($propertyName): void
     {
@@ -90,6 +99,7 @@ class CreateEvent extends Component
                 'organization_id' => Auth::user()->organization_id,
                 'name' => $validatedData['name'],
                 'description' => $validatedData['description'],
+                'subdomain' => $validatedData['subdomain'],
                 'venue_id' => $validatedData['venue_id'],
                 'use_venue_capacity' => $validatedData['use_venue_capacity'],
                 'date' => $validatedData['date'],

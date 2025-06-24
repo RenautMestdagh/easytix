@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\ForceHttps;
+use App\Http\Middleware\SubdomainOrganizationMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -14,14 +16,22 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->append(ForceHttps::class);
+        $middleware->append(SubdomainOrganizationMiddleware::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-//        if(app()->environment('local'))
-//            return;
 
         // Handle 404 - Not Found
         $exceptions->render(function (NotFoundHttpException $e, $request) {
+            if (!app()->environment('production')) {
+                throw $e;
+            }
+
+            logger()->error("404 - Not Found: " . $e->getMessage(), [
+                'exception' => $e,
+                'url' => $request->url(),
+            ]);
+
             // Try to find the matched route by the request path
             $route = collect(Route::getRoutes())->first(function ($route) use ($request) {
                 return $route->matches($request);
@@ -33,18 +43,44 @@ return Application::configure(basePath: dirname(__DIR__))
             }
 
             // Default to home for guest or unknown routes
-            return new RedirectResponse('/');
+            $subdomain = $request->route('subdomain');
+            $url = $request->getScheme() . '://' . ($subdomain ? $subdomain . '.' : '') . config('app.domain');
+            return redirect()->to($url);
         });
 
         // Handle 403 - Unauthorized (Forbidden)
         $exceptions->render(function (AccessDeniedHttpException $e, $request) {
+            if (!app()->environment('production')) {
+                throw $e;
+            }
+
+            logger()->error("Unauthorized request: " . $e->getMessage(), [
+                'exception' => $e,
+                'url' => $request->url(),
+            ]);
+
             if (auth()->check()) {
                 return new RedirectResponse('/dashboard');
             } else {
-                return new RedirectResponse('/');
+                $subdomain = $request->route('subdomain');
+                $url = $request->getScheme() . '://' . ($subdomain ? $subdomain . '.' : '') . config('app.domain');
+                return redirect()->to($url);
             }
         });
 
-        return new RedirectResponse('/');
+        $exceptions->render(function (Throwable $e, $request) {
+            if (!app()->environment('production')) {
+                throw $e;
+            }
+
+            logger()->error("Unhandled exception: " . $e->getMessage(), [
+                'exception' => $e,
+                'url' => $request->url(),
+            ]);
+
+            $subdomain = $request->route('subdomain');
+            $url = $request->getScheme() . '://' . ($subdomain ? $subdomain . '.' : '') . config('app.domain');
+            return redirect()->to($url);
+        });
     })
     ->create();

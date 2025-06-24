@@ -13,11 +13,14 @@ class EventRequest extends FormRequest
     protected $publish_option;
     protected $date;
 
-    public function __construct($publish_option = null, $date = null)
+    protected $event;
+
+    public function __construct($publish_option = null, $date = null,  $event = null)
     {
         parent::__construct();
         $this->publish_option = $publish_option;
         $this->date = $date;
+        $this->event = $event;
     }
 
     /**
@@ -36,6 +39,17 @@ class EventRequest extends FormRequest
                 Rule::exists('venues', 'id')->where(function ($query) {
                     return $query->where('organization_id', session('organization_id'));
                 }),
+            ],
+            'subdomain' => [
+                'nullable',
+                'string',
+                'max:50',
+                'regex:/^[a-z0-9\-]+$/',
+                Rule::unique('events')
+                    ->where(function ($query) {
+                        return $query->where('organization_id', session('organization_id'));
+                    })
+                    ->ignore($this->event?->id),
             ],
             'use_venue_capacity' => 'boolean',
             'date' => ['required', 'date'],

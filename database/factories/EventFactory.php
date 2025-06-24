@@ -34,6 +34,7 @@ class EventFactory extends Factory
             'organization_id' => $this->organization_id ?? Organization::inRandomOrder()->first()->id,
             'name' => $this->faker->words(3, true),
             'description' => $this->faker->paragraph,
+            'subdomain' => null,
             'venue_id' => $this->faker->boolean ? null : function (array $attributes) {
                 return Venue::where('organization_id', $attributes['organization_id'])
                     ->inRandomOrder()
