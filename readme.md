@@ -1,222 +1,223 @@
-<p align="center">
-  <img src="resources/images/noBgColor.png" alt="Easytix Logo" width="200"/>
-</p>
+# Easytix - Event Ticketing Service
 
-# Easytix - ticketing service voor evenementen
+This project is a robust ticketing system designed to streamline event management, ticket sales, payment processing, and visitor analytics. The system provides organizers with a dedicated dashboard for efficient management of their events and the ability to host events under their own (sub)domain.
 
-Dit project is een robuust ticketing systeem, ontworpen om evenementbeheer, ticketverkoop, betalingsverwerking en bezoekersanalyse te stroomlijnen. Het systeem biedt organisatoren een eigen dashboard voor efficiënt beheer van hun evenementen en de mogelijkheid om evenementen onder hun eigen (sub)domein te hosten.
+---
 
-## Functionele Vereisten
+## Functional Requirements
 
-### Evenementenbeheer
-* **CRUD-functionaliteit voor Evenementen**: Volledige Create, Read, Update, Delete (CRUD) functionaliteit voor evenementen, inclusief details zoals naam, locatie, datum en beschikbaarheid.
-* **Verschillende Tickettypes**: Mogelijkheid om diverse tickettypes per evenement aan te maken, zoals VIP, standaard en early bird tickets.
+### Event Management
+* **CRUD Functionality for Events**: Full Create, Read, Update, Delete (CRUD) functionality for events, including details such as name, location, date, and availability.
+* **Various Ticket Types**: Ability to create diverse ticket types per event, such as VIP, standard, and early bird tickets.
 
-### Ticketverkoop & QR-code Generatie
-* **Ticket Aankoop**: Klanten kunnen eenvoudig tickets kopen via een intuïtief frontend.
-* **Bevestigingsmail**: Een bevestigingsmail wordt verzonden naar de klant na aankoop van een ticket.
-* **QR-code Generatie**: Na aankoop ontvangen klanten een unieke QR-code voor elk ticket.
-* **QR-code Scanning**: Efficiënte scanfunctionaliteit voor QR-codes om toegang te verlenen bij evenementen.
+### Ticket Sales & QR Code Generation
+* **Ticket Purchase**: Customers can easily purchase tickets via an intuitive frontend.
+* **Confirmation Email**: A confirmation email is sent to the customer after a ticket purchase.
+* **QR Code Generation**: After purchase, customers receive a unique QR code for each ticket.
+* **QR Code Scanning**: Efficient scanning functionality for QR codes to grant access at events.
 
-### Betaalfunctionaliteit
-* **Stripe/PayPal Integratie**: Naadloze integratie met toonaangevende betalingsgateways zoals Stripe en PayPal voor veilige transacties.
-* **Kortingscodes**: Ondersteuning voor het aanmaken en toepassen van kortingscodes op ticketbestellingen.
+### Payment Functionality
+* **Stripe/PayPal Integration**: Seamless integration with leading payment gateways like Stripe and PayPal for secure transactions.
+* **Discount Codes**: Support for creating and applying discount codes to ticket orders.
 
-### Statistieken en Bezoekersanalyse
-* **Verkochte Tickets**: Gedetailleerde rapportage van het aantal verkochte tickets per evenement.
-* **Inkomstenrapporten**: Overzichtelijke inkomstenrapporten per evenement.
-* **Bezoekersdemografie**: Inzichten in de demografische gegevens van bezoekers.
+### Statistics and Visitor Analytics
+* **Tickets Sold**: Detailed reporting of the number of tickets sold per event.
+* **Revenue Reports**: Clear revenue reports per event.
+* **Visitor Demographics**: Insights into the demographic data of visitors.
 
-### Gebruikersrollen & Toegangsbeheer
-* **Organisator Dashboard**: Elke organisator krijgt een gepersonaliseerd dashboard om hun venues, evenementen, tickettypes, kortingscodes en statistieken te beheren.
-* **Subdomein/Custom Domein per Evenement**: Elk evenement kan worden gekoppeld aan een eigen subdomein of custom domein, wat zorgt voor een gepersonaliseerde evenementervaring.
-* **Superadmin Functionaliteit**: Een superadmin heeft de mogelijkheid om meerdere organisatoren te registreren, beheren en te overzien.
+### User Roles & Access Management
+* **Organizer Dashboard**: Each organizer gets a personalized dashboard to manage their venues, events, ticket types, discount codes, and statistics.
+* **Subdomain/Custom Domain per Event**: Each event can be linked to its own subdomain or custom domain, providing a personalized event experience.
+* **Superadmin Functionality**: A superadmin has the ability to register, manage, and oversee multiple organizers.
+
+---
 
 ## Extra Features
 
-* **CRUD-functionaliteit voor Venues:** Volledige Create, Read, Update, Delete (CRUD) functionaliteit voor venues. Tijdens het aanmaken van een evenement kan je een venue selecteren.
-* **Personalisatie organisatie:** De homepagina van een organisatie kan gepersonaliseerd worden.
-* **Personalisatie evenement:** De pagina van een evenement kan gepersonaliseerd worden.
-* **Superadmin log in als:** De superadmin kan zich inloggen als elke gebruiker.
-* **Error handling:** Gebruikers worden doorgeleid naar een gepaste pagina als er een fout opkomt.
-* **Permissions:** The system incorporates robust access control through permissions.
-* **Force HTTPS in production:** In a production environment, all requests are forced to use HTTPS.
-* **Automated Publishing:** Events and ticket types are automatically published based on their predefined schedules, including options for event-dependent ticket type publishing.
+* **CRUD Functionality for Venues**: Full Create, Read, Update, Delete (CRUD) functionality for venues. You can select a venue when creating an event.
+* **Organization Personalization**: The homepage of an organization can be personalized.
+* **Event Personalization**: The page of an event can be personalized.
+* **Superadmin Login As**: The superadmin can log in as any user.
+* **Error Handling**: Users are redirected to an appropriate page if an error occurs.
+* **Permissions**: The system incorporates robust access control through permissions.
+* **Force HTTPS in production**: In a production environment, all requests are forced to use HTTPS.
+* **Automated Publishing**: Events and ticket types are automatically published based on their predefined schedules, including options for event-dependent ticket type publishing.
 
+---
 
-## Beperkingen
-* **Geen wachtrij**: Er is geen ingebouwde wachtrijfunctionaliteit voor de aankoop van tickets, wat bij een plotselinge grote vraag tot prestatieproblemen kan leiden.
-* **Beperkte frontend caching**: Het systeem maakt momenteel geen gebruik van uitgebreide frontend caching. Dit betekent dat bij een zeer hoog aantal gelijktijdige gebruikers die tickets proberen te kopen, de website mogelijk trager wordt of zelfs onbereikbaar wordt door de hoge belasting op de server.
-* **Geen refund mogelijkheid**: Er is geen functionaliteit ingebouwd voor het verwerken van terugbetalingen van gekochte tickets.
-* **Beperkt order- en ticketmanagement**: Het systeem biedt een basisweergave voor orders, maar mist geavanceerde beheerfunctionaliteiten zoals het wijzigen, annuleren, opnieuw verzenden of overdragen van individuele tickets of hele bestellingen door organisatoren.
-* **Evenementen zijn één dag**: Evenementen kunnen slechts op één specifieke datum en tijd worden ingesteld; ondersteuning voor meerdaagse evenementen of evenementen met meerdere tijdslots op verschillende dagen is niet aanwezig.
-* **Geen kaartpinning voor locaties**: Bij het aanmaken van een locatie (venue) kunnen coördinaten handmatig worden ingevoerd, maar er is geen interactieve kaartintegratie om de locatie visueel te pinnen.
+## Limitations
 
-## Technologie Stack
+* **No Queue System**: There is no built-in queue functionality for ticket purchases, which can lead to performance issues during a sudden surge in demand.
+* **Limited Frontend Caching**: The system currently does not utilize extensive frontend caching. This means that with a very high number of concurrent users trying to buy tickets, the website may slow down or even become unreachable due to high server load.
+* **No Refund Option**: There is no built-in functionality for processing refunds for purchased tickets.
+* **Limited Order and Ticket Management**: The system provides a basic view for orders but lacks advanced management functionalities such as modifying, canceling, resending, or transferring individual tickets or entire orders by organizers.
+* **Events are One Day**: Events can only be set for one specific date and time; support for multi-day events or events with multiple time slots on different days is not present.
+* **No Map Pinning for Locations**: When creating a location (venue), coordinates can be entered manually, but there is no interactive map integration to visually pin the location.
+* **Single Language, Currency, and Timezone**: The system currently supports only one language and one currency. Event publishing is tied to the server's timezone, without options for specific event timezones.
 
-Dit project is gebouwd met behulp van de volgende technologieën en belangrijke Laravel-pakketten:
+---
 
-* **Laravel**: PHP-framework voor backend-ontwikkeling.
-* **Livewire**: Een full-stack framework voor Laravel dat het bouwen van dynamische interfaces vereenvoudigt zonder dat JavaScript nodig is.
-* **Volt**: Een nieuw en sneller alternatief voor het creëren van Livewire componenten met behulp van de Volt syntax.
-* **Tailwind CSS**: Een modern CSS-framework voor front-end ontwikkeling.
-* **Alpine.js**: Een modern JavaScript-framework voor front-end ontwikkeling.
-* **Spatie/Laravel-permission**: Voor het beheren van gebruikersrollen en -permissies.
-* **Asantibanez/Livewire-charts**: Voor het genereren van evenementstatistieken en inkomstenrapporten.
-* **Dasundev/Livewire-dropzone**: Voor het uploaden van media (bijv. evenementafbeeldingen, organisatielogo's).
-* **Stripe/stripe-php**: Officiële PHP-bibliotheek voor Stripe-integratie.
-* **Simplesoftwareio/simple-qrcode**: Voor het genereren van QR-codes voor tickets.
-* **Spatie/Laravel-pdf**: Voor het genereren van downloadbare tickets (PDF's).
-* **mebjas/html5-qrcode**: Voor het scannen van QR-codes via de webbrowser.
+## Technology Stack
 
-## Database Schema Overzicht
+This project is built using the following technologies and key Laravel packages:
 
-Het systeem maakt gebruik van een relationele database met de volgende belangrijke tabellen:
+* **Laravel**: PHP framework for backend development.
+* **Livewire**: A full-stack framework for Laravel that simplifies building dynamic interfaces without needing JavaScript.
+* **Volt**: A new and faster alternative for creating Livewire components with using the Volt syntax.
+* **Tailwind CSS**: A modern CSS framework for front-end development.
+* **Alpine.js**: A modern JavaScript framework for front-end development.
+* **Spatie/Laravel-permission**: For managing user roles and permissions.
+* **Asantibanez/Livewire-charts**: For generating event statistics and revenue reports.
+* **Dasundev/Livewire-dropzone**: For uploading media (e.g., event images, organization logos).
+* **Stripe/stripe-php**: Official PHP library for Stripe integration.
+* **Simplesoftwareio/simple-qrcode**: For generating QR codes for tickets.
+* **Spatie/Laravel-pdf**: For generating downloadable tickets (PDFs).
+* **mebjas/html5-qrcode**: For scanning QR codes via the web browser.
 
-* `users`: Gebruikers van het systeem, inclusief superadmins en organisatoren.
-* `organizations`: Organisaties die evenementen organiseren.
-* `venues`: Locaties waar evenementen plaatsvinden.
-* `events`: Evenementdetails, inclusief koppelingen naar organisaties en locaties.
-* `ticket_types`: Verschillende soorten tickets die beschikbaar zijn per evenement.
-* `tickets`: Individuele tickets, gekoppeld aan tickettypes en bestellingen. Bevat ook `qr_code`, `scanned_at` en `scanned_by` velden.
-* `discount_codes`: Informatie over kortingscodes.
-* `temporary_orders`: Tijdelijke bestellingen voor het checkout-proces.
-* `orders`: Bestellingen geplaatst door klanten.
-* `discount_code_order`: Koppelt kortingscodes aan bestellingen.
-* `customers`: Klantinformatie voor bestellingen.
+---
 
-## Installatie en Setup
+## Database Schema Overview
 
-Volg de onderstaande stappen om het project lokaal in te stellen:
+The system uses a relational database with the following main tables:
 
-1.  **Kloon de repository:**
+* `users`: System users, including superadmins and organizers.
+* `organizations`: Organizations that host events.
+* `venues`: Locations where events take place.
+* `events`: Event details, including links to organizations and locations.
+* `ticket_types`: Different types of tickets available per event.
+* `tickets`: Individual tickets, linked to ticket types and orders. Also includes `qr_code`, `scanned_at`, and `scanned_by` fields.
+* `discount_codes`: Information about discount codes.
+* `temporary_orders`: Temporary orders for the checkout process.
+* `orders`: Orders placed by customers.
+* `discount_code_order`: Links discount codes to orders.
+* `customers`: Customer information for orders.
+
+---
+
+## Installation and Setup
+
+Follow the steps below to set up the project locally:
+
+1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/RenautMestdagh/easytix
+    git clone [https://github.com/RenautMestdagh/easytix](https://github.com/RenautMestdagh/easytix)
     cd easytix
     ```
 
-2.  **Installeer Composer-afhankelijkheden:**
+2.  **Install Composer dependencies:**
     ```bash
     composer install
     ```
 
-3.  **Kopieer de `.env.example` naar `.env` en configureer je omgevingsvariabelen:**
+3.  **Copy `.env.example` to `.env` and configure your environment variables:**
     ```bash
     cp .env.example .env
     ```
-    Bewerk het `.env` bestand en vul je databasegegevens en andere benodigde configuraties in (bijv. App-domain, Mail credentials, Stripe API-sleutels, Node en NPM path). Zorg ervoor dat `APP_DOMAIN` correct is ingesteld voor subdomein routing.
-    `NODE_PATH` en `NPM_PATH` zijn noodzakelijk voor het downloaden van tickets.
+    Edit the `.env` file and fill in your database credentials and other necessary configurations (e.g., App-domain, Mail credentials, Stripe API keys, Node and NPM path). Ensure `APP_DOMAIN` is correctly set for subdomain routing.
+    `NODE_PATH` and `NPM_PATH` are necessary for downloading tickets.
 
-
-4.  **Genereer een applicatiesleutel:**
+4.  **Generate an application key:**
     ```bash
     php artisan key:generate
     ```
 
-5.  **Migreer de database en zaai de data (indien aanwezig):**
+5.  **Migrate the database and seed the data (if present):**
     ```bash
     php artisan migrate:fresh --seed
     ```
     When seeding the database, the following fixed data is inserted:
 
     **Organizations:**
-     * "Kompass Klub" with the subdomain "kompass"
-     * "Modul'air" with the subdomain "modulair"
-       In addition to these, 5 random organizations are also created.
+    * "Kompass Klub" with the subdomain "kompass"
+    * "Modul'air" with the subdomain "modulair"
+    In addition to these, 5 random organizations are also created.
 
     **Users:**
-     * A superadmin user is created with the following credentials:
-       * Name: Renaut Mestdagh
-       * Email: renaut.mestdagh+superadmin@hotmail.com
-       * Password: `123456789`
-     * For each organization, the following users are created and roles are assigned:
-       * One admin user with the email format "renaut.mestdagh+admin{OrgId}@hotmail.com" and password `123456789`.
-       * Between 1 and 3 additional random admin users.
-       * One organizer user with the email format "renaut.mestdagh+organizer{OrgId}@hotmail.com" and password `123456789`.
-       * Between 0 and 3 additional random organizer users.
+    * A superadmin user is created with the following credentials:
+        * Name: Renaut Mestdagh
+        * Email: `renaut.mestdagh+superadmin@hotmail.com`
+        * Password: `123456789`
+    * For each organization, the following users are created and roles are assigned:
+        * One admin user with the email format "renaut.mestdagh+admin{OrgId}@hotmail.com" and password `123456789`.
+        * Between 1 and 3 additional random admin users.
+        * One organizer user with the email format "renaut.mestdagh+organizer{OrgId}@hotmail.com" and password `123456789`.
+        * Between 0 and 3 additional random organizer users.
 
     **Events:**
     * For each organization, between 2 and 20 events are created.
     * The first two events created for each organization will have predefined subdomains: "event1" and "event2".
 
-
-6.  **Installeer NPM-afhankelijkheden en compileer assets:**
+6.  **Install NPM dependencies and compile assets:**
     ```bash
     npm install
     npm run dev
     ```
-    Of voor productie:
+    Or for production:
     ```bash
     npm run build
     ```
 
-7.  **Laravel Herd Setup voor Lokale Ontwikkeling:**
+7.  **Laravel Herd Setup for Local Development:**
 
-    Voor een eenvoudige lokale ontwikkelingsomgeving raad ik aan Laravel Herd te gebruiken. Herd is een bliksemsnelle, lichte en efficiënte Laravel-ontwikkelomgeving voor macOS en Windows. Het omvat PHP, Nginx, DnsMasq, en meer, alles voorgeconfigureerd.
+    For an easy local development environment, I recommend using **Laravel Herd**. Herd is a lightning-fast, lightweight, and efficient Laravel development environment for macOS and Windows. It includes PHP, Nginx, DnsMasq, and more, all pre-configured.
 
-    * **Installatie**: Download en installeer Laravel Herd via de [officiële website](https://herd.laravel.com/).
+    * **Installation**: Download and install Laravel Herd from the [official website](https://herd.laravel.com/).
 
-    * **Project Toevoegen (Linken)**:
-      Nadat je Herd hebt geïnstalleerd en opgestart, open je de Herd-applicatie.
-      Klik op de knop `Add Site` of sleep eenvoudigweg je projectmap (`[JOUW_PROJECT_MAP]`) naar het Herd-venster. Herd zal automatisch een lokale URL aanmaken (bijv. `jouwproject.test`).
+    * **Add Project (Link)**:
+        After installing and launching Herd, open the Herd application. Click the `Add Site` button or simply drag your project folder (`[YOUR_PROJECT_FOLDER]`) into the Herd window. Herd will automatically create a local URL (e.g., `yourproject.test`).
 
-    * **HTTPS (Beveiligen)**:
-      Om je lokale site via HTTPS te benaderen, klik je in Herd op het slotje naast de sitenaam. Herd zal dan automatisch een SSL-certificaat genereren en installeren voor je lokale domein.
+    * **HTTPS (Secure)**:
+        To access your local site via HTTPS, click the padlock icon next to the site name in Herd. Herd will then automatically generate and install an SSL certificate for your local domain.
 
-    * **Aliassen Toevoegen (voor Subdomeinen)**:
-      Dit project maakt uitgebreid gebruik van subdomeinen. Om deze lokaal te laten werken met Herd, moet je aliases instellen.
-      Ga in Herd naar de instellingen van je site (klik op de sitenaam in de lijst). In het tabblad `Domains` kun je extra domeinen toevoegen. Het is niet mogelijk om wildcards te gebruiken. Ieder subdomein moet dus exact worden ingesteld.
-      Voeg hier aliasen toe die je lokaal beschikbaar wilt maken (vergeet niet terug op het slotje te klikken zodat https wordt gebruikt).
+    * **Add Aliases (for Subdomains)**:
+        This project extensively uses subdomains. To make them work locally with Herd, you need to set up aliases. Go to your site's settings in Herd (click on the site name in the list). In the `Domains` tab, you can add extra domains. Wildcards are not supported, so each subdomain must be precisely configured. Add aliases here that you want to make available locally (don't forget to click the padlock again to ensure HTTPS is used).
 
-      
-8.  **Databasebeheer met DBngin:**
+8.  **Database Management with DBngin:**
 
-    Voor eenvoudig lokaal databasebeheer raden we DBngin aan. DBngin is een gratis en krachtige tool voor macOS en Windows waarmee je snel verschillende versies van databaseservers (zoals MySQL, PostgreSQL, Redis) kunt opzetten en beheren, zonder conflicten.
+    For easy local database management, we recommend **DBngin**. DBngin is a free and powerful tool for macOS and Windows that allows you to quickly set up and manage different versions of database servers (such as MySQL, PostgreSQL, Redis) without conflicts.
 
-    * **Installatie**: Download en installeer DBngin via de [officiële website](https://dbngin.com/).
+    * **Installation**: Download and install DBngin from the [official website](https://dbngin.com/).
 
-    * **Database Server Aanmaken**:
-      Open DBngin en klik op de `+` knop om een nieuwe database server aan te maken.
-      Kies het type database dat je project gebruikt (bijvoorbeeld MySQL). Zorg ervoor dat de versie overeenkomt met de vereisten van je Laravel-project.
-      Start de server.
+    * **Create Database Server**:
+        Open DBngin and click the `+` button to create a new database server. Choose the type of database your project uses (e.g., MySQL). Ensure the version matches the requirements of your Laravel project. Start the server.
 
-    * **Database Aanmaken**:
-      Zodra je database server draait, moet je een database aanmaken voor je project. Dit kun je doen via een database management tool zoals TablePlus, DBeaver, MySQL Workbench of PhpMyAdmin, of via de command line.
-      Maak een database aan met de naam die je in je `.env` bestand hebt geconfigureerd (bijv. `DB_DATABASE=your_project_db`).
+    * **Create Database**:
+        Once your database server is running, you need to create a database for your project. You can do this via a database management tool like TablePlus, DBeaver, MySQL Workbench, or PhpMyAdmin, or via the command line. Create a database with the name you configured in your `.env` file (e.g., `DB_DATABASE=your_project_db`).
 
-    * **Configuratie in `.env`**:
-      Zorg ervoor dat je `.env` bestand de juiste databaseconnectiegegevens bevat die overeenkomen met je DBngin-setup (host, poort, database naam, gebruikersnaam, wachtwoord). Bijvoorbeeld:
+    * **Configuration in `.env`**:
+        Ensure your `.env` file contains the correct database connection details matching your DBngin setup (host, port, database name, username, password). For example:
 
         ```dotenv
         DB_CONNECTION=mysql
         DB_HOST=127.0.0.1
-        DB_PORT=3306 # Of de poort die DBngin toewijst
+        DB_PORT=3306 # Or the port DBngin assigns
         DB_DATABASE=your_project_db
-        DB_USERNAME=root # Of de gebruikersnaam die je hebt ingesteld
-        DB_PASSWORD= # Of het wachtwoord dat je hebt ingesteld
+        DB_USERNAME=root # Or the username you set
+        DB_PASSWORD= # Or the password you set
         ```
 
-9.  **Start de Queue Worker:**
+9.  **Start the Queue Worker:**
 
-    Laravel-projecten maken vaak gebruik van queues voor taken die op de achtergrond moeten worden uitgevoerd (bijvoorbeeld het versturen van e-mails). Om deze taken te verwerken, moet de queue worker actief zijn.
-
-    Open een nieuwe terminal en navigeer naar de root van je projectmap. Voer vervolgens het volgende commando uit:
+    Laravel projects often use queues for tasks that need to be executed in the background (e.g., sending emails). To process these tasks, the queue worker must be active. Open a new terminal and navigate to the root of your project folder. Then execute the following command:
 
     ```bash
     php artisan queue:work
     ```
 
-    Dit commando zal de queue worker starten en luisteren naar nieuwe taken. Laat dit terminalvenster open zolang je lokaal aan het ontwikkelen bent en je wilt dat queued taken worden verwerkt. Voor productieomgevingen zou je een procesmanager zoals Supervisor gebruiken om de queue worker permanent te laten draaien.
+    This command will start the queue worker and listen for new tasks. Keep this terminal window open as long as you are developing locally and want queued tasks to be processed. For production environments, you would use a process manager like Supervisor to keep the queue worker running permanently.
 
+---
 
-## Gebruik
+## Usage
 
-* Navigeer naar de hoofd-URL (bijv. `https://easytix.test`) voor de welkomstpagina.
-* Log in met een superadmin-account om organisaties te beheren (bijv. `https://easytix.test/login`).
-* Log in met een organisator-account om evenementen, tickettypes, kortingscodes en statistieken te beheren via het dashboard (bijv. `https://kompass.easytix.test/login`).
-* De homepaginas van de organisatoren worden toegankelijk via hun eigen subdomein (bijv. `https://kompass.easytix.test`).
-* Evenementen zijn toegankelijk via hun subdomeinen (bijv. `https://evenementnaam.kompass.easytix.test` of `https://kompass.easytix.test/event/{eventuniqid}`).
+* Navigate to the main URL (e.g., `https://easytix.test`) for the welcome page.
+* Log in with a superadmin account to manage organizations (e.g., `https://easytix.test/login`).
+* Log in with an organizer account to manage events, ticket types, discount codes, and statistics via the dashboard (e.g., `https://kompass.easytix.test/login`).
+* Organizer homepages are accessible via their own subdomain (e.g., `https://kompass.easytix.test`).
+* Events are accessible via their subdomains (e.g., `https://eventname.kompass.easytix.test` or `https://kompass.easytix.test/event/{eventuniqid}`).
+
+---
 
 ## Live Demo
 
-Een live versie van dit project is beschikbaar op: [https://easytix.duckdns.org/](https://easytix.duckdns.org/)
+A live version of this project is available at: [https://easytix.duckdns.org/](https://easytix.duckdns.org/)
