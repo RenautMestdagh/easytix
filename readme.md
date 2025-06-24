@@ -121,7 +121,7 @@ Follow the steps below to set up the project locally:
     php artisan key:generate
     ```
 
-5.  **Migrate the database and seed the data (if present):**
+5.  **Migrate the database and seed the data:**
     ```bash
     php artisan migrate:fresh --seed
     ```
