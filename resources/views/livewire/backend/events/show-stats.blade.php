@@ -279,7 +279,7 @@
 
                             @foreach($ticketTypes as $name => $count)
                                 <span class="inline-block bg-gray-100 dark:bg-gray-700 rounded-full px-3 py-1 text-xs font-semibold text-gray-700 dark:text-gray-300 mr-1 mb-1">
-                                    {{ $name }} ({{ $count }})
+                                    {{ $name }} ({{ number_format($count, 0, ',', '.') }})
                                 </span>
                             @endforeach
                         </td>

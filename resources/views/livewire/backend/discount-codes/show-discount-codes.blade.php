@@ -117,16 +117,16 @@
                     <div class="flex items-center">
                         {{ __('Start Date') }}
                         <span class="ml-1 text-xs" style="visibility: {{ $sortField == 'start_date' ? 'visible' : 'hidden' }};">
-            {{ $sortDirection == 'asc' ? '↑' : '↓' }}
-        </span>
+                            {{ $sortDirection == 'asc' ? '↑' : '↓' }}
+                        </span>
                     </div>
                 </th>
                 <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 ease-in-out" wire:click="sortBy('end_date')">
                     <div class="flex items-center">
                         {{ __('End Date') }}
                         <span class="ml-1 text-xs" style="visibility: {{ $sortField == 'end_date' ? 'visible' : 'hidden' }};">
-            {{ $sortDirection == 'asc' ? '↑' : '↓' }}
-        </span>
+                            {{ $sortDirection == 'asc' ? '↑' : '↓' }}
+                        </span>
                     </div>
                 </th>
                 <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">

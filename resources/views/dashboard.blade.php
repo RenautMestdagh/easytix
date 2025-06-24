@@ -219,10 +219,10 @@
                     const animate = () => {
                         current += increment;
                         if (current < target) {
-                            counter.textContent = Math.floor(current).toLocaleString();
+                            counter.textContent = Math.floor(current).toLocaleString('nl-BE');
                             requestAnimationFrame(animate);
                         } else {
-                            counter.textContent = target.toLocaleString();
+                            counter.textContent = target.toLocaleString('nl-BE');
                         }
                     };
 

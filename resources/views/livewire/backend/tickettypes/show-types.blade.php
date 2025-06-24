@@ -59,13 +59,13 @@
             <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-300">{{ __('Total Capacity') }}</p>
                 <p class="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">
-                    {{ $event->capacity ?: '∞' }}
+                    {{ number_format($event->capacity, 0, ',', '.') ?: '∞' }}
                 </p>
             </div>
             <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-300">{{ __('Tickets Sold') }}</p>
                 <p class="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">
-                    {{ $event->tickets->count() }}
+                    {{ number_format($event->tickets->count(), 0, ',', '.') }}
                 </p>
             </div>
             @php
@@ -81,13 +81,13 @@
             <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-300">{{ __('Tickets Remaining') }}</p>
                 <p class="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">
-                    {{ !$event->capacity && $hasUnlimited ? '∞' : $totalRemaining }}
+                    {{ !$event->capacity && $hasUnlimited ? '∞' : number_format($totalRemaining, 0, ',', '.') }}
                 </p>
             </div>
             <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-300">{{ __('Total Published Tickets') }}</p>
                 <p class="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">
-                    {{ $hasUnlimited ? '∞' : $publishedTickets->sum('available_quantity') }}
+                    {{ $hasUnlimited ? '∞' : number_format($publishedTickets->sum('available_quantity'), 0, ',', '.') }}
                 </p>
             </div>
         </div>

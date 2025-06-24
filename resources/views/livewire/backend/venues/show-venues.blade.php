@@ -95,7 +95,11 @@
                                             </div>
                                         </td>
                                         <td class="whitespace-nowrap py-4 pl-3 pr-4 text-sm text-gray-500 dark:text-gray-300">
-                                            {{ $venue->max_capacity }}
+                                            @if($venue->max_capacity)
+                                                {{ number_format($venue->max_capacity, 0, ',', '.') }}
+                                            @else
+                                                ∞
+                                            @endif
                                         </td>
                                         @if(auth()->user()->can('venues.update') || auth()->user()->can('venues.delete'))
                                             <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
