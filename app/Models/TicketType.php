@@ -29,6 +29,7 @@ class TicketType extends Model
     protected $casts = [
         'publish_at' => 'datetime',
         'is_published' => 'boolean',
+        'publish_with_event' => 'boolean',
     ];
 
     public function scopePublished($query)
