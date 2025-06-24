@@ -138,9 +138,9 @@ Follow the steps below to set up the project locally:
         * Email: `renaut.mestdagh+superadmin@hotmail.com`
         * Password: `123456789`
     * For each organization, the following users are created and roles are assigned:
-        * One admin user with the email format "renaut.mestdagh+admin{OrgId}@hotmail.com" and password `123456789`.
+        * One admin user with the email format `renaut.mestdagh+admin{OrgId}@hotmail.com` and password `123456789`.
         * Between 1 and 3 additional random admin users.
-        * One organizer user with the email format "renaut.mestdagh+organizer{OrgId}@hotmail.com" and password `123456789`.
+        * One organizer user with the email format `renaut.mestdagh+organizer{OrgId}@hotmail.com` and password `123456789`.
         * Between 0 and 3 additional random organizer users.
 
     **Events:**
