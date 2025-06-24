@@ -3,7 +3,7 @@
 namespace App\Livewire\Frontend;
 
 use App\Jobs\CheckTemporaryOrderStatus;
-use App\Jobs\ProcessSuccessfulPayment;
+use App\Jobs\ProcessSuccessfulOrder;
 use App\Models\Event;
 use App\Models\TemporaryOrder;
 use App\Traits\FlashMessage;
@@ -51,7 +51,7 @@ class PaymentConfirmation extends Component
                 CheckTemporaryOrderStatus::dispatch(request('payment_intent'));
             } else if($this->tempOrder->checkout_stage == 5) {
                 // Order total was 0
-                ProcessSuccessfulPayment::dispatch($this->tempOrder, null);
+                ProcessSuccessfulOrder::dispatch($this->tempOrder, null);
                 $this->redirect_status = 'free';
             }
             if(!$this->checkCorrectFlow())

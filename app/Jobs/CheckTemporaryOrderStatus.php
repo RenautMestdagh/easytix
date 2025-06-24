@@ -51,7 +51,7 @@ class CheckTemporaryOrderStatus implements ShouldQueue
 
         switch ($paymentIntent->status) {
             case 'succeeded':
-                ProcessSuccessfulPayment::dispatch($tempOrder, $paymentIntent);
+                ProcessSuccessfulOrder::dispatch($tempOrder, $paymentIntent);
                 break;
             case 'processing':
             case 'requires_action':
