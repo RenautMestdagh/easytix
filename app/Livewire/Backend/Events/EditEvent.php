@@ -131,6 +131,12 @@ class EditEvent extends Component
             return;
         }
 
+        if ($propertyName === 'date' || $propertyName === 'publish_at') {
+            if($this->date) $this->validateOnly('date', $fieldRules, $fieldMessages);
+            if($this->publish_at) $this->validateOnly('publish_at', $fieldRules, $fieldMessages);
+            return;
+        }
+
         if (!array_key_exists($propertyName, $fieldRules)) {
             return; // skip validation if no rule is defined
         }
