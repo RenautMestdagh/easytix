@@ -3,7 +3,7 @@
     <div class="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-lg p-8">
         <h1 class="mb-6 text-2xl">Personal Information</h1>
         <p class="text-sm text-gray-500 mb-4">* Indicates required field</p>
-        <div>
+        <form>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <x-ui.forms.group label="First name *" for="first_name" error="first_name">
                     <x-ui.forms.input
@@ -98,14 +98,14 @@
                     </x-ui.forms.select>
                 </x-ui.forms.group>
             </div>
-        </div>
+        </form>
     </div>
 
     {{-- Discount section--}}
     <div class="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-lg p-8 my-8">
         <h1 class="mb-6 text-2xl">Discount</h1>
 
-        <div class="flex flex-col sm:flex-row gap-4 mb-6">
+        <form wire:submit.prevent="applyDiscount" class="flex flex-col sm:flex-row gap-4 mb-6">
             <div class="flex-1">
                 <x-ui.forms.group label="Discount Code" for="discountCode" error="discountError">
                     <x-ui.forms.input
@@ -119,14 +119,14 @@
 
             <div class="sm:mt-7">
                 <x-ui.button
+                    type="submit"
                     variant="primary"
-                    wire:click="applyDiscount"
                     wire:loading.attr="disabled"
                 >
                     Apply
                 </x-ui.button>
             </div>
-        </div>
+        </form>
 
         @if(count($appliedDiscounts) > 0)
             <div class="space-y-2">

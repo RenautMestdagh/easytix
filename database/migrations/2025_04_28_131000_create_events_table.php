@@ -29,6 +29,8 @@ return new class extends Migration
             $table->timestamp('publish_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->unique(['subdomain', 'organization_id']);
         });
 
         DB::statement("

@@ -75,6 +75,17 @@
                 </flux:navlist.item>
             @endcan
 
+            @can('revenue.index')
+                <flux:navlist.item
+                    icon="banknotes"
+                    :href="route('revenue.index')"
+                    :current="request()->routeIs('revenue.*')"
+                    wire:navigate
+                >
+                    {{ __('Revenue') }}
+                </flux:navlist.item>
+            @endcan
+
             @can('organizations.index')
             <flux:navlist.item
                 icon="briefcase"
@@ -99,7 +110,6 @@
             </flux:navlist.item>
             @endcan
 
-            @role('admin')
             @can('organizations.update')
             <flux:navlist.item
                 icon="cog-6-tooth"
@@ -110,17 +120,6 @@
                 {{ __('Organization Settings') }}
             </flux:navlist.item>
             @endcan
-            @endrole
-
-{{--            <flux:navlist variant="outline">--}}
-{{--                <flux:navlist.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">--}}
-{{--                {{ __('Repository') }}--}}
-{{--                </flux:navlist.item>--}}
-
-{{--                <flux:navlist.item icon="book-open-text" href="https://laravel.com/docs/starter-kits" target="_blank">--}}
-{{--                {{ __('Documentation') }}--}}
-{{--                </flux:navlist.item>--}}
-{{--            </flux:navlist>--}}
 
             <!-- Desktop User Menu -->
             <flux:dropdown position="bottom" align="start">

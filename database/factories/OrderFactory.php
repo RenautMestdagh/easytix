@@ -12,6 +12,7 @@ class OrderFactory extends Factory
         return [
             'customer_id' => Customer::factory(),
             'payment_id' => uniqid(),
+            'created_at' => now()->subDays(random_int(0, 30)),
         ];
     }
 }

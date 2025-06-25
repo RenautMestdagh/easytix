@@ -19,7 +19,7 @@
 
         <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm rounded-xl transition-colors duration-300 ease-in-out hover:border-indigo-800">
             <div class="p-8">
-                <form wire:submit="store">
+                <form wire:submit.prevent="store">
                     <div class="space-y-8">
                         <!-- Event Information -->
                         <div>

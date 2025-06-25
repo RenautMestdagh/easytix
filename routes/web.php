@@ -18,6 +18,7 @@ use App\Livewire\Backend\Organizations\CreateOrganization;
 use App\Livewire\Backend\Organizations\EditOrganization;
 use App\Livewire\Backend\Organizations\ShowOrganizations;
 use App\Livewire\Backend\Organizations\UploadMedia;
+use App\Livewire\Backend\ShowRevenue;
 use App\Livewire\Backend\TicketTypes\CreateTicketType;
 use App\Livewire\Backend\TicketTypes\EditTicketType;
 use App\Livewire\Backend\TicketTypes\ShowTypes;
@@ -83,6 +84,7 @@ Route::middleware(['auth', 'verified', CheckPermissionMiddleware::class])->group
     Route::get('/organization/edit', EditOrganization::class)->name('organizations.update');
 
     Route::get('/organization/media', UploadMedia::class)->name('organizations.media');
+    Route::get('/revenue', ShowRevenue::class)->name('revenue.index');
 
     Route::get('/users', ShowUsers::class)->name('users.index');
     Route::get('/users/create', CreateUser::class)->name('users.create');

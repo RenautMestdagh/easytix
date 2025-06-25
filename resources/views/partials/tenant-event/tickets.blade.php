@@ -42,7 +42,36 @@
                                         <span class="inline-flex items-center justify-center w-4 h-4">
                                             <span wire:loading.remove wire:target="decrement({{ $ticketType->id }})">-</span>
                                             <span wire:loading wire:target="decrement({{ $ticketType->id }})">
-                                                <svg width="12" height="12" class="stroke-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><style>.spinner_V8m1{transform-origin:center;animation:spinner_zKoa 2s linear infinite}.spinner_V8m1 circle{stroke-linecap:round;animation:spinner_YpZS 1.5s ease-in-out infinite}@keyframes spinner_zKoa{100%{transform:rotate(360deg)}}@keyframes spinner_YpZS{0%{stroke-dasharray:0 150;stroke-dashoffset:0}47.5%{stroke-dasharray:42 150;stroke-dashoffset:-16}95%,100%{stroke-dasharray:42 150;stroke-dashoffset:-59}}</style><g class="spinner_V8m1"><circle cx="12" cy="12" r="9.5" fill="none" stroke-width="3"></circle></g></svg>
+                                                <svg width="12" height="12" class="stroke-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><style>.spinner_V8m1 {
+                                                            transform-origin: center;
+                                                            animation: spinner_zKoa 2s linear infinite
+                                                        }
+
+                                                        .spinner_V8m1 circle {
+                                                            stroke-linecap: round;
+                                                            animation: spinner_YpZS 1.5s ease-in-out infinite
+                                                        }
+
+                                                        @keyframes spinner_zKoa {
+                                                            100% {
+                                                                transform: rotate(360deg)
+                                                            }
+                                                        }
+
+                                                        @keyframes spinner_YpZS {
+                                                            0% {
+                                                                stroke-dasharray: 0 150;
+                                                                stroke-dashoffset: 0
+                                                            }
+                                                            47.5% {
+                                                                stroke-dasharray: 42 150;
+                                                                stroke-dashoffset: -16
+                                                            }
+                                                            95%, 100% {
+                                                                stroke-dasharray: 42 150;
+                                                                stroke-dashoffset: -59
+                                                            }
+                                                        }</style><g class="spinner_V8m1"><circle cx="12" cy="12" r="9.5" fill="none" stroke-width="3"></circle></g></svg>
                                             </span>
                                         </span>
                                     </button>
@@ -59,7 +88,7 @@
 
                                     <button
                                         wire:click="increment({{ $ticketType->id }})"
-                                        class="bg-gray-200 text-gray-800 hover:bg-gray-300 disabled:hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 dark:disabled:hover:bg-gray-700 font-bold py-2 px-4 rounded-r disabled:opacity-50  aspect-square h-10 flex items-center justify-center transition-[colors,opacity] duration-300 ease-in-out"                                        @disabled($disableIncrement)
+                                        class="bg-gray-200 text-gray-800 hover:bg-gray-300 disabled:hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 dark:disabled:hover:bg-gray-700 font-bold py-2 px-4 rounded-r disabled:opacity-50  aspect-square h-10 flex items-center justify-center transition-[colors,opacity] duration-300 ease-in-out" @disabled($disableIncrement)
                                         wire:loading.attr="disabled"
                                         wire:target="increment({{ $ticketType->id }})"
                                     >
@@ -68,7 +97,36 @@
                                                 +
                                             </span>
                                             <span wire:loading wire:target="increment({{ $ticketType->id }})">
-                                                <svg width="12" height="12" class="stroke-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><style>.spinner_V8m1{transform-origin:center;animation:spinner_zKoa 2s linear infinite}.spinner_V8m1 circle{stroke-linecap:round;animation:spinner_YpZS 1.5s ease-in-out infinite}@keyframes spinner_zKoa{100%{transform:rotate(360deg)}}@keyframes spinner_YpZS{0%{stroke-dasharray:0 150;stroke-dashoffset:0}47.5%{stroke-dasharray:42 150;stroke-dashoffset:-16}95%,100%{stroke-dasharray:42 150;stroke-dashoffset:-59}}</style><g class="spinner_V8m1"><circle cx="12" cy="12" r="9.5" fill="none" stroke-width="3"></circle></g></svg>
+                                                <svg width="12" height="12" class="stroke-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><style>.spinner_V8m1 {
+                                                            transform-origin: center;
+                                                            animation: spinner_zKoa 2s linear infinite
+                                                        }
+
+                                                        .spinner_V8m1 circle {
+                                                            stroke-linecap: round;
+                                                            animation: spinner_YpZS 1.5s ease-in-out infinite
+                                                        }
+
+                                                        @keyframes spinner_zKoa {
+                                                            100% {
+                                                                transform: rotate(360deg)
+                                                            }
+                                                        }
+
+                                                        @keyframes spinner_YpZS {
+                                                            0% {
+                                                                stroke-dasharray: 0 150;
+                                                                stroke-dashoffset: 0
+                                                            }
+                                                            47.5% {
+                                                                stroke-dasharray: 42 150;
+                                                                stroke-dashoffset: -16
+                                                            }
+                                                            95%, 100% {
+                                                                stroke-dasharray: 42 150;
+                                                                stroke-dashoffset: -59
+                                                            }
+                                                        }</style><g class="spinner_V8m1"><circle cx="12" cy="12" r="9.5" fill="none" stroke-width="3"></circle></g></svg>
                                             </span>
                                         </span>
                                     </button>
@@ -91,7 +149,7 @@
                              stroke-width="1.5" stroke="currentColor" class="w-12 h-12 relative">
                             <!-- Original Ticket Path -->
                             <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" />
+                                  d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z"/>
                             <!-- Red X (cross) -->
                             <line x1="3" y1="3" x2="21" y2="21" stroke="red" stroke-width="1.5" stroke-linecap="round"/>
                             <line x1="21" y1="3" x2="3" y2="21" stroke="red" stroke-width="1.5" stroke-linecap="round"/>
@@ -109,11 +167,11 @@
         <button
             class="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 transition-colors duration-300 ease-in-out rounded-lg shadow-lg overflow-hidden mb-8 w-full disabled:opacity-50 disabled:hover:bg-blue-500"
             wire:click="proceedToCheckout"
-            @disabled(array_filter($remainingQuantities, fn($t) => !empty($t->soldout)))
+            @disabled(array_reduce($remainingQuantities, fn($carry, $t) => $carry && $t->soldout, true))
         >
             <div class="p-4 flex gap-3 justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"/>
                 </svg>
                 <p>Go to Checkout</p>
             </div>
