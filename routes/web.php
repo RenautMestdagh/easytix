@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\ScanController;
@@ -59,9 +60,7 @@ Route::domain('{eventsubdomain}.{subdomain}.' . config('app.domain'))->middlewar
 });
 
 // Main domain routes
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // Main domain guest routes
 Route::middleware(['guest'])->group(function () {
