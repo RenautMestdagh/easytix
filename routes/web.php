@@ -75,9 +75,7 @@ Route::middleware(['guest', SubdomainOrganizationMiddleware::class])->group(func
 });
 
 // Main domain auth routes
-Route::middleware(['auth', 'verified', CheckPermissionMiddleware::class])
-    ->middleware(SubdomainOrganizationMiddleware::class) // Apply middleware here
-    ->group(function () {
+Route::middleware(['auth', 'verified', SubdomainOrganizationMiddleware::class, CheckPermissionMiddleware::class])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::redirect('settings', 'settings/profile');
