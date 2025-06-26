@@ -7,6 +7,7 @@ use App\Http\Controllers\ScanController;
 use App\Http\Controllers\TicketController;
 use App\Http\Middleware\CheckPermissionMiddleware;
 use App\Http\Middleware\SubdomainEventMiddleware;
+use App\Http\Middleware\SubdomainOrganizationMiddleware;
 use App\Livewire\Backend\DiscountCodes\CreateDiscountCode;
 use App\Livewire\Backend\DiscountCodes\EditDiscountCode;
 use App\Livewire\Backend\DiscountCodes\ShowDiscountCodes;
@@ -39,7 +40,9 @@ use Livewire\Volt\Volt;
 
 
 // Subdomain Routes
-Route::domain('{subdomain}.' . config('app.domain'))->group(function () {
+Route::domain('{subdomain}.' . config('app.domain'))
+    ->middleware(SubdomainOrganizationMiddleware::class) // Apply middleware here
+    ->group(function () {
     // Public routes for subdomain
     Route::get('/', [OrganizationController::class, 'show'])->name('organization.home');
 
@@ -72,7 +75,9 @@ Route::middleware(['guest'])->group(function () {
 });
 
 // Main domain auth routes
-Route::middleware(['auth', 'verified', CheckPermissionMiddleware::class])->group(function () {
+Route::middleware(['auth', 'verified', CheckPermissionMiddleware::class])
+    ->middleware(SubdomainOrganizationMiddleware::class) // Apply middleware here
+    ->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::redirect('settings', 'settings/profile');
