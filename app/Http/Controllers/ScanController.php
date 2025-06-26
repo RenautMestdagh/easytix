@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Event;
 use App\Models\Ticket;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
@@ -10,30 +11,47 @@ use Illuminate\Support\Facades\Log;
 class ScanController extends Controller
 {
     use AuthorizesRequests;
+
     public function show()
     {
-        return view('partials.show-scanner');
+        $events = Event::where('date', '>=', now()->format('Y-m-d')) // Only show upcoming/current events
+            ->orderBy('date')
+            ->get();
+
+        return view('partials.show-scanner', compact('events'));
     }
 
     public function scan(Request $request)
     {
         $validated = $request->validate([
             'ticket_code' => 'required|string|max:255',
+            'event_id' => [
+                'required',
+                'exists:events,id',
+                function ($attribute, $value, $fail) {
+                    if (session('organization_id') !== Event::findOrFail($value)->organization_id) {
+                        $fail('The event does not belong to your organization');
+                    }
+                },
+            ]
         ]);
 
         $ticket = Ticket::with(['ticketType.event.organization', 'ticketType', 'scannedByUser'])
             ->where('qr_code', $validated['ticket_code'])
+            ->whereHas('ticketType', function($query) use ($validated) {
+                $query->where('event_id', $validated['event_id']);
+            })
             ->first();
 
         if (!$ticket) {
             return response()->json([
                 'success' => false,
-                'message' => 'Ticket not found',
-                'ticket' => null // Add this for consistent response structure
+                'message' => 'Ticket not found for this event',
+                'ticket' => null
             ]);
         }
 
-
+        // Rest of your scan method remains the same...
         $response = [
             'success' => true,
             'ticket' => [
@@ -53,7 +71,6 @@ class ScanController extends Controller
             ]
         ];
 
-        // If not already scanned, mark as scanned
         if (!$ticket->scanned_at) {
             $retries = 0;
             $maxRetries = 3;
@@ -71,7 +88,6 @@ class ScanController extends Controller
                     if ($retries >= $maxRetries) {
                         Log::error('Failed to update scanned state for ticket after ' . $maxRetries . ' attempts: ' . $e->getMessage());
                     } else {
-                        // Wait a bit before retrying (e.g., 100ms)
                         usleep(100000);
                     }
                 }
