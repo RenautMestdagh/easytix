@@ -5,6 +5,7 @@ namespace App\Livewire\Backend\Organizations;
 use App\Http\Requests\Organization\UpdateOrganizationRequest;
 use App\Models\Organization;
 use App\Traits\FlashMessage;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -77,6 +78,10 @@ class EditOrganization extends Component
 
             redirect()->away($newUrl);
         }
+
+        // Update cache with new data
+        $updatedOrganization = $this->organization->fresh();
+        Cache::put('organization_subdomain_'.$updatedOrganization->subdomain, $updatedOrganization, now()->addHours(6));
     }
 
 

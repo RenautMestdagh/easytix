@@ -6,6 +6,7 @@ use App\Http\Requests\Organization\StoreOrganizationRequest;
 use App\Models\Organization;
 use App\Models\User;
 use App\Traits\FlashMessage;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -73,6 +74,7 @@ class CreateOrganization extends Component
                 'name' => $validatedData['organizationName'],
                 'subdomain' => $validatedData['organizationSubdomain'],
             ]);
+            Cache::put('organization_subdomain_'.$organization->subdomain, $organization, now()->addHours(6));
 
             // Create the user
             $user = User::create([
