@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Models\Ticket;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
-use App\Models\Ticket;
 
 class ScanController extends Controller
 {
@@ -21,7 +20,9 @@ class ScanController extends Controller
             'ticket_code' => 'required|string|max:255',
         ]);
 
-        $ticket = Ticket::where('qr_code', $validated['ticket_code'])->first();
+        $ticket = Ticket::with(['ticketType.event.organization', 'ticketType', 'scannedByUser'])
+            ->where('qr_code', $validated['ticket_code'])
+            ->first();
 
         if (!$ticket) {
             return response()->json([
@@ -30,27 +31,33 @@ class ScanController extends Controller
             ], 404);
         }
 
-        // Check if ticket is already scanned
-        if ($ticket->scanned_at) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Ticket already scanned',
-                'scanned_at' => $ticket->scanned_at,
-                'scanned_by' => User::find($ticket->scanned_by)->name
+        $response = [
+            'success' => true,
+            'ticket' => [
+                'code' => $ticket->qr_code,
+                'event' => [
+                    'name' => $ticket->ticketType->event->name,
+                    'date' => $ticket->ticketType->event->date->format('M j, Y g:i A'),
+                    'organization' => $ticket->ticketType->event->organization->name,
+                ],
+                'ticket_type' => [
+                    'name' => $ticket->ticketType->name,
+                    'price' => '$' . number_format($ticket->ticketType->price_cents / 100, 2),
+                ],
+                'scanned' => (bool)$ticket->scanned_at,
+                'scanned_at' => $ticket->scanned_at?->format('M j, Y g:i A'),
+                'scanned_by' => $ticket->scannedByUser?->name,
+            ]
+        ];
+
+        // If not already scanned, mark as scanned
+        if (!$ticket->scanned_at) {
+            $ticket->update([
+                'scanned_at' => now(),
+                'scanned_by' => auth()->id()
             ]);
         }
 
-        // Process the scan
-        $ticket->update([
-            'is_scanned' => true,
-            'scanned_at' => now(),
-            'scanned_by' => auth()->id()
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'ticket' => $ticket,
-            'scanned_by' => auth()->user()->name
-        ]);
+        return response()->json($response);
     }
 }

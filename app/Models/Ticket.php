@@ -24,6 +24,10 @@ class Ticket extends Model
         'scanned_by',
     ];
 
+    protected $casts = [
+        'scanned_at' => 'datetime',
+    ];
+
     protected static function booted(): void
     {
         static::creating(function (Ticket $ticket) {
@@ -52,5 +56,10 @@ class Ticket extends Model
     public function ticketType()
     {
         return $this->belongsTo(TicketType::class,  'ticket_type_id');
+    }
+
+    public function scannedByUser()
+    {
+        return $this->belongsTo(User::class, 'scanned_by');
     }
 }

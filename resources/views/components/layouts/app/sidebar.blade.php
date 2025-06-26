@@ -47,7 +47,6 @@
                     icon="camera"
                     :href="route('scanner.show')"
                     :current="request()->routeIs('scanner.show')"
-                    wire:navigate
                 >
                     {{ __('Scan tickets') }}
                 </flux:navlist.item>
