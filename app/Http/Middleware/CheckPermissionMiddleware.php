@@ -50,7 +50,8 @@ class CheckPermissionMiddleware
 
         // Default mapping pattern: {resource}.{action} => {resource}.{action}
         $resource = $parts[0];
-        if ($resource === 'dashboard' || $resource === 'settings') {
+        // Exclude routes that don't require a permission
+        if (in_array($resource, ['dashboard', 'settings', 'verification'])) {
             return null;
         }
 
