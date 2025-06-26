@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\ScanController;
@@ -29,10 +28,12 @@ use App\Livewire\Backend\Users\ShowUsers;
 use App\Livewire\Backend\Venues\CreateVenue;
 use App\Livewire\Backend\Venues\EditVenue;
 use App\Livewire\Backend\Venues\ShowVenues;
-use App\Livewire\Frontend\EventCheckout;
-use App\Livewire\Frontend\EventPayment;
-use App\Livewire\Frontend\EventTicketsSelector;
-use App\Livewire\Frontend\PaymentConfirmation;
+use App\Livewire\Frontend\HelpCenter;
+use App\Livewire\Frontend\HomeController;
+use App\Livewire\Frontend\OrderCheckout;
+use App\Livewire\Frontend\OrderConfirmation;
+use App\Livewire\Frontend\OrderPayment;
+use App\Livewire\Frontend\TicketSelection;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
@@ -42,10 +43,10 @@ Route::domain('{subdomain}.' . config('app.domain'))->group(function () {
     // Public routes for subdomain
     Route::get('/', [OrganizationController::class, 'show'])->name('organization.home');
 
-    Route::get('/event/{eventuniqid}', EventTicketsSelector::class)->name('event.tickets');
-    Route::get('/event/{eventuniqid}/checkout', EventCheckout::class)->name('event.checkout');
-    Route::get('/event/{eventuniqid}/payment', EventPayment::class)->name('event.payment');
-    Route::get('/event/{eventuniqid}/payment/confirmation', PaymentConfirmation::class)->name('stripe.payment.confirmation');
+    Route::get('/event/{eventuniqid}', TicketSelection::class)->name('event.tickets');
+    Route::get('/event/{eventuniqid}/checkout', OrderCheckout::class)->name('event.checkout');
+    Route::get('/event/{eventuniqid}/payment', OrderPayment::class)->name('event.payment');
+    Route::get('/event/{eventuniqid}/payment/confirmation', OrderConfirmation::class)->name('stripe.payment.confirmation');
 
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     Route::get('/tickets/{order}/download', [TicketController::class, 'download'])->name('tickets.download');
@@ -53,14 +54,15 @@ Route::domain('{subdomain}.' . config('app.domain'))->group(function () {
 
 
 Route::domain('{eventsubdomain}.{subdomain}.' . config('app.domain'))->middleware([SubdomainEventMiddleware::class,])->group(function () {
-    Route::get('/', EventTicketsSelector::class)->name('event.subdomain.tickets');
-    Route::get('/checkout', EventCheckout::class)->name('event.subdomain.checkout');
-    Route::get('/payment', EventPayment::class)->name('event.subdomain.payment');
-    Route::get('/payment/confirmation', PaymentConfirmation::class)->name('stripe.subdomain.payment.confirmation');
+    Route::get('/', TicketSelection::class)->name('event.subdomain.tickets');
+    Route::get('/checkout', OrderCheckout::class)->name('event.subdomain.checkout');
+    Route::get('/payment', OrderPayment::class)->name('event.subdomain.payment');
+    Route::get('/payment/confirmation', OrderConfirmation::class)->name('stripe.subdomain.payment.confirmation');
 });
 
 // Main domain routes
-Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/', HomeController::class)->name('home');
+Route::get('/help', HelpCenter::class)->name('help');
 
 // Main domain guest routes
 Route::middleware(['guest'])->group(function () {

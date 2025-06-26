@@ -5,18 +5,19 @@ namespace App\Livewire\Frontend;
 use App\Http\Requests\CustomerRequest;
 use App\Models\Customer;
 use App\Models\DiscountCode;
+use App\Traits\EventCheckout;
 use App\Traits\FlashMessage;
-use App\Traits\NavigateEventCheckout;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Stripe\StripeClient;
 
-class EventCheckout extends Component
+class OrderCheckout extends Component
 {
-    use NavigateEventCheckout, FlashMessage;
+    use EventCheckout, FlashMessage;
 
     // Customer fields
+    public $customer_id;
     public $first_name;
     public $last_name;
     public $email;
@@ -43,6 +44,7 @@ class EventCheckout extends Component
         if ($this->tempOrder->customer_id) {
             $customer = Customer::withoutGlobalScopes()->find($this->tempOrder->customer_id);
             if ($customer) {
+                $this->customer_id = $customer->id;
                 $this->first_name = $customer->first_name;
                 $this->last_name = $customer->last_name;
                 $this->email = $customer->email;
@@ -107,6 +109,7 @@ class EventCheckout extends Component
             $customer->update($validatedData);
         } else {
             $customer = Customer::create($validatedData);
+            $this->customer_id = $customer->id;
             $this->tempOrder->customer_id = $customer->id;
             $this->tempOrder->save();
         }

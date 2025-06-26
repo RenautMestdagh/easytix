@@ -29,7 +29,11 @@
 
         <!-- Buy Tickets Button - moves to bottom on mobile -->
         <div class="flex-shrink-0 md:ml-4 md:self-center w-full md:w-auto mt-4 md:mt-0">
-            @if($event->publishedTicketTypes->count() > 0)
+            @if($event->sold_out)
+            <span class="inline-flex justify-center items-center px-6 py-3 md:py-2 w-full md:w-auto bg-black dark:bg-white text-white dark:text-black text-sm font-medium rounded-lg opacity-50 hover:cursor-default">
+                    Sold Out
+                </span>
+            @elseif($event->publishedTicketTypes->count() > 0)
                 <a
                     href="{{ $event->ticket_url }}"
                     target="_blank"

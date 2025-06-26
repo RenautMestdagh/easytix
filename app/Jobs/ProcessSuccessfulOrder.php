@@ -71,7 +71,7 @@ class ProcessSuccessfulOrder implements ShouldQueue
                 $this->tempOrder->delete();
 
                 // Send confirmation email
-                Mail::to($order->customer->email)->send(new OrderConfirmationMail($order->fresh()->load('tickets')));
+                Mail::to($order->customer->email)->queue(new OrderConfirmationMail($order->fresh()->load('tickets')));
             });
 
         } catch (\Exception $e) {

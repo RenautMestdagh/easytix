@@ -18,13 +18,23 @@ class SubdomainOrganizationMiddleware
     {
         // eg. null or kompass
         $subdomain = $request->route('subdomain');
+
         // eg. easytix.test
         $rootdomain = config('app.domain');
+
+        // livewire call
         if(!$subdomain) {
             // eg. easytix.test or test456.easytix.test
             $host = $request->getHost();
+
             // try to replace '.easytix.test' with ''. $subdomain becomes easytix.test or test456
             $subdomain = str_replace('.' . $rootdomain, '', $host);
+
+            // if there is a subsubdomain (event.organization)
+            if(strpos($subdomain, '.') !== false && $subdomain !== $rootdomain) {
+                $subdomain = explode('.', $subdomain);
+                $subdomain = end($subdomain);
+            }
         }
 
         $organization = null;

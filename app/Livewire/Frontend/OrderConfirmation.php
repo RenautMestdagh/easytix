@@ -6,16 +6,15 @@ use App\Jobs\CheckTemporaryOrderStatus;
 use App\Jobs\ProcessSuccessfulOrder;
 use App\Models\Event;
 use App\Models\TemporaryOrder;
+use App\Traits\EventCheckout;
 use App\Traits\FlashMessage;
-use App\Traits\NavigateEventCheckout;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 use Livewire\Component;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
-class PaymentConfirmation extends Component
+class OrderConfirmation extends Component
 {
-    use NavigateEventCheckout, FlashMessage;
+    use EventCheckout, FlashMessage;
 
     public $redirect_status;
 
@@ -31,7 +30,7 @@ class PaymentConfirmation extends Component
         }
 
 
-        $this->toShowPartial = Str::afterLast(request()->route()->getName(), '.');
+        $this->toShowPartial = 'order-confirmation';
         $this->event = Event::with(['ticketTypes' => function($query) {
             $query->where('is_published', true)->with('tickets');
         }])

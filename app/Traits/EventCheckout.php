@@ -7,7 +7,7 @@ use App\Models\TemporaryOrder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
-trait NavigateEventCheckout
+trait EventCheckout
 {
     public Event $event;
     public $tempOrderId;
@@ -25,7 +25,12 @@ trait NavigateEventCheckout
     public function initialize()
     {
         if(empty($this->event)) {
-            $this->toShowPartial = Str::afterLast(request()->route()->getName(), '.');
+            $this->toShowPartial = match(Str::afterLast(request()->route()->getName(), '.')) {
+                'tickets' => 'ticket-selection',
+                'checkout' => 'order-checkout',
+                'payment' => 'order-payment',
+                default => Str::afterLast(request()->route()->getName(), '.'),
+            };
             $this->event = Event::withCount(['tickets', 'reserved_tickets'])
                 ->with(['ticketTypes' => function($query) {
                     $query->published()->with('tickets');
@@ -172,7 +177,8 @@ trait NavigateEventCheckout
             $this->discountAmount = 0;
         }
 
-        $this->orderTotal = max(0, $subtotal - $this->discountAmount);
+        $orderTotal = $subtotal - $this->discountAmount;
+        $this->orderTotal = round($orderTotal);
     }
 
     protected function loadAppliedDiscounts()

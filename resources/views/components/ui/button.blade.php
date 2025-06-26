@@ -1,26 +1,43 @@
 @props([
     'type' => 'button', // 'button', 'submit', 'reset'
-    'variant' => 'primary', // 'primary', 'secondary', 'danger', 'purple', 'indigo'
+    'variant' => 'primary', // 'primary', 'secondary', 'danger', 'purple', 'indigo', 'success'
     'disabled' => false,
     'href' => null // Optional href for link-style buttons
 ])
 
 @php
-    $base = 'inline-flex items-center justify-center px-6 py-3 rounded-xl transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 hover:cursor-pointer disabled:opacity-50';
+    // Base classes
+    $baseClasses = 'inline-flex items-center justify-center px-6 py-3 rounded-xl transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2';
 
-    $variants = [
-        'primary' => 'text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-500',
-        'secondary' => 'bg-gray-200 text-gray-700 dark:text-gray-700 hover:bg-gray-300 focus:ring-gray-400',
-        'danger' => 'text-white bg-red-600 hover:bg-red-700 focus:ring-red-500',
-        'purple' => 'text-white bg-purple-600 hover:bg-purple-700 focus:ring-purple-500',
-        'indigo' => 'text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500',
-        'success' => 'text-white bg-green-600 hover:bg-green-700 focus:ring-green-500',
+    // Variant-specific classes
+    $variantClasses = [
+        'primary' => 'text-white bg-blue-600 dark:bg-blue-500 focus:ring-blue-500',
+        'secondary' => 'bg-gray-200 text-gray-700 dark:text-gray-700 focus:ring-gray-400',
+        'danger' => 'text-white bg-red-600 dark:bg-red-500 focus:ring-red-500',
+        'purple' => 'text-white bg-purple-600 dark:bg-purple-500 focus:ring-purple-500',
+        'indigo' => 'text-white bg-indigo-600 dark:bg-indigo-500 focus:ring-indigo-500',
+        'success' => 'text-white bg-green-600 dark:bg-green-500 focus:ring-green-500',
     ];
 
-    $classes = $base . ' ' . ($variants[$variant] ?? $variants['primary']);
+    // Hover classes (only added when not disabled)
+    $hoverClasses = [
+        'primary' => 'hover:bg-blue-700 dark:hover:bg-blue-600',
+        'secondary' => 'hover:bg-gray-300 dark:hover:bg-gray-300',
+        'danger' => 'hover:bg-red-700 dark:hover:bg-red-600',
+        'purple' => 'hover:bg-purple-700 dark:hover:bg-purple-600',
+        'indigo' => 'hover:bg-indigo-700 dark:hover:bg-indigo-600',
+        'success' => 'hover:bg-green-700 dark:hover:bg-green-600',
+    ];
 
-    if ($disabled) {
-        $classes .= ' opacity-50';
+    // Disabled classes
+    $disabledClasses = 'opacity-50';
+
+    // Combine classes
+    $classes = $baseClasses . ' ' . ($variantClasses[$variant] ?? $variantClasses['primary']);
+    if (!$disabled) {
+        $classes .= ' hover:cursor-pointer ' . ($hoverClasses[$variant] ?? $hoverClasses['primary']);
+    } else {
+        $classes .= ' ' . $disabledClasses;
     }
 @endphp
 
@@ -35,7 +52,7 @@
     <button
         type="{{ $type }}"
         {{ $attributes->merge(['class' => $classes]) }}
-        @if ($disabled) disabled @endif
+        @disabled($disabled)
     >
         {{ $slot }}
     </button>

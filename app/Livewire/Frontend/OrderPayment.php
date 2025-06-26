@@ -2,15 +2,15 @@
 
 namespace App\Livewire\Frontend;
 
+use App\Traits\EventCheckout;
 use App\Traits\FlashMessage;
-use App\Traits\NavigateEventCheckout;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Stripe\StripeClient;
 
-class EventPayment extends Component
+class OrderPayment extends Component
 {
-    use NavigateEventCheckout, FlashMessage;
+    use EventCheckout, FlashMessage;
 
     public $stripeClientSecret;
 

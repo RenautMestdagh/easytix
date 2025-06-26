@@ -21,22 +21,29 @@ class TicketTypeFactory extends Factory
         $event = Event::inRandomOrder()->first();
         $date = $event->date;
 
-        // Decide which publishing strategy to use (30% chance for publish_at, 70% for publish_with_event)
-        $usePublishAt = $this->faker->boolean(30);
-
-        // Set publish_at only if we're using publish_at strategy
-        $publishAt = $usePublishAt ? $this->faker->dateTimeBetween('-1 week', $date) : null;
-
-        // Set publish_with_event to true only if we're not using publish_at
-        $publishWithEvent = !$usePublishAt;
-
-        // Determine published status
         $isPublished = false;
-        if ($usePublishAt) {
-            $isPublished = $publishAt <= new \DateTime();
+        $publishAt = null;
+        $publishWithEvent = null;
+        if($event->is_published) {
+            $isPublished = true;
+            $publishAt = null;
+            $publishWithEvent = false;
         } else {
-            $isPublished = $event->is_published;
+            $isPublished = false;
+
+            // Decide which publishing strategy to use (publish_at or publish_with_event)
+            $usePublishAt = $this->faker->boolean();
+
+            // Set publish_at only if we're using publish_at strategy
+            $publishAt = $usePublishAt ? $this->faker->dateTimeBetween('-1 week', $date) : null;
+            
+            if ($usePublishAt)
+                $isPublished = $publishAt <= new \DateTime();
+
+            // Set publish_with_event to true only if we're not using publish_at
+            $publishWithEvent = !$usePublishAt;
         }
+
 
         return [
             'event_id' => $event->id,

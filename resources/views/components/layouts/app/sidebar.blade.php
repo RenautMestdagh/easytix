@@ -80,7 +80,6 @@
                     icon="banknotes"
                     :href="route('revenue.index')"
                     :current="request()->routeIs('revenue.*')"
-                    wire:navigate
                 >
                     {{ __('Revenue') }}
                 </flux:navlist.item>

@@ -3,7 +3,7 @@
     <div class="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-lg p-8">
         <h1 class="mb-6 text-2xl">Personal Information</h1>
         <p class="text-sm text-gray-500 mb-4">* Indicates required field</p>
-        <form>
+        <form id="infoForm" wire:submit.prevent="proceedToPayment">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <x-ui.forms.group label="First name *" for="first_name" error="first_name">
                     <x-ui.forms.input
@@ -170,17 +170,19 @@
 
         <div>
             <x-ui.button
+                type="submit"
+                form="infoForm"
                 variant="primary"
-                wire:click="proceedToPayment"
                 wire:loading.attr="disabled"
                 wire:target="proceedToPayment"
+                :disabled="!$customer_id"
             >
-                        <span wire:loading.remove wire:target="proceedToPayment">
-                            Proceed to payment
-                        </span>
+                <span wire:loading.remove wire:target="proceedToPayment">
+                    Proceed to payment
+                </span>
                 <span wire:loading wire:target="proceedToPayment">
-                            Processing...
-                        </span>
+                    Processing...
+                </span>
             </x-ui.button>
         </div>
     </div>

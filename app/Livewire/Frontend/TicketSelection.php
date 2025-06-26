@@ -4,16 +4,16 @@ namespace App\Livewire\Frontend;
 
 use App\Models\Ticket;
 use App\Models\TicketType;
+use App\Traits\EventCheckout;
 use App\Traits\FlashMessage;
-use App\Traits\NavigateEventCheckout;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
-class EventTicketsSelector extends Component
+class TicketSelection extends Component
 {
-    use NavigateEventCheckout, FlashMessage;
+    use EventCheckout, FlashMessage;
 
     public $remainingQuantities = [];
 
@@ -110,11 +110,10 @@ class EventTicketsSelector extends Component
             $availability['soldout'] |= ($sold >= $ticketTypeMaxQuantity);
         }
 
-        if($this->event->tickets_count >= $this->event->capacity && !$this->quantities[$ticketType->id]->amount)
+        if($this->event->capacity && $this->event->tickets_count >= $this->event->capacity && !$this->quantities[$ticketType->id]->amount)
             $availability['soldout'] = true;
 
         return (object) $availability;
-
     }
 
     public function increment($ticketTypeId)
