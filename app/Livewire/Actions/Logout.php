@@ -25,6 +25,7 @@ class Logout
         // Important to keep current temporary orders on logout
         foreach ($sessionData as $key => $value) {
             // Skip authentication-related session keys
+
             if ($this->isAuthSessionKey($key)) {
                 continue;
             }
@@ -32,6 +33,7 @@ class Logout
             // Restore the session value
             Session::put($key, $value);
         }
+        session()->forget('original_user_id');
 
         return redirect('/');
     }
