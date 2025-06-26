@@ -3,11 +3,13 @@
 namespace App\Observers;
 
 use App\Models\User;
+use App\Notifications\TenancyVerifyEmail;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Notifications\Notifiable;
 
 class UserObserver
 {
+    use Notifiable;
     /**
      * Handle the User "creating" event.
      */
@@ -85,7 +87,7 @@ class UserObserver
     protected function sendVerificationEmail(User $user)
     {
         if (! $user->hasVerifiedEmail()) {
-            $user->sendEmailVerificationNotification();
+            $user->notify(new TenancyVerifyEmail());
         }
     }
 }

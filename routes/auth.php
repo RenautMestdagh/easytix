@@ -5,9 +5,11 @@ use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
 
-Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
-    ->middleware(['signed', 'throttle:6,1'])
-    ->name('verification.verify');
+Route::domain('{subdomain?}.' . config('app.domain'))->group(function () {
+    Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
+        ->middleware(['auth', 'signed', 'throttle:6,1'])
+        ->name('verification.verify');
+});
 
 Route::middleware('auth')->group(function () {
     Volt::route('verify-email', 'auth.verify-email')

@@ -7,7 +7,6 @@ use App\Http\Controllers\ScanController;
 use App\Http\Controllers\TicketController;
 use App\Http\Middleware\CheckPermissionMiddleware;
 use App\Http\Middleware\SubdomainEventMiddleware;
-use App\Http\Middleware\SubdomainOrganizationMiddleware;
 use App\Livewire\Backend\DiscountCodes\CreateDiscountCode;
 use App\Livewire\Backend\DiscountCodes\EditDiscountCode;
 use App\Livewire\Backend\DiscountCodes\ShowDiscountCodes;
@@ -40,9 +39,7 @@ use Livewire\Volt\Volt;
 
 
 // Subdomain Routes
-Route::domain('{subdomain}.' . config('app.domain'))
-    ->middleware(SubdomainOrganizationMiddleware::class) // Apply middleware here
-    ->group(function () {
+Route::domain('{subdomain}.' . config('app.domain'))->group(function () {
     // Public routes for subdomain
     Route::get('/', [OrganizationController::class, 'show'])->name('organization.home');
 
@@ -68,14 +65,14 @@ Route::get('/', HomeController::class)->name('home');
 Route::get('/help', HelpCenter::class)->name('help');
 
 // Main domain guest routes
-Route::middleware(['guest', SubdomainOrganizationMiddleware::class])->group(function () {
+Route::middleware(['guest'])->group(function () {
     Volt::route('login', 'auth.login')->name('login');
     Volt::route('forgot-password', 'auth.forgot-password')->name('password.request');
     Volt::route('reset-password/{token}', 'auth.reset-password')->name('password.reset');
 });
 
 // Main domain auth routes
-Route::middleware(['auth', 'verified', SubdomainOrganizationMiddleware::class, CheckPermissionMiddleware::class])->group(function () {
+Route::middleware(['auth', 'verified', CheckPermissionMiddleware::class])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::redirect('settings', 'settings/profile');

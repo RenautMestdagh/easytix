@@ -22,7 +22,7 @@ class SubdomainOrganizationMiddleware
         // eg. easytix.test
         $rootdomain = config('app.domain');
 
-        // livewire call
+        // backend or livewire call
         if(!$subdomain) {
             // eg. easytix.test or test456.easytix.test
             $host = $request->getHost();
