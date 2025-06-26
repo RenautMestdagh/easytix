@@ -86,6 +86,17 @@ function initializeScanner(Html5QrcodeClass) {
         })
             .then(response => response.json())
             .then(data => {
+                if (!data.success) {
+                    scanStatus.textContent = "❌ Ticket Not Found";
+                    scanStatus.className = "px-4 py-2 bg-red-100 text-red-800 rounded font-semibold";
+
+                    // Vibrate for error feedback
+                    if (window.navigator.vibrate) {
+                        window.navigator.vibrate([100,50,100,50,100]);
+                    }
+                    return;
+                }
+
                 const ticket = data.ticket;
                 let ticketInfo = `
             <div id="ticket-details" class="mt-4 p-4 rounded-lg border ${ticket.scanned ? 'bg-yellow-50 border-yellow-200' : 'bg-green-50 border-green-200'}">
