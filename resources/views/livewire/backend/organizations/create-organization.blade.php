@@ -94,6 +94,7 @@
                                     placeholder="admin@example.com"
                                     error="{{ $errors->has('userEmail') }}"
                                     class="rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500"
+                                    autocomplete="email"
                                 />
                             </x-ui.forms.group>
 

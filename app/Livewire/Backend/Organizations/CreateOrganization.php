@@ -23,7 +23,7 @@ class CreateOrganization extends Component
     public $userName = '';
     public $userEmail = '';
     public $userPassword = '';
-    public $userPasswordConfirmation = '';
+    public $userPassword_confirmation = '';
 
     public function mount()
     {
