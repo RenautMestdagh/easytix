@@ -68,7 +68,7 @@ Route::get('/', HomeController::class)->name('home');
 Route::get('/help', HelpCenter::class)->name('help');
 
 // Main domain guest routes
-Route::middleware(['guest'])->group(function () {
+Route::middleware(['guest', SubdomainOrganizationMiddleware::class])->group(function () {
     Volt::route('login', 'auth.login')->name('login');
     Volt::route('forgot-password', 'auth.forgot-password')->name('password.request');
     Volt::route('reset-password/{token}', 'auth.reset-password')->name('password.reset');
