@@ -21,10 +21,6 @@
             <x-ui.flash-message/>
         @endif
 
-        @error('event_image_validation')
-            @dd("{$message}")
-        @enderror
-
         <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm rounded-xl transition-colors duration-300 ease-in-out hover:border-indigo-800">
             <div class="p-8">
                 <form wire:submit.prevent="update">
