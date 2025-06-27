@@ -45,8 +45,10 @@ return Application::configure(basePath: dirname(__DIR__))
             }
 
             // Default to home for guest or unknown routes
-            $subdomain = $request->route('subdomain');
-            $url = $request->getScheme() . '://' . ($subdomain ? $subdomain . '.' : '') . config('app.domain');
+//            $subdomain = $request->route('subdomain');
+//            $subsubdomain = $request->route('subsubdomain');
+//            $url = $request->getScheme() . '://' . ($subdomain ? $subdomain . '.' : '') . config('app.domain');
+            $url = $request->getScheme() . '://' . config('app.domain');
             return redirect()->to($url);
         });
 
@@ -64,8 +66,7 @@ return Application::configure(basePath: dirname(__DIR__))
             if (auth()->check()) {
                 return new RedirectResponse('/dashboard');
             } else {
-                $subdomain = $request->route('subdomain');
-                $url = $request->getScheme() . '://' . ($subdomain ? $subdomain . '.' : '') . config('app.domain');
+                $url = $request->getScheme() . '://' . config('app.domain');
                 return redirect()->to($url);
             }
         });
@@ -80,8 +81,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 'url' => $request->url(),
             ]);
 
-            $subdomain = $request->route('subdomain');
-            $url = $request->getScheme() . '://' . ($subdomain ? $subdomain . '.' : '') . config('app.domain');
+            $url = $request->getScheme() . '://' . config('app.domain');
             return redirect()->to($url);
         });
     })
